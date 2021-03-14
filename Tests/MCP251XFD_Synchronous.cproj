@@ -1,0 +1,1413 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>7.0</ProjectVersion>
+    <ToolchainName>com.Atmel.ARMGCC.C</ToolchainName>
+    <ProjectGuid>dce6c7e3-ee26-4d79-826b-08594b9ad897</ProjectGuid>
+    <avrdevice>ATSAMV71Q21B</avrdevice>
+    <avrdeviceseries>samv71</avrdeviceseries>
+    <OutputType>Executable</OutputType>
+    <Language>C</Language>
+    <OutputFileName>$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
+    <AssemblyName>MCP251XFD_Synchronous</AssemblyName>
+    <Name>MCP251XFD_Synchronous</Name>
+    <RootNamespace>MCP251XFD_Synchronous</RootNamespace>
+    <ToolchainFlavour>Native</ToolchainFlavour>
+    <KeepTimersRunning>true</KeepTimersRunning>
+    <OverrideVtor>false</OverrideVtor>
+    <CacheFlash>true</CacheFlash>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
+    <UncachedRange />
+    <preserveEEPROM>true</preserveEEPROM>
+    <OverrideVtorValue>exception_table</OverrideVtorValue>
+    <BootSegment>2</BootSegment>
+    <ResetRule>0</ResetRule>
+    <eraseonlaunchrule>1</eraseonlaunchrule>
+    <EraseKey />
+    <AsfFrameworkConfig>
+      <framework-data>
+        <options>
+          <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="common.services.basic.clock" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="common.services.basic.gpio" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="common.services.ioport" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="common.utils.stdio.stdio_serial" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="sam.drivers.mcan" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="sam.drivers.mpu" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="sam.drivers.pio" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="sam.drivers.pmc" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="sam.drivers.spi" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="sam.drivers.wdt" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="sam.drivers.xdmac" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="common.applications.user_application" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="sam.utils.cmsis.samv71.source.template" value="Add" config="" content-id="Atmel.ASF" />
+        </options>
+        <configurations>
+          <configuration key="config.compiler.iarewarm.debugger.driver" value="cmsisdap" default="cmsisdap" content-id="Atmel.ASF" />
+          <configuration key="config.compiler.armgcc.fpu_used" value="yes" default="yes" content-id="Atmel.ASF" />
+          <configuration key="config.compiler.armgcc.printf" value="iprintf" default="iprintf" content-id="Atmel.ASF" />
+          <configuration key="config.compiler.armgcc.scanf" value="iscanf" default="iscanf" content-id="Atmel.ASF" />
+          <configuration key="config.sam.pio.pio_handler" value="yes" default="yes" content-id="Atmel.ASF" />
+        </configurations>
+        <files>
+          <file path="src/main.c" framework="" version="" source="common/applications/user_application/main.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/config/conf_board.h" framework="" version="" source="common/applications/user_application/samv71q21_samv71_xplained_ultra/config/conf_board.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/config/conf_clock.h" framework="" version="" source="common/applications/user_application/samv71q21_samv71_xplained_ultra/config/conf_clock.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/boards/board.h" framework="" version="" source="common/boards/board.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/clock/genclk.h" framework="" version="" source="common/services/clock/genclk.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/clock/osc.h" framework="" version="" source="common/services/clock/osc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/clock/pll.h" framework="" version="" source="common/services/clock/pll.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/clock/samv71/genclk.h" framework="" version="" source="common/services/clock/samv71/genclk.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/clock/samv71/osc.h" framework="" version="" source="common/services/clock/samv71/osc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/clock/samv71/pll.h" framework="" version="" source="common/services/clock/samv71/pll.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/clock/samv71/sysclk.c" framework="" version="" source="common/services/clock/samv71/sysclk.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/clock/samv71/sysclk.h" framework="" version="" source="common/services/clock/samv71/sysclk.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/clock/sysclk.h" framework="" version="" source="common/services/clock/sysclk.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/gpio/gpio.h" framework="" version="" source="common/services/gpio/gpio.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/gpio/sam_gpio/sam_gpio.h" framework="" version="" source="common/services/gpio/sam_gpio/sam_gpio.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/ioport/ioport.h" framework="" version="" source="common/services/ioport/ioport.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/ioport/sam/ioport_pio.h" framework="" version="" source="common/services/ioport/sam/ioport_pio.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/interrupt.h" framework="" version="" source="common/utils/interrupt.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/interrupt/interrupt_sam_nvic.c" framework="" version="" source="common/utils/interrupt/interrupt_sam_nvic.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/interrupt/interrupt_sam_nvic.h" framework="" version="" source="common/utils/interrupt/interrupt_sam_nvic.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/parts.h" framework="" version="" source="common/utils/parts.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/boards/samv71_xplained_ultra/init.c" framework="" version="" source="sam/boards/samv71_xplained_ultra/init.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/boards/samv71_xplained_ultra/led.h" framework="" version="" source="sam/boards/samv71_xplained_ultra/led.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/boards/samv71_xplained_ultra/samv71_xplained_ultra.h" framework="" version="" source="sam/boards/samv71_xplained_ultra/samv71_xplained_ultra.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/mpu/mpu.c" framework="" version="" source="sam/drivers/mpu/mpu.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/mpu/mpu.h" framework="" version="" source="sam/drivers/mpu/mpu.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/pio/pio.c" framework="" version="" source="sam/drivers/pio/pio.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/pio/pio.h" framework="" version="" source="sam/drivers/pio/pio.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/pio/pio_handler.c" framework="" version="" source="sam/drivers/pio/pio_handler.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/pio/pio_handler.h" framework="" version="" source="sam/drivers/pio/pio_handler.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/pmc/pmc.c" framework="" version="" source="sam/drivers/pmc/pmc.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/pmc/pmc.h" framework="" version="" source="sam/drivers/pmc/pmc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/pmc/sleep.c" framework="" version="" source="sam/drivers/pmc/sleep.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/pmc/sleep.h" framework="" version="" source="sam/drivers/pmc/sleep.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/acc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/acc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/aes.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/aes.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/afec.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/afec.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/chipid.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/chipid.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/dacc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/dacc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/efc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/efc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/gmac.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/gmac.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/gpbr.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/gpbr.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/hsmci.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/hsmci.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/i2sc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/i2sc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/icm.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/icm.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/isi.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/isi.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/matrix.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/matrix.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/mcan.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/mcan.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/mlb.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/mlb.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/pio.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/pio.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/pmc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/pmc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/pwm.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/pwm.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/qspi.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/qspi.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/rstc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/rstc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/rswdt.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/rswdt.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/rtc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/rtc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/rtt.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/rtt.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/sdramc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/sdramc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/smc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/smc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/spi.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/spi.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/ssc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/ssc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/supc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/supc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/tc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/tc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/trng.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/trng.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/twihs.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/twihs.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/uart.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/uart.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/usart.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/usart.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/usbhs.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/usbhs.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/utmi.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/utmi.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/wdt.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/wdt.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/component/xdmac.h" framework="" version="" source="sam/utils/cmsis/samv71/include/component/xdmac.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/acc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/acc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/aes.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/aes.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/afec0.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/afec0.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/afec1.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/afec1.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/chipid.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/chipid.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/dacc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/dacc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/efc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/efc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/gmac.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/gmac.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/gpbr.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/gpbr.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/hsmci.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/hsmci.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/i2sc0.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/i2sc0.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/i2sc1.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/i2sc1.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/icm.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/icm.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/isi.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/isi.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/matrix.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/matrix.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/mcan0.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/mcan0.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/mcan1.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/mcan1.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/mlb.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/mlb.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/pioa.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/pioa.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/piob.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/piob.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/pioc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/pioc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/piod.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/piod.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/pioe.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/pioe.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/pmc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/pmc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/pwm0.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/pwm0.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/pwm1.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/pwm1.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/qspi.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/qspi.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/rstc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/rstc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/rswdt.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/rswdt.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/rtc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/rtc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/rtt.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/rtt.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/sdramc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/sdramc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/smc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/smc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/spi0.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/spi0.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/spi1.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/spi1.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/ssc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/ssc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/supc.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/supc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/tc0.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/tc0.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/tc1.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/tc1.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/tc2.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/tc2.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/tc3.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/tc3.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/trng.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/trng.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/twihs0.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/twihs0.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/twihs1.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/twihs1.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/twihs2.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/twihs2.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/uart0.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/uart0.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/uart1.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/uart1.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/uart2.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/uart2.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/uart3.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/uart3.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/uart4.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/uart4.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/usart0.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/usart0.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/usart1.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/usart1.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/usart2.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/usart2.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/usbhs.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/usbhs.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/utmi.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/utmi.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/wdt.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/wdt.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/instance/xdmac.h" framework="" version="" source="sam/utils/cmsis/samv71/include/instance/xdmac.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71j19.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71j19.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71j19b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71j19b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71j20.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71j20.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71j20b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71j20b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71j21.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71j21.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71j21b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71j21b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71n19.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71n19.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71n19b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71n19b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71n20.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71n20.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71n20b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71n20b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71n21.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71n21.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71n21b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71n21b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71q19.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71q19.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71q19b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71q19b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71q20.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71q20.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71q20b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71q20b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71q21.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71q21.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/pio/samv71q21b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/pio/samv71q21b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71j19.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71j19.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71j19b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71j19b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71j20.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71j20.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71j20b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71j20b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71j21.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71j21.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71j21b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71j21b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71n19.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71n19.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71n19b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71n19b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71n20.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71n20.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71n20b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71n20b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71n21.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71n21.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71n21b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71n21b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71q19.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71q19.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71q19b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71q19b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71q20.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71q20.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71q20b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71q20b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71q21.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71q21.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/include/samv71q21b.h" framework="" version="" source="sam/utils/cmsis/samv71/include/samv71q21b.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/source/templates/gcc/startup_samv71.c" framework="" version="" source="sam/utils/cmsis/samv71/source/templates/gcc/startup_samv71.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/source/templates/system_samv71.c" framework="" version="" source="sam/utils/cmsis/samv71/source/templates/system_samv71.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/cmsis/samv71/source/templates/system_samv71.h" framework="" version="" source="sam/utils/cmsis/samv71/source/templates/system_samv71.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/compiler.h" framework="" version="" source="sam/utils/compiler.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/fpu/fpu.h" framework="" version="" source="sam/utils/fpu/fpu.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/header_files/io.h" framework="" version="" source="sam/utils/header_files/io.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/linker_scripts/samv71/samv71q21/gcc/flash.ld" framework="" version="" source="sam/utils/linker_scripts/samv71/samv71q21/gcc/flash.ld" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/make/Makefile.sam.in" framework="" version="" source="sam/utils/make/Makefile.sam.in" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/preprocessor/mrepeat.h" framework="" version="" source="sam/utils/preprocessor/mrepeat.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/preprocessor/preprocessor.h" framework="" version="" source="sam/utils/preprocessor/preprocessor.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/preprocessor/stringz.h" framework="" version="" source="sam/utils/preprocessor/stringz.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/preprocessor/tpaste.h" framework="" version="" source="sam/utils/preprocessor/tpaste.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/status_codes.h" framework="" version="" source="sam/utils/status_codes.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/utils/syscalls/gcc/syscalls.c" framework="" version="" source="sam/utils/syscalls/gcc/syscalls.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/ATMEL-disclaimer.txt" framework="" version="" source="thirdparty/CMSIS/ATMEL-disclaimer.txt" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/CMSIS_END_USER_LICENCE_AGREEMENT.pdf" framework="" version="" source="thirdparty/CMSIS/CMSIS_END_USER_LICENCE_AGREEMENT.pdf" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Include/arm_common_tables.h" framework="" version="" source="thirdparty/CMSIS/Include/arm_common_tables.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Include/arm_const_structs.h" framework="" version="" source="thirdparty/CMSIS/Include/arm_const_structs.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Include/arm_math.h" framework="" version="" source="thirdparty/CMSIS/Include/arm_math.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Include/cmsis_compiler.h" framework="" version="" source="thirdparty/CMSIS/Include/cmsis_compiler.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Include/cmsis_gcc.h" framework="" version="" source="thirdparty/CMSIS/Include/cmsis_gcc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Include/cmsis_version.h" framework="" version="" source="thirdparty/CMSIS/Include/cmsis_version.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Include/core_cm7.h" framework="" version="" source="thirdparty/CMSIS/Include/core_cm7.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Include/mpu_armv7.h" framework="" version="" source="thirdparty/CMSIS/Include/mpu_armv7.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Lib/GCC/libarm_cortexM7lfsp_math.a" framework="" version="" source="thirdparty/CMSIS/Lib/GCC/libarm_cortexM7lfsp_math.a" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Lib/GCC/libarm_cortexM7lfsp_math_softfp.a" framework="" version="" source="thirdparty/CMSIS/Lib/GCC/libarm_cortexM7lfsp_math_softfp.a" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/Lib/license.txt" framework="" version="" source="thirdparty/CMSIS/Lib/license.txt" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/README.txt" framework="" version="" source="thirdparty/CMSIS/README.txt" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/thirdparty/CMSIS/license.txt" framework="" version="" source="thirdparty/CMSIS/license.txt" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/mcan/mcan.c" framework="" version="3.47.0" source="sam\drivers\mcan\mcan.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/mcan/mcan.h" framework="" version="3.47.0" source="sam\drivers\mcan\mcan.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/Config/conf_mcan.h" framework="" version="3.47.0" source="sam\drivers\mcan\module_config\conf_mcan.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/uart/uart.c" framework="" version="3.47.0" source="sam\drivers\uart\uart.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/uart/uart.h" framework="" version="3.47.0" source="sam\drivers\uart\uart.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/xdmac/xdmac.c" framework="" version="3.47.0" source="sam\drivers\xdmac\xdmac.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/xdmac/xdmac.h" framework="" version="3.47.0" source="sam\drivers\xdmac\xdmac.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/serial/usart_serial.c" framework="" version="3.47.0" source="common\services\serial\usart_serial.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/serial/sam_uart/uart_serial.h" framework="" version="3.47.0" source="common\services\serial\sam_uart\uart_serial.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/serial/serial.h" framework="" version="3.47.0" source="common\services\serial\serial.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/Config/conf_uart_serial.h" framework="" version="3.47.0" source="common\services\serial\sam_uart\module_config\conf_uart_serial.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/stdio/read.c" framework="" version="3.47.0" source="common\utils\stdio\read.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/stdio/write.c" framework="" version="3.47.0" source="common\utils\stdio\write.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/stdio/stdio_serial/stdio_serial.h" framework="" version="3.47.0" source="common\utils\stdio\stdio_serial\stdio_serial.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/spi/spi.c" framework="" version="3.47.0" source="sam\drivers\spi\spi.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/spi/spi.h" framework="" version="3.47.0" source="sam\drivers\spi\spi.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/usart/usart.c" framework="" version="3.47.0" source="sam\drivers\usart\usart.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/usart/usart.h" framework="" version="3.47.0" source="sam\drivers\usart\usart.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/wdt/wdt.c" framework="" version="3.47.0" source="sam\drivers\wdt\wdt.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam/drivers/wdt/wdt.h" framework="" version="3.47.0" source="sam\drivers\wdt\wdt.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/delay/sam/cycle_counter.c" framework="" version="3.47.0" source="common\services\delay\sam\cycle_counter.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/delay/sam/cycle_counter.h" framework="" version="3.47.0" source="common\services\delay\sam\cycle_counter.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/delay/delay.h" framework="" version="3.47.0" source="common\services\delay\delay.h" changed="False" content-id="Atmel.ASF" />
+        </files>
+        <documentation help="http://asf.atmel.com/docs/3.47.0/common.applications.user_application.samv71_xplained_ultra/html/index.html" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.47.0" />
+        </dependencies>
+        <project id="common.applications.user_application.samv71_xplained_ultra" value="Add" config="" content-id="Atmel.ASF" />
+        <board id="board.samv71_xplained_ultra" value="Add" config="" content-id="Atmel.ASF" />
+      </framework-data>
+    </AsfFrameworkConfig>
+    <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
+    <avrtoolserialnumber>ATML2407131800002575</avrtoolserialnumber>
+    <avrdeviceexpectedsignature>0xA1220E00</avrdeviceexpectedsignature>
+    <avrtoolinterface>SWD</avrtoolinterface>
+    <com_atmel_avrdbg_tool_edbg>
+      <ToolOptions>
+        <InterfaceProperties>
+          <SwdClock>2000000</SwdClock>
+        </InterfaceProperties>
+        <InterfaceName>SWD</InterfaceName>
+      </ToolOptions>
+      <ToolType>com.atmel.avrdbg.tool.edbg</ToolType>
+      <ToolNumber>ATML2407131800002575</ToolNumber>
+      <ToolName>EDBG</ToolName>
+    </com_atmel_avrdbg_tool_edbg>
+    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
+    <com_atmel_avrdbg_tool_samice>
+      <ToolOptions>
+        <InterfaceProperties>
+          <SwdClock>2000000</SwdClock>
+        </InterfaceProperties>
+        <InterfaceName>SWD</InterfaceName>
+      </ToolOptions>
+      <ToolType>com.atmel.avrdbg.tool.samice</ToolType>
+      <ToolNumber>50123182</ToolNumber>
+      <ToolName>J-Link</ToolName>
+    </com_atmel_avrdbg_tool_samice>
+    <custom>
+      <ToolOptions xmlns="">
+        <InterfaceProperties>
+        </InterfaceProperties>
+        <InterfaceName>SWD</InterfaceName>
+      </ToolOptions>
+      <ToolType xmlns="">custom</ToolType>
+      <ToolNumber xmlns="">
+      </ToolNumber>
+      <ToolName xmlns="">Custom Programming Tool</ToolName>
+    </custom>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <ToolchainSettings>
+      <ArmGcc>
+  <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+  <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+  <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+  <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+  <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+  <armgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>NDEBUG</Value>
+      <Value>__SAMV71Q21B__</Value>
+      <Value>scanf=iscanf</Value>
+      <Value>ARM_MATH_CM7=true</Value>
+      <Value>printf=iprintf</Value>
+      <Value>BOARD=SAMV71_XPLAINED_ULTRA</Value>
+    </ListValues>
+  </armgcc.compiler.symbols.DefSymbols>
+  <armgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/sam/utils</Value>
+      <Value>../src/ASF/sam/utils/header_files</Value>
+      <Value>../src/ASF/sam/utils/preprocessor</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Include</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>../src/ASF/sam/utils/fpu</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/source/templates</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/include</Value>
+      <Value>../src/ASF/sam/boards/samv71_xplained_ultra</Value>
+      <Value>../src/ASF/sam/boards</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/sam/drivers/pmc</Value>
+      <Value>../src/ASF/common/services/gpio</Value>
+      <Value>../src/ASF/sam/drivers/pio</Value>
+      <Value>../src/ASF/sam/drivers/mpu</Value>
+      <Value>../src</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/sam/drivers/mcan</Value>
+      <Value>../src/ASF/sam/drivers/uart</Value>
+      <Value>../src/ASF/sam/drivers/xdmac</Value>
+      <Value>../src/ASF/common/services/serial/sam_uart</Value>
+      <Value>../src/ASF/common/services/serial</Value>
+      <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+      <Value>../src/ASF/sam/drivers/spi</Value>
+      <Value>../src/ASF/sam/drivers/usart</Value>
+      <Value>../src/ASF/sam/drivers/wdt</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+    </ListValues>
+  </armgcc.compiler.directories.IncludePaths>
+  <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
+  <armgcc.compiler.optimization.OtherFlags>-fdata-sections</armgcc.compiler.optimization.OtherFlags>
+  <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+  <armgcc.compiler.miscellaneous.OtherFlags>-pipe -fno-strict-aliasing -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -std=gnu99 -ffunction-sections -fdata-sections -Wchar-subscripts -Wcomment -Wformat=2 -Wimplicit-int -Wmain -Wparentheses -Wsequence-point -Wreturn-type -Wswitch -Wtrigraphs -Wunused -Wuninitialized -Wunknown-pragmas -Wfloat-equal -Wundef -Wshadow -Wbad-function-cast -Wwrite-strings -Wsign-compare -Waggregate-return -Wmissing-declarations -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations -Wpacked -Wredundant-decls -Wnested-externs -Wlong-long -Wunreachable-code -Wcast-align --param max-inline-insns-single=500 -mfloat-abi=softfp -mfpu=fpv5-sp-d16</armgcc.compiler.miscellaneous.OtherFlags>
+  <armgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libarm_cortexM7lfsp_math_softfp</Value>
+      <Value>libm</Value>
+    </ListValues>
+  </armgcc.linker.libraries.Libraries>
+  <armgcc.linker.libraries.LibrarySearchPaths>
+    <ListValues>
+      <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+    </ListValues>
+  </armgcc.linker.libraries.LibrarySearchPaths>
+  <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+  <armgcc.linker.miscellaneous.LinkerFlags>-Wl,--entry=Reset_Handler -Wl,--cref -mthumb -T../src/ASF/sam/utils/linker_scripts/samv71/samv71q21/gcc/flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
+  <armgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/sam/utils</Value>
+      <Value>../src/ASF/sam/utils/header_files</Value>
+      <Value>../src/ASF/sam/utils/preprocessor</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Include</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>../src/ASF/sam/utils/fpu</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/source/templates</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/include</Value>
+      <Value>../src/ASF/sam/boards/samv71_xplained_ultra</Value>
+      <Value>../src/ASF/sam/boards</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/sam/drivers/pmc</Value>
+      <Value>../src/ASF/common/services/gpio</Value>
+      <Value>../src/ASF/sam/drivers/pio</Value>
+      <Value>../src/ASF/sam/drivers/mpu</Value>
+      <Value>../src</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/sam/drivers/mcan</Value>
+      <Value>../src/ASF/sam/drivers/uart</Value>
+      <Value>../src/ASF/sam/drivers/xdmac</Value>
+      <Value>../src/ASF/common/services/serial/sam_uart</Value>
+      <Value>../src/ASF/common/services/serial</Value>
+      <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+      <Value>../src/ASF/sam/drivers/spi</Value>
+      <Value>../src/ASF/sam/drivers/usart</Value>
+      <Value>../src/ASF/sam/drivers/wdt</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+    </ListValues>
+  </armgcc.assembler.general.IncludePaths>
+  <armgcc.preprocessingassembler.general.AssemblerFlags>-DARM_MATH_CM7=true -DBOARD=SAMV71_XPLAINED_ULTRA -D__SAMV71Q21B__ -Dprintf=iprintf -Dscanf=iscanf</armgcc.preprocessingassembler.general.AssemblerFlags>
+  <armgcc.preprocessingassembler.general.IncludePaths>
+    <ListValues>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/sam/utils</Value>
+      <Value>../src/ASF/sam/utils/header_files</Value>
+      <Value>../src/ASF/sam/utils/preprocessor</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Include</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>../src/ASF/sam/utils/fpu</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/source/templates</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/include</Value>
+      <Value>../src/ASF/sam/boards/samv71_xplained_ultra</Value>
+      <Value>../src/ASF/sam/boards</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/sam/drivers/pmc</Value>
+      <Value>../src/ASF/common/services/gpio</Value>
+      <Value>../src/ASF/sam/drivers/pio</Value>
+      <Value>../src/ASF/sam/drivers/mpu</Value>
+      <Value>../src</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/sam/drivers/mcan</Value>
+      <Value>../src/ASF/sam/drivers/uart</Value>
+      <Value>../src/ASF/sam/drivers/xdmac</Value>
+      <Value>../src/ASF/common/services/serial/sam_uart</Value>
+      <Value>../src/ASF/common/services/serial</Value>
+      <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+      <Value>../src/ASF/sam/drivers/spi</Value>
+      <Value>../src/ASF/sam/drivers/usart</Value>
+      <Value>../src/ASF/sam/drivers/wdt</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+    </ListValues>
+  </armgcc.preprocessingassembler.general.IncludePaths>
+</ArmGcc>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ToolchainSettings>
+      <ArmGcc>
+  <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+  <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+  <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+  <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+  <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+  <armgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>__SAMV71Q21B__</Value>
+      <Value>scanf=iscanf</Value>
+      <Value>ARM_MATH_CM7=true</Value>
+      <Value>printf=iprintf</Value>
+      <Value>BOARD=SAMV71_XPLAINED_ULTRA</Value>
+      <Value>USE_ERRORS_STRING</Value>
+    </ListValues>
+  </armgcc.compiler.symbols.DefSymbols>
+  <armgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/sam/utils</Value>
+      <Value>../src/ASF/sam/utils/header_files</Value>
+      <Value>../src/ASF/sam/utils/preprocessor</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Include</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>../src/ASF/sam/utils/fpu</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/source/templates</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/include</Value>
+      <Value>../src/ASF/sam/boards/samv71_xplained_ultra</Value>
+      <Value>../src/ASF/sam/boards</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/sam/drivers/pmc</Value>
+      <Value>../src/ASF/common/services/gpio</Value>
+      <Value>../src/ASF/sam/drivers/pio</Value>
+      <Value>../src/ASF/sam/drivers/mpu</Value>
+      <Value>../src</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/sam/drivers/mcan</Value>
+      <Value>../src/ASF/sam/drivers/uart</Value>
+      <Value>../src/ASF/sam/drivers/xdmac</Value>
+      <Value>../src/ASF/common/services/serial/sam_uart</Value>
+      <Value>../src/ASF/common/services/serial</Value>
+      <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+      <Value>../src/ASF/sam/drivers/spi</Value>
+      <Value>../src/ASF/sam/drivers/usart</Value>
+      <Value>../src/Interface</Value>
+      <Value>../src/ASF/sam/drivers/wdt</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+      <Value>../../CRC</Value>
+      <Value>../..</Value>
+    </ListValues>
+  </armgcc.compiler.directories.IncludePaths>
+  <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
+  <armgcc.compiler.optimization.OtherFlags>-fdata-sections</armgcc.compiler.optimization.OtherFlags>
+  <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
+  <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+  <armgcc.compiler.miscellaneous.OtherFlags>-pipe -fno-strict-aliasing -Winline -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -std=gnu99 -ffunction-sections -fdata-sections -Wchar-subscripts -Wcomment -Wformat=2 -Wimplicit-int -Wmain -Wparentheses -Wsequence-point -Wreturn-type -Wswitch -Wtrigraphs -Wunused -Wuninitialized -Wunknown-pragmas -Wfloat-equal -Wundef -Wshadow -Wbad-function-cast -Wwrite-strings -Wsign-compare -Waggregate-return -Wmissing-declarations -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations -Wpacked -Wredundant-decls -Wnested-externs -Wlong-long -Wunreachable-code -Wcast-align --param max-inline-insns-single=500 -mfloat-abi=softfp -mfpu=fpv5-sp-d16</armgcc.compiler.miscellaneous.OtherFlags>
+  <armgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libarm_cortexM7lfsp_math_softfp</Value>
+      <Value>libm</Value>
+    </ListValues>
+  </armgcc.linker.libraries.Libraries>
+  <armgcc.linker.libraries.LibrarySearchPaths>
+    <ListValues>
+      <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+    </ListValues>
+  </armgcc.linker.libraries.LibrarySearchPaths>
+  <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+  <armgcc.linker.memorysettings.ExternalRAM />
+  <armgcc.linker.miscellaneous.LinkerFlags>-Wl,--entry=Reset_Handler -Wl,--cref -mthumb -T../src/ASF/sam/utils/linker_scripts/samv71/samv71q21/gcc/flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
+  <armgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/sam/utils</Value>
+      <Value>../src/ASF/sam/utils/header_files</Value>
+      <Value>../src/ASF/sam/utils/preprocessor</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Include</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>../src/ASF/sam/utils/fpu</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/source/templates</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/include</Value>
+      <Value>../src/ASF/sam/boards/samv71_xplained_ultra</Value>
+      <Value>../src/ASF/sam/boards</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/sam/drivers/pmc</Value>
+      <Value>../src/ASF/common/services/gpio</Value>
+      <Value>../src/ASF/sam/drivers/pio</Value>
+      <Value>../src/ASF/sam/drivers/mpu</Value>
+      <Value>../src</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/sam/drivers/mcan</Value>
+      <Value>../src/ASF/sam/drivers/uart</Value>
+      <Value>../src/ASF/sam/drivers/xdmac</Value>
+      <Value>../src/ASF/common/services/serial/sam_uart</Value>
+      <Value>../src/ASF/common/services/serial</Value>
+      <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+      <Value>../src/ASF/sam/drivers/spi</Value>
+      <Value>../src/ASF/sam/drivers/usart</Value>
+      <Value>../src/ASF/sam/drivers/wdt</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+    </ListValues>
+  </armgcc.assembler.general.IncludePaths>
+  <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
+  <armgcc.preprocessingassembler.general.AssemblerFlags>-DARM_MATH_CM7=true -DBOARD=SAMV71_XPLAINED_ULTRA -D__SAMV71Q21B__ -Dprintf=iprintf -Dscanf=iscanf</armgcc.preprocessingassembler.general.AssemblerFlags>
+  <armgcc.preprocessingassembler.general.IncludePaths>
+    <ListValues>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/sam/utils</Value>
+      <Value>../src/ASF/sam/utils/header_files</Value>
+      <Value>../src/ASF/sam/utils/preprocessor</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Include</Value>
+      <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>../src/ASF/sam/utils/fpu</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/source/templates</Value>
+      <Value>../src/ASF/sam/utils/cmsis/samv71/include</Value>
+      <Value>../src/ASF/sam/boards/samv71_xplained_ultra</Value>
+      <Value>../src/ASF/sam/boards</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/sam/drivers/pmc</Value>
+      <Value>../src/ASF/common/services/gpio</Value>
+      <Value>../src/ASF/sam/drivers/pio</Value>
+      <Value>../src/ASF/sam/drivers/mpu</Value>
+      <Value>../src</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/sam/drivers/mcan</Value>
+      <Value>../src/ASF/sam/drivers/uart</Value>
+      <Value>../src/ASF/sam/drivers/xdmac</Value>
+      <Value>../src/ASF/common/services/serial/sam_uart</Value>
+      <Value>../src/ASF/common/services/serial</Value>
+      <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+      <Value>../src/ASF/sam/drivers/spi</Value>
+      <Value>../src/ASF/sam/drivers/usart</Value>
+      <Value>../src/ASF/sam/drivers/wdt</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+    </ListValues>
+  </armgcc.preprocessingassembler.general.IncludePaths>
+  <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
+</ArmGcc>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
+    <Folder Include="src\ASF\" />
+    <Folder Include="src\ASF\common\" />
+    <Folder Include="src\ASF\common\boards\" />
+    <Folder Include="src\ASF\common\services\" />
+    <Folder Include="src\ASF\common\services\clock\" />
+    <Folder Include="src\ASF\common\services\clock\samv71\" />
+    <Folder Include="src\ASF\common\services\delay\" />
+    <Folder Include="src\ASF\common\services\delay\sam\" />
+    <Folder Include="src\ASF\common\services\gpio\" />
+    <Folder Include="src\ASF\common\services\gpio\sam_gpio\" />
+    <Folder Include="src\ASF\common\services\ioport\" />
+    <Folder Include="src\ASF\common\services\ioport\sam\" />
+    <Folder Include="src\ASF\common\services\serial\" />
+    <Folder Include="src\ASF\common\services\serial\sam_uart\" />
+    <Folder Include="src\ASF\common\utils\" />
+    <Folder Include="src\ASF\common\utils\interrupt\" />
+    <Folder Include="src\ASF\common\utils\stdio\" />
+    <Folder Include="src\ASF\common\utils\stdio\stdio_serial\" />
+    <Folder Include="src\ASF\sam\" />
+    <Folder Include="src\ASF\sam\boards\" />
+    <Folder Include="src\ASF\sam\boards\samv71_xplained_ultra\" />
+    <Folder Include="src\ASF\sam\drivers\" />
+    <Folder Include="src\ASF\sam\drivers\mcan\" />
+    <Folder Include="src\ASF\sam\drivers\mpu\" />
+    <Folder Include="src\ASF\sam\drivers\pio\" />
+    <Folder Include="src\ASF\sam\drivers\pmc\" />
+    <Folder Include="src\ASF\sam\drivers\spi\" />
+    <Folder Include="src\ASF\sam\drivers\uart\" />
+    <Folder Include="src\ASF\sam\drivers\usart\" />
+    <Folder Include="src\ASF\sam\drivers\wdt\" />
+    <Folder Include="src\ASF\sam\drivers\xdmac\" />
+    <Folder Include="src\ASF\sam\utils\" />
+    <Folder Include="src\ASF\sam\utils\cmsis\" />
+    <Folder Include="src\ASF\sam\utils\cmsis\samv71\" />
+    <Folder Include="src\ASF\sam\utils\cmsis\samv71\include\" />
+    <Folder Include="src\ASF\sam\utils\cmsis\samv71\include\component\" />
+    <Folder Include="src\ASF\sam\utils\cmsis\samv71\include\instance\" />
+    <Folder Include="src\ASF\sam\utils\cmsis\samv71\include\pio\" />
+    <Folder Include="src\ASF\sam\utils\cmsis\samv71\source\" />
+    <Folder Include="src\ASF\sam\utils\cmsis\samv71\source\templates\" />
+    <Folder Include="src\ASF\sam\utils\cmsis\samv71\source\templates\gcc\" />
+    <Folder Include="src\ASF\sam\utils\fpu\" />
+    <Folder Include="src\ASF\sam\utils\header_files\" />
+    <Folder Include="src\ASF\sam\utils\linker_scripts\" />
+    <Folder Include="src\ASF\sam\utils\linker_scripts\samv71\" />
+    <Folder Include="src\ASF\sam\utils\linker_scripts\samv71\samv71q21\" />
+    <Folder Include="src\ASF\sam\utils\linker_scripts\samv71\samv71q21\gcc\" />
+    <Folder Include="src\ASF\sam\utils\make\" />
+    <Folder Include="src\ASF\sam\utils\preprocessor\" />
+    <Folder Include="src\ASF\sam\utils\syscalls\" />
+    <Folder Include="src\ASF\sam\utils\syscalls\gcc\" />
+    <Folder Include="src\ASF\thirdparty\" />
+    <Folder Include="src\ASF\thirdparty\CMSIS\" />
+    <Folder Include="src\ASF\thirdparty\CMSIS\Include\" />
+    <Folder Include="src\ASF\thirdparty\CMSIS\Lib\" />
+    <Folder Include="src\ASF\thirdparty\CMSIS\Lib\GCC\" />
+    <Folder Include="src\Config" />
+    <Folder Include="src\Interface" />
+    <Folder Include="src\Driver" />
+    <Folder Include="src\Utils" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\ASF\common\services\delay\delay.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="..\CRC\CRC16_CMS.c">
+      <SubType>compile</SubType>
+      <Link>src\Utils\CRC16_CMS.c</Link>
+    </Compile>
+    <Compile Include="..\CRC\CRC16_CMS.h">
+      <SubType>compile</SubType>
+      <Link>src\Utils\CRC16_CMS.h</Link>
+    </Compile>
+    <Compile Include="..\CRC\CRC16_USB.c">
+      <SubType>compile</SubType>
+      <Link>src\Utils\CRC16_USB.c</Link>
+    </Compile>
+    <Compile Include="..\CRC\CRC16_USB.h">
+      <SubType>compile</SubType>
+      <Link>src\Utils\CRC16_USB.h</Link>
+    </Compile>
+    <Compile Include="..\CRC\CRC_CAN.c">
+      <SubType>compile</SubType>
+      <Link>src\Utils\CRC_CAN.c</Link>
+    </Compile>
+    <Compile Include="..\CRC\CRC_CAN.h">
+      <SubType>compile</SubType>
+      <Link>src\Utils\CRC_CAN.h</Link>
+    </Compile>
+    <Compile Include="..\MCP251XFD.c">
+      <SubType>compile</SubType>
+      <Link>src\Driver\MCP251XFD.c</Link>
+    </Compile>
+    <Compile Include="..\MCP251XFD.h">
+      <SubType>compile</SubType>
+      <Link>src\Driver\MCP251XFD.h</Link>
+    </Compile>
+    <Compile Include="src\ASF\common\services\delay\sam\cycle_counter.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\common\services\delay\sam\cycle_counter.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\common\utils\stdio\read.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\spi\spi.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\usart\usart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\wdt\wdt.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\CANEXTFunctions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\CANEXTFunctions.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Config\Conf_Console.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Console.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Console.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ErrorsDef.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\MCANFunctions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\MCANFunctions.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ShowDemoData.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ShowDemoData.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Interface\Console_V71Interface.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Interface\Console_V71Interface.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\sam\drivers\wdt\wdt.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\Config\Conf_MCP251XFD.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Interface\MCP251XFD_V71InterfaceSync.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Interface\MCP251XFD_V71InterfaceSync.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Main.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\sam\drivers\usart\usart.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\drivers\spi\spi.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\utils\stdio\stdio_serial\stdio_serial.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\common\utils\stdio\write.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\Config\conf_uart_serial.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\serial\serial.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\serial\sam_uart\uart_serial.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\common\services\serial\usart_serial.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\mcan\mcan.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\uart\uart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\xdmac\xdmac.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\sam\drivers\xdmac\xdmac.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\drivers\uart\uart.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\Config\conf_mcan.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\drivers\mcan\mcan.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\asf.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\Config\conf_clock.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\Config\conf_board.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\sdramc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71n21b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\spi1.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71q19.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\i2sc1.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\i2sc0.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\compiler.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\pwm.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71q19.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71j19b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\supc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71n19.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71q19b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\clock\pll.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\utmi.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\source\templates\system_samv71.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\clock\sysclk.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\trng.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\tc0.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\pioe.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71n21b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\drivers\pio\pio.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\isi.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\usart2.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71q20b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\rtc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\pio.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\linker_scripts\samv71\samv71q21\gcc\flash.ld">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\make\Makefile.sam.in">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\preprocessor\tpaste.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\clock\samv71\osc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\fpu\fpu.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71j19b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71j20.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\chipid.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\rtt.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\clock\samv71\pll.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\twihs1.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\acc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\ATMEL-disclaimer.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\CMSIS_END_USER_LICENCE_AGREEMENT.pdf">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Include\cmsis_compiler.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\utils\interrupt.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\supc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71j20b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\mcan.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\boards\samv71_xplained_ultra\led.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\gpio\sam_gpio\sam_gpio.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71j21.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\twihs.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71j21.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\gpbr.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\clock\osc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Include\arm_math.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71n21.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\aes.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\preprocessor\stringz.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\usart1.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Include\core_cm7.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\rtc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\spi.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\tc3.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71q21b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\aes.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\ssc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\dacc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\tc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\smc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71q20.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71j20.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\rtt.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\mlb.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71n20b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71n20.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\efc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\mcan1.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\mcan0.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\acc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\efc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\usart.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71n20.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71j21b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\ioport\sam\ioport_pio.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71q21b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Include\cmsis_gcc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Include\arm_common_tables.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Include\mpu_armv7.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\pmc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\drivers\pmc\pmc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\icm.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\uart1.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\uart0.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\uart3.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\uart2.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\uart4.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\clock\genclk.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\clock\samv71\sysclk.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\pwm0.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71q21.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71n19b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\gmac.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\utils\parts.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71q21.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71n21.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\rswdt.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\gmac.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\tc2.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\hsmci.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71j21b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\header_files\io.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\pioa.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\uart.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\sdramc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\utils\interrupt\interrupt_sam_nvic.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71n20b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71n19b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\drivers\pmc\sleep.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\xdmac.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\qspi.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\clock\samv71\genclk.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\wdt.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\pwm1.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\xdmac.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\trng.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71q20.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\smc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\usbhs.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\wdt.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\dacc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\drivers\pio\pio_handler.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\hsmci.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\piob.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\gpbr.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\chipid.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71q20b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\rstc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\boards\samv71_xplained_ultra\samv71_xplained_ultra.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71j19.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\matrix.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71j19.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\boards\board.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\common\services\clock\samv71\sysclk.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\common\services\ioport\ioport.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\mlb.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\tc1.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Include\arm_const_structs.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\twihs0.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\ssc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\samv71n19.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\rstc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\utmi.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71j20b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\afec1.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\afec0.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\preprocessor\mrepeat.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\rswdt.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\matrix.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\i2sc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\pmc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\pioc.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\spi0.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\isi.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\drivers\mpu\mpu.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Include\cmsis_version.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\qspi.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\afec.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\usbhs.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\preprocessor\preprocessor.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\services\gpio\gpio.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\common\utils\interrupt\interrupt_sam_nvic.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\boards\samv71_xplained_ultra\init.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\mpu\mpu.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\pio\pio.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\pio\pio_handler.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\pmc\pmc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\drivers\pmc\sleep.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\sam\utils\status_codes.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\component\icm.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\twihs2.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\pio\samv71q19b.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\piod.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam\utils\cmsis\samv71\include\instance\usart0.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\sam\utils\cmsis\samv71\source\templates\gcc\startup_samv71.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\utils\cmsis\samv71\source\templates\system_samv71.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam\utils\syscalls\gcc\syscalls.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Main_Synchronous.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\thirdparty\CMSIS\Lib\GCC\libarm_cortexM7lfsp_math.a">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Lib\GCC\libarm_cortexM7lfsp_math_softfp.a">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\Lib\license.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\thirdparty\CMSIS\README.txt">
+      <SubType>compile</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
+</Project>
