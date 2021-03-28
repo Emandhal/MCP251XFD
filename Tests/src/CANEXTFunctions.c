@@ -514,7 +514,6 @@ MCP251XFD_Filter MCP2517FD_Ext2_FilterList[MCP2517FD_EXT2_FILTER_COUNT] =
   { .Filter = MCP251XFD_FILTER10, .EnableFilter = true, .Match = MCP251XFD_MATCH_ONLY_EID, .AcceptanceID = 0x14000000, .AcceptanceMask = 0x1C000000, .PointTo = MCP251XFD_FIFO14, }, // 0x14000000..0x1C000000
   { .Filter = MCP251XFD_FILTER11, .EnableFilter = true, .Match = MCP251XFD_MATCH_ONLY_EID, .AcceptanceID = 0x18000000, .AcceptanceMask = 0x1C000000, .PointTo = MCP251XFD_FIFO15, }, // 0x18000000..0x1C000000
   { .Filter = MCP251XFD_FILTER12, .EnableFilter = true, .Match = MCP251XFD_MATCH_ONLY_EID, .AcceptanceID = 0x1C000000, .AcceptanceMask = 0x1C000000, .PointTo = MCP251XFD_FIFO16, }, // 0x1C000000..0x1C000000
-
 };
 
 

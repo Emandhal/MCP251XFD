@@ -7,7 +7,7 @@
                   The CRC16_USB polynomial is x^16 + x^15 + x^5 + 1 (0x8005)
                   Use RefIN and RefOUT, the initial value 0xFFFF
                   The result is XORed with 0xFFFF
-				  http://reveng.sourceforge.net/crc-catalogue/16.htm
+          http://reveng.sourceforge.net/crc-catalogue/16.htm
 
     History :
 *******************************************************************************/

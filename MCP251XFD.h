@@ -1,7 +1,7 @@
 /*******************************************************************************
  * @file    MCP251XFD.h
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.0
+ * @version 1.0.1
  * @date    15/04/2020
  * @brief   MCP251XFD driver
  *
@@ -32,6 +32,13 @@
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
+ *****************************************************************************/
+
+/* Revision history:
+ * 1.0.1    Simplify implementation of MCP251XFD_ConfigurePins(), MCP251XFD_SetGPIOPinsDirection(),
+              MCP251XFD_GetGPIOPinsInputLevel(), and MCP251XFD_SetGPIOPinsOutputLevel() functions
+ *          Correct MCP251XFD_EnterSleepMode() function's description
+ * 1.0.0    Release version
  *****************************************************************************/
 #ifndef MCP251XFD_H_INC
 #define MCP251XFD_H_INC
@@ -3468,7 +3475,7 @@ typedef eERRORRESULT (*MCP251XFD_SPIInit_Func)(void *pIntDev, uint8_t chipSelect
 typedef eERRORRESULT (*MCP251XFD_SPITransfer_Func)(void *pIntDev, uint8_t chipSelect, uint8_t *txData, uint8_t *rxData, size_t size);
 
 
-/*! @brief Function that give the current millisecond of the system to the driver
+/*! @brief Function that gives the current millisecond of the system to the driver
  *
  * This function will be called when the driver needs to get current millisecond
  * @return Returns the current millisecond of the system
@@ -3493,11 +3500,11 @@ struct MCP251XFD
   void *UserDriverData;                      //!< Optional, can be used to store driver data or NULL
 
   //--- Driver configuration ---
-  setMCP251XFD_DriverConfig DriverConfig;    //!< Driver configuration, by default it is DRIVER_NORMAL_USE. Configuration can be OR'ed
+  setMCP251XFD_DriverConfig DriverConfig;    //!< Driver configuration, by default it is MCP251XFD_DRIVER_NORMAL_USE. Configuration can be OR'ed
   TMCP251XFDDriverInternal InternalConfig;   //!< DO NOT USE OR CHANGE THIS VALUE, IT'S THE INTERNAL DRIVER CONFIGURATION
 
-  //--- IO configuration ---
-  uint8_t GPIOsOutState;                     //!< GPIOs pins output state (0 = set to '0' ; 1 = set to '1')
+  //--- GPIO configuration ---
+  uint8_t GPIOsOutState;                     //!< GPIOs pins output state (0 = set to '0' ; 1 = set to '1'). Used to speed up output change
 
   //--- Interface driver call functions ---
   uint8_t SPI_ChipSelect;                    //!< This is the Chip Select index that will be set at the call of a transfer
@@ -4255,7 +4262,7 @@ eERRORRESULT MCP251XFD_ConfigureSleepMode(MCP251XFD *pComp, bool useLowPowerMode
 
 /*! @brief Enter the MCP251XFD device in sleep mode
  *
- * This function asks for a mode change to CAN-FD but do not wait for its actual change because normally the device is in configuration mode and the change to CAN-FD mode will be instantaneous
+ * This function puts the device in sleep mode
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */

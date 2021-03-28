@@ -7,7 +7,7 @@
                   The CRC15-CAN polynomial is x^15 + x^14 + x^10 + x^8 + x^7 + x^4 + x^3 + 1 (0xC599)
                    - Do not use RefIN and RefOUT, the initial value 0x0000
                    - The result is XORed with 0x0000
-				           - http://reveng.sourceforge.net/crc-catalogue/1-15.htm#crc.cat-bits.15
+                   - http://reveng.sourceforge.net/crc-catalogue/1-15.htm#crc.cat-bits.15
                   The CRC17-CAN polynomial is x^17 + x^16 + x^14 + x^13 + x^11 + x^6 + x^4 + x^3 + x^1 + 1 (0x3685B)
                    - Do not use RefIN and RefOUT, the initial value 0x0000
                    - The result is XORed with 0x0000

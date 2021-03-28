@@ -86,6 +86,8 @@ extern "C" {
     X(ERR__NULL_BUFFER         ,      , "Null buffer parameter"                                 ) \
     X(ERR__TOO_MANY_BAD        ,      , "Too many bad things"                                   ) \
     X(ERR__TWO_BAD_SIDE_BY_SIDE,      , "Two bad things side by side"                           ) \
+    X(ERR__TRANSMIT_ERROR      ,      , "Transmit error"                                        ) \
+    X(ERR__RECEIVE_ERROR       ,      , "Receive error"                                         ) \
 /*  // Device mode                                                                              */\
     X(ERR__NOT_IN_SLEEP_MODE   , =  90, "Operation impossible in sleep mode"                    ) \
     X(ERR__ALREADY_IN_SLEEP    ,      , "Already in sleep mode"                                 ) \

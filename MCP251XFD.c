@@ -1,7 +1,7 @@
 /*******************************************************************************
- * @file    MCP251XFD.h
+ * @file    MCP251XFD.c
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.0
+ * @version 1.0.1
  * @date    15/04/2020
  * @brief   MCP251XFD driver
  *
@@ -83,7 +83,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   if ((pComp->DriverConfig & MCP251XFD_DRIVER_SAFE_RESET) == 0)
   {
     Error = pComp->fnSPI_Init(pComp->InterfaceDevice, pComp->SPI_ChipSelect, pComp->SPIClockSpeed);      // Initialize the SPI interface only in case of no safe reset (the interface will be initialized in the reset at a safe speed)
-    if (Error != ERR_OK) return Error;                                                                   // If there is an error while calling fnInterfaceInit() then return the error
+    if (Error != ERR_OK) return Error;                                                                   // If there is an error while calling fnSPI_Init() then return the error
   }
 
   //--- Reset -----------------------------------------------
@@ -926,9 +926,7 @@ eERRORRESULT MCP251XFD_ConfigurePins(MCP251XFD *pComp, eMCP251XFD_GPIO0Mode GPIO
   if (GPIO0PinMode == MCP251XFD_PIN_AS_XSTBY   ) Config |= MCP251XFD_SFR_IOCON8_XSTBYEN;                          // If the pin INT0/GPIO0/XSTBY is in XSTBY mode then enable XSTBY mode
   if (GPIO0PinMode == MCP251XFD_PIN_AS_GPIO0_IN) Config |= MCP251XFD_SFR_IOCON8_GPIO0_INPUT;                      // If the pin INT0/GPIO0/XSTBY is in GPIO input mode then set GPIO input mode
   if (GPIO1PinMode == MCP251XFD_PIN_AS_GPIO1_IN) Config |= MCP251XFD_SFR_IOCON8_GPIO1_INPUT;                      // If the pin INT1/GPIO1 is in GPIO input mode then set GPIO input mode
-  Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_IOCON_DIRECTION, Config);                                       // Write configuration to the IOCON register (first byte only)
-  if (Error != ERR_OK) return Error;                                                                              // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
-  return ERR_OK;
+  return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_IOCON_DIRECTION, Config);                                        // Write configuration to the IOCON register (first byte only)
 }
 
 
@@ -948,9 +946,7 @@ eERRORRESULT MCP251XFD_SetGPIOPinsDirection(MCP251XFD *pComp, uint8_t pinsDirect
   if (Error != ERR_OK) return Error;                                        // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   Config &= ~pinsChangeMask;                                                // Force change bits to 0
   Config |= (pinsDirection & pinsChangeMask);                               // Apply new direction only on changed pins
-  Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_IOCON_DIRECTION, Config); // Write new configuration to the IOCON register (first byte only)
-  if (Error != ERR_OK) return Error;                                        // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
-  return ERR_OK;
+  return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_IOCON_DIRECTION, Config);  // Write new configuration to the IOCON register (first byte only)
 }
 
 
@@ -962,9 +958,7 @@ eERRORRESULT MCP251XFD_SetGPIOPinsDirection(MCP251XFD *pComp, uint8_t pinsDirect
 //=============================================================================
 eERRORRESULT MCP251XFD_GetGPIOPinsInputLevel(MCP251XFD *pComp, uint8_t *pinsState)
 {
-  eERRORRESULT Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_IOCON_INLEVEL, pinsState); // Read actual state of the input pins in the IOCON register (third byte only)
-  if (Error != ERR_OK) return Error;                                                     // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
-  return ERR_OK;
+  return MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_IOCON_INLEVEL, pinsState); // Read actual state of the input pins in the IOCON register (third byte only)
 }
 
 
@@ -981,11 +975,9 @@ eERRORRESULT MCP251XFD_SetGPIOPinsOutputLevel(MCP251XFD *pComp, uint8_t pinsLeve
 #endif
 
   pinsChangeMask &= 0x3;
-  pComp->GPIOsOutState &= ~pinsChangeMask;                                                            // Force change bits to 0
-  pComp->GPIOsOutState |= (pinsLevel & pinsChangeMask);                                               // Apply new output level only on changed pins
-  eERRORRESULT Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_IOCON_OUTLEVEL, pComp->GPIOsOutState); // Write new configuration to the IOCON register (Second byte only)
-  if (Error != ERR_OK) return Error;                                                                  // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
-  return ERR_OK;
+  pComp->GPIOsOutState &= ~pinsChangeMask;                                              // Force change bits to 0
+  pComp->GPIOsOutState |= (pinsLevel & pinsChangeMask);                                 // Apply new output level only on changed pins
+  return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_IOCON_OUTLEVEL, pComp->GPIOsOutState); // Write new configuration to the IOCON register (Second byte only)
 }
 
 
