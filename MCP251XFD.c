@@ -207,7 +207,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
 
 
 //=============================================================================
-// RAM initialization of the MCP251XFD device
+// [STATIC] RAM initialization of the MCP251XFD device
 //=============================================================================
 eERRORRESULT MCP251XFD_InitRAM(MCP251XFD *pComp)
 {
@@ -253,7 +253,7 @@ eERRORRESULT MCP251XFD_GetDeviceID(MCP251XFD *pComp, eMCP251XFD_Devices* device,
 
 
 //**********************************************************************************************************************************************************
-// Read data from the MCP251XFD in normal mode (DO NOT USE DIRECTLY, use MCP251XFD_ReadData() instead)
+// [STATIC] Read data from the MCP251XFD in normal mode (DO NOT USE DIRECTLY, use MCP251XFD_ReadData() instead)
 eERRORRESULT __MCP251XFD_ReadDataNormal(MCP251XFD *pComp, uint16_t address, uint8_t* data, uint16_t size)
 {
 #ifdef CHECK_NULL_PARAM
@@ -305,7 +305,7 @@ eERRORRESULT __MCP251XFD_ReadDataNormal(MCP251XFD *pComp, uint16_t address, uint
   return ERR_OK;
 }
 
-// Read data from the MCP251XFD with CRC (DO NOT USE DIRECTLY, use MCP251XFD_ReadData() instead)
+// [STATIC] Read data from the MCP251XFD with CRC (DO NOT USE DIRECTLY, use MCP251XFD_ReadData() instead)
 eERRORRESULT __MCP251XFD_ReadDataCRC(MCP251XFD *pComp, uint16_t address, uint8_t* data, uint16_t size)
 {
 #ifdef CHECK_NULL_PARAM
@@ -431,7 +431,7 @@ eERRORRESULT MCP251XFD_ReadData(MCP251XFD *pComp, uint16_t address, uint8_t* dat
 
 
 //**********************************************************************************************************************************************************
-// Write data to the MCP251XFD in normal mode (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
+// [STATIC] Write data to the MCP251XFD in normal mode (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
 eERRORRESULT __MCP251XFD_WriteDataNormal(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size)
 {
 #ifdef CHECK_NULL_PARAM
@@ -473,7 +473,7 @@ eERRORRESULT __MCP251XFD_WriteDataNormal(MCP251XFD *pComp, uint16_t address, con
   return ERR_OK;
 }
 
-// Write data to the MCP251XFD with CRC (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
+// [STATIC] Write data to the MCP251XFD with CRC (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
 eERRORRESULT __MCP251XFD_WriteDataCRC(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size)
 {
 #ifdef CHECK_NULL_PARAM
@@ -553,7 +553,7 @@ eERRORRESULT __MCP251XFD_WriteDataCRC(MCP251XFD *pComp, uint16_t address, const 
   return ERR_OK;
 }
 
-// Safe Write data to the MCP251XFD (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
+// [STATIC] Safe Write data to the MCP251XFD (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
 eERRORRESULT __MCP251XFD_SafeWriteData(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size)
 {
 #ifdef CHECK_NULL_PARAM
@@ -928,8 +928,6 @@ eERRORRESULT MCP251XFD_ConfigurePins(MCP251XFD *pComp, eMCP251XFD_GPIO0Mode GPIO
   if (GPIO1PinMode == MCP251XFD_PIN_AS_GPIO1_IN) Config |= MCP251XFD_SFR_IOCON8_GPIO1_INPUT;                      // If the pin INT1/GPIO1 is in GPIO input mode then set GPIO input mode
   return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_IOCON_DIRECTION, Config);                                        // Write configuration to the IOCON register (first byte only)
 }
-
-
 
 
 

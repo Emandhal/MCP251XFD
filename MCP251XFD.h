@@ -3522,6 +3522,8 @@ struct MCP251XFD
   uint32_t SPIClockSpeed;                    //!< SPI nominal clock speed (max is SYSCLK div by 2)
 };
 
+//-----------------------------------------------------------------------------
+
 
 
 #define MCP251XFD_NO_CANFD       (    0 ) //!< This value specify that the driver will not calculate CAN-FD bitrate
