@@ -1003,7 +1003,8 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
   if (desiredDataBitrate    > MCP251XFD_DATABITRATE_MAX) return ERR__BAUDRATE_ERROR;
 
   //--- Declaration -----------------------------------------
-  uint32_t ErrorTQ, ErrorNTQ, ErrorDTQ, BestBRP, DTQbits = 0, BestNTQbits, BestDTQbits;
+  uint32_t ErrorTQ, ErrorNTQ, ErrorDTQ, DTQbits = 0;
+  uint32_t BestBRP = MCP251XFD_NBRP_MAX, BestNTQbits = MCP251XFD_NTQBIT_MAX, BestDTQbits = MCP251XFD_DTQBIT_MAX;
 
   //--- Calculate Nominal & Data Bit Time parameter ---------
   uint32_t MinErrorBR = UINT32_MAX;
@@ -1107,7 +1108,7 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
     //--- Calculate Transmitter Delay Compensation ----------
     if (desiredDataBitrate >= 1000000)                                // Enable Automatic TDC for DBR of 1Mbps and Higher
          pConf->TDCMOD = MCP251XFD_AUTO_MODE;                         // ** Set Automatic TDC measurement compensations for transmitter delay variations
-    else pConf->TDCMOD = MCP251XFD_MANUAL_MODE;                       // ** Set Manual; Don’t measure, use TDCV + TDCO from register
+    else pConf->TDCMOD = MCP251XFD_MANUAL_MODE;                       // ** Set Manual; Donï¿½t measure, use TDCV + TDCO from register
     uint32_t SSP = BestBRP * DTSEG1;                                  // In order to set the SSP to 80%, SSP = TDCO + TDCV (Equation 3-10 of MCP25XXFD Family Reference Manual). SSP is set to DBRP * (DPRSEG + DPHSEG1) = DBRP * DTSEG1
     uint32_t TDCO = SSP;
     if (TDCO > MCP251XFD_TDCO_MAX) TDCO = MCP251XFD_TDCO_MAX;         // Correct TDCO if > 63
@@ -1156,7 +1157,7 @@ eERRORRESULT MCP251XFD_CalculateBitrateStatistics(const uint32_t fsysclk, MCP251
   //--- Calculate bus length & Nominal Sample Point ---------
   float NTQ = ((((float)pConf->NBRP+1) * 1000000000.0f) / (float)fsysclk);             // Nominal Time Quanta = 1/FSYSCLK multiply by 1000000000 to get ns (Equation 3-3 of MCP25XXFD Family Reference Manual)
   uint32_t NPRSEG  = (pConf->NTSEG1+1) - (pConf->NTSEG2+1);                            // Here PHSEG2 (NTSEG2) should be equal to PHSEG1 so NPRSEG = NTSEG1 - NTSEG2 (Figure 3-2 of MCP25XXFD Family Reference Manual)
-  pConf->Stats->MaxBusLength = (uint32_t)((NTQ * (float)NPRSEG) / 10.0f - 51.0f);      // Formula is 2x(tTXD–RXD + (5*BusLen)/NTQ = NPRSEG => BusLen = (NTQ*NPRESG)/10-51 in meter (Equation 3-9 of MCP25XXFD Family Reference Manual)
+  pConf->Stats->MaxBusLength = (uint32_t)((NTQ * (float)NPRSEG) / 10.0f - 51.0f);      // Formula is 2x(tTXDï¿½RXD + (5*BusLen)/NTQ = NPRSEG => BusLen = (NTQ*NPRESG)/10-51 in meter (Equation 3-9 of MCP25XXFD Family Reference Manual)
   uint32_t NTQbits = (MCP251XFD_NSYNC + (pConf->NTSEG1+1) + (pConf->NTSEG2+1));        // NTQ per bits = NSYNC + NTSEG1 + NTSEG2  (Equation 3-5 of MCP25XXFD Family Reference Manual)
   float SamplePoint = (float)(MCP251XFD_NSYNC + (pConf->NTSEG1+1)) / NTQbits * 100.0f; // Calculate actual nominal sample point
   pConf->Stats->NSamplePoint = (uint32_t)(SamplePoint * 100.0f);                       // ** Save actual Nominal sample point with 2 digits after the decimal point (divide by 100 to get percentage)
@@ -1330,7 +1331,7 @@ eERRORRESULT MCP251XFD_WaitOperationModeChange(MCP251XFD *pComp, eMCP251XFD_Oper
   eERRORRESULT Error;
   uint8_t Config;
 
-  uint32_t Timeout = pComp->fnGetCurrentms() + 7;                       // Wait at least 7ms because the longest message is 731 bit long and the minimum bitrate is 125kbit/s that mean 5,8ms + 2x 6bytes @ 1Mbit/s over SPI that mean 96µs = ~6ms + 1ms because GetCurrentms can be 1 cycle before the new ms
+  uint32_t Timeout = pComp->fnGetCurrentms() + 7;                       // Wait at least 7ms because the longest message is 731 bit long and the minimum bitrate is 125kbit/s that mean 5,8ms + 2x 6bytes @ 1Mbit/s over SPI that mean 96ï¿½s = ~6ms + 1ms because GetCurrentms can be 1 cycle before the new ms
   while (true)
   {
     Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+2, &Config);   // Read current configuration mode with the current driver configuration
@@ -1552,7 +1553,7 @@ eERRORRESULT MCP251XFD_ConfigureTimeStamp(MCP251XFD *pComp, bool enableTS, eMCP2
   {
     Config.CiTSCON |= MCP251XFD_CAN_CiTSCON_TBCEN;                               // Add Enable TS flag
     Config.CiTSCON |= MCP251XFD_CAN_CiTSCON_TSSP_SET(samplePoint);               // Set sample point position
-    Config.CiTSCON |= MCP251XFD_CAN_CiTSCON_TBCPRE_SET(prescaler - 1);           // Set prescaler (time in µs is: 1/SYSCLK/TBCPRE)
+    Config.CiTSCON |= MCP251XFD_CAN_CiTSCON_TBCPRE_SET(prescaler - 1);           // Set prescaler (time in ï¿½s is: 1/SYSCLK/TBCPRE)
   }
   Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiTSCON, &Config.Bytes[0], 3); // Write new configuration to the CiTDC register (First 3-bytes only)
   if (Error != ERR_OK) return Error;                                             // If there is an error while calling MCP251XFD_WriteData() then return the error

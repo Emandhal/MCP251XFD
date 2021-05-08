@@ -22,7 +22,7 @@ This driver has been designed to:
 ## Installation
 
 ### Get the sources
-Get and add the 3 following files to your project
+Get and add the 4 following files to your project
 ```
 MCP251XFD.c
 MCP251XFD.h
