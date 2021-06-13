@@ -88,6 +88,9 @@ extern "C" {
     X(ERR__TWO_BAD_SIDE_BY_SIDE,      , "Two bad things side by side"                           ) \
     X(ERR__TRANSMIT_ERROR      ,      , "Transmit error"                                        ) \
     X(ERR__RECEIVE_ERROR       ,      , "Receive error"                                         ) \
+    X(ERR__UNKNOWN_CHANNEL     ,      , "Unknown channel error"                                 ) \
+    X(ERR__BAD_DATA            ,      , "Bad data"                                              ) \
+    X(ERR__BUSY                ,      , "Busy"                                                  ) \
 /*  // Device mode                                                                              */\
     X(ERR__NOT_IN_SLEEP_MODE   , =  90, "Operation impossible in sleep mode"                    ) \
     X(ERR__ALREADY_IN_SLEEP    ,      , "Already in sleep mode"                                 ) \
@@ -124,6 +127,11 @@ extern "C" {
     X(ERR__I2C_INVALID_ADDRESS ,      , "I2C invalid address"                                   ) \
     X(ERR__I2C_INVALID_COMMAND ,      , "I2C invalid command"                                   ) \
     X(ERR__I2C_FREQUENCY_ERROR ,      , "I2C frequency error"                                   ) \
+/*  // DMA errors                                                                               */\
+    X(ERR__DMA_ERROR           , = 220, "DMA error"                                             ) \
+    X(ERR__DMA_OVERFLOW_ERROR  ,      , "DMA overflow error"                                    ) \
+    X(ERR__DMA_WRITE_BUS_ERROR ,      , "DMA write bus error"                                   ) \
+    X(ERR__DMA_READ_BUS_ERROR  ,      , "DMA read bus error"                                    ) \
 /*  // Test error                                                                               */\
     X(ERR__TEST_ERROR          , = 255, "Test error"                                            )
 
@@ -141,6 +149,7 @@ typedef enum
 #endif
   ERRORS_TABLE
 #undef X
+  ERR__ERRORS_MAX, // Keep last
 } eERRORRESULT;
 
 
