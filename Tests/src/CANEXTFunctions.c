@@ -217,7 +217,7 @@ eERRORRESULT AfterWakeUpActionsOnEXT1(eMCP251XFD_PowerStates fromState)
            ShowDeviceError(CANEXT1, ErrorExt1);             // Show device error
       else LOGINFO("Ext1: Device wake-up");
       break;
-    case MCP251XFD_DEVICE_LOWPOWER_SLEEP_STATE:                       // The device is wake up from deep sleep is similar to a Power On Reset
+    case MCP251XFD_DEVICE_LOWPOWER_SLEEP_STATE:             // The device is wake up from deep sleep is similar to a Power On Reset
       delay_ms(3);                                          // Wait 3ms for the clock to stabilize. This is mandatory for the wake up from deep sleep mode
       ErrorExt1 = ConfigureMCP251XFDDeviceOnEXT1();         // The device need a complete reconfiguration
       if (ErrorExt1 != ERR_OK)
@@ -578,7 +578,7 @@ eERRORRESULT ConfigureMCP251XFDDeviceOnEXT2(void)
 //=============================================================================
 // Transmit a message to MCP251XFD device on EXT2
 //=============================================================================
-eERRORRESULT TransmitMessageToEXT2(uint32_t messageID, uint32_t* messageSEQ, eMCP251XFD_MessageCtrlFlags controlFlags, eMCP251XFD_DataLength dlc, uint8_t* payloadData, eMCP251XFD_FIFO toFIFO, bool flush)
+eERRORRESULT TransmitMessageToEXT2(uint32_t messageID, uint32_t* messageSEQ, setMCP251XFD_MessageCtrlFlags controlFlags, eMCP251XFD_DataLength dlc, uint8_t* payloadData, eMCP251XFD_FIFO toFIFO, bool flush)
 {
   if (Ext2ModulePresent == false) return ERR_OK;
   TransmitEvent = false;

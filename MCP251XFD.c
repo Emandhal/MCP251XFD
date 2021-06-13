@@ -421,9 +421,7 @@ eERRORRESULT MCP251XFD_ReadData(MCP251XFD *pComp, uint16_t address, uint8_t* dat
   {
     Error = __MCP251XFD_ReadDataCRC(pComp, address, data, size);        // Transfer data with Read CRC
   }
-  if (Error != ERR_OK) return Error;                                    // If there is an error while reading data data then return the error
-
-  return ERR_OK;
+  return Error;
 }
 
 
@@ -787,11 +785,11 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
   messageGet->ControlFlags = MCP251XFD_NO_MESSAGE_CTRL_FLAGS;
   messageGet->MessageSEQ   = 0u;
   if (fromFIFO == MCP251XFD_TEF) messageGet->MessageSEQ = ((MCP251XFD_CAN_TX_EventObject*)Buffer)->TE1.SEQ; // If it is a TEF, extract the Sequence by casting Buffer into a TEF object and get SEQ in TE1
-  if (CANFDframe          ) messageGet->ControlFlags = (eMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_CANFD_FRAME                );
-  if (Message->R1.BRS == 1) messageGet->ControlFlags = (eMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_SWITCH_BITRATE             );
-  if (Message->R1.RTR == 1) messageGet->ControlFlags = (eMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_REMOTE_TRANSMISSION_REQUEST);
-  if (Extended            ) messageGet->ControlFlags = (eMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_EXTENDED_MESSAGE_ID        );
-  if (Message->R1.ESI == 1) messageGet->ControlFlags = (eMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_TRANSMIT_ERROR_PASSIVE     );
+  if (CANFDframe          ) messageGet->ControlFlags = (setMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_CANFD_FRAME                );
+  if (Message->R1.BRS == 1) messageGet->ControlFlags = (setMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_SWITCH_BITRATE             );
+  if (Message->R1.RTR == 1) messageGet->ControlFlags = (setMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_REMOTE_TRANSMISSION_REQUEST);
+  if (Extended            ) messageGet->ControlFlags = (setMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_EXTENDED_MESSAGE_ID        );
+  if (Message->R1.ESI == 1) messageGet->ControlFlags = (setMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_TRANSMIT_ERROR_PASSIVE     );
   messageGet->DLC = (eMCP251XFD_DataLength)Message->R1.DLC;
 
   //--- Extract TimeStamp ---
@@ -2107,7 +2105,7 @@ eERRORRESULT MCP251XFD_ConfigureFilterList(MCP251XFD *pComp, eMCP251XFD_DNETFilt
   if (listFilter == NULL) return ERR__PARAMETER_ERROR;
 #endif
   if (count == 0) return ERR_OK;
-  if (count > MCP251XFD_FIFO_MAX) return ERR__OUT_OF_RANGE;
+  if (count > MCP251XFD_FILTER_COUNT) return ERR__OUT_OF_RANGE;
   eERRORRESULT Error;
 
   //--- Configure the Device NET Filter ---

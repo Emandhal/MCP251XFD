@@ -469,14 +469,16 @@ int main (void)
     //--- Send last error on Ext1 through Ext2 ---
     if (ErrorExt1 != ERR_OK)
     {
-      TransmitMessageToEXT2(SID_EXT1_ERROR_EVENT, &Ext2SequenceCounter, MCP251XFD_STANDARD_MESSAGE_ID, MCP251XFD_DLC_1BYTE, &ErrorExt1, MCP251XFD_FIFO29, true); // Send last error on Ext1 module through Ext2
+      uint8_t ValueToSend = (uint8_t)ErrorExt1;
+      TransmitMessageToEXT2(SID_EXT1_ERROR_EVENT, &Ext2SequenceCounter, MCP251XFD_STANDARD_MESSAGE_ID, MCP251XFD_DLC_1BYTE, &ValueToSend, MCP251XFD_FIFO29, true); // Send last error on Ext1 module through Ext2
       ErrorExt1 = ERR_OK;
     }
 
     //--- Send last error on Ext2 through Ext2 ---
     if (ErrorExt2 != ERR_OK)
     {
-      TransmitMessageToEXT2(SID_EXT2_ERROR_EVENT, &Ext2SequenceCounter, MCP251XFD_STANDARD_MESSAGE_ID, MCP251XFD_DLC_1BYTE, &ErrorExt1, MCP251XFD_FIFO31, true); // Send last error on Ext2 module through Ext2
+      uint8_t ValueToSend = (uint8_t)ErrorExt1;
+      TransmitMessageToEXT2(SID_EXT2_ERROR_EVENT, &Ext2SequenceCounter, MCP251XFD_STANDARD_MESSAGE_ID, MCP251XFD_DLC_1BYTE, &ValueToSend, MCP251XFD_FIFO31, true); // Send last error on Ext2 module through Ext2
       ErrorExt2 = ERR_OK;
     }
 

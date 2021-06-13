@@ -35,6 +35,7 @@
  *****************************************************************************/
 
 /* Revision history:
+ * 1.0.2    MessageCtrlFlags is a set of instead of an enum, some reorganization of the code
  * 1.0.1    Simplify implementation of MCP251XFD_ConfigurePins(), MCP251XFD_SetGPIOPinsDirection(),
               MCP251XFD_GetGPIOPinsInputLevel(), and MCP251XFD_SetGPIOPinsOutputLevel() functions
  *          Correct MCP251XFD_EnterSleepMode() function's description
@@ -3161,6 +3162,8 @@ typedef enum
   MCP251XFD_TRANSMIT_ERROR_PASSIVE      = 0x10, //!< Error Status Indicator: In CAN to CAN gateway mode (CiCON.ESIGM=1), the transmitted ESI flag is a "logical OR" of T1.ESI and error passive state of the CAN controller; In normal mode ESI indicates the error status
 } eMCP251XFD_MessageCtrlFlags;
 
+typedef eMCP251XFD_MessageCtrlFlags setMCP251XFD_MessageCtrlFlags; //! Set of  Control flags of CAN message (can be OR'ed)
+
 
 //! Data Length Size for the CAN message
 typedef enum
@@ -3190,11 +3193,11 @@ typedef enum
 //! MCP251XFD CAN message configuration structure
 typedef struct MCP251XFD_CANMessage
 {
-  uint32_t MessageID;                       //!< Contain the message ID to send
-  uint32_t MessageSEQ;                      //!< This is the context of the CAN message. This sequence will be copied in the TEF to trace the message sent
-  eMCP251XFD_MessageCtrlFlags ControlFlags; //!< Contain the CAN controls flags
-  eMCP251XFD_DataLength DLC;                //!< Indicate how many bytes in the payload data will be sent or how many bytes in the payload data is received
-  uint8_t* PayloadData;                     //!< Pointer to the payload data that will be sent. PayloadData array should be at least the same size as indicate by the DLC
+  uint32_t MessageID;                         //!< Contain the message ID to send
+  uint32_t MessageSEQ;                        //!< This is the context of the CAN message. This sequence will be copied in the TEF to trace the message sent
+  setMCP251XFD_MessageCtrlFlags ControlFlags; //!< Contain the CAN controls flags
+  eMCP251XFD_DataLength DLC;                  //!< Indicate how many bytes in the payload data will be sent or how many bytes in the payload data is received
+  uint8_t* PayloadData;                       //!< Pointer to the payload data that will be sent. PayloadData array should be at least the same size as indicate by the DLC
 } MCP251XFD_CANMessage;
 
 //-----------------------------------------------------------------------------
@@ -3509,6 +3512,7 @@ struct MCP251XFD
   //--- Interface driver call functions ---
   uint8_t SPI_ChipSelect;                    //!< This is the Chip Select index that will be set at the call of a transfer
   void *InterfaceDevice;                     //!< This is the pointer that will be in the first parameter of all interface call functions
+  uint32_t SPIClockSpeed;                    //!< SPI nominal clock speed (max is SYSCLK div by 2)
   MCP251XFD_SPIInit_Func     fnSPI_Init;     //!< This function will be called at driver initialization to configure the interface driver
   MCP251XFD_SPITransfer_Func fnSPI_Transfer; //!< This function will be called at driver read/write data from/to the interface driver SPI
 
@@ -3516,10 +3520,7 @@ struct MCP251XFD
   GetCurrentms_Func fnGetCurrentms;          //!< This function will be called when the driver need to get current millisecond
 
   //--- CRC16-CMS call function ---
-  ComputeCRC16_Func fnComputeCRC16;          //!< This function will be called when a CRC16-CMS computation is needed (ie. in CRC mode or Safe Write). In normal mode, this can point to NULL.
-
-  //--- Interface clocks ---
-  uint32_t SPIClockSpeed;                    //!< SPI nominal clock speed (max is SYSCLK div by 2)
+  ComputeCRC16_Func fnComputeCRC16;          //!< This function will be called when a CRC16-CMS computation is needed (ie. in CRC mode or Safe Write). In normal mode, this can point to NULL
 };
 
 //-----------------------------------------------------------------------------

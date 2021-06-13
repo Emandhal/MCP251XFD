@@ -521,8 +521,8 @@ void ShowDeviceError(MCP251XFD *pComp, eERRORRESULT error)
     ERRORS_TABLE
 #   undef X
   }*/
-  pStr = (char*)ERR_ErrorStrings[error];
 
+  if (error < ERR__ERRORS_MAX) pStr = (char*)ERR_ErrorStrings[error];
   if (pStr != NULL)
        LOGERROR("%s: Device error: %s", EXTx, pStr);
   else LOGERROR("%s: Device error: Unknown error (%u)", EXTx, (unsigned int)error);

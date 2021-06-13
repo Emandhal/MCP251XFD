@@ -185,7 +185,7 @@ eERRORRESULT ConfigureMCP251XFDDeviceOnEXT2(void);
 //=============================================================================
 // Transmit a message to MCP251XFD device on EXT2
 //=============================================================================
-eERRORRESULT TransmitMessageToEXT2(uint32_t messageID, uint32_t* messageSEQ, eMCP251XFD_MessageCtrlFlags controlFlags, eMCP251XFD_DataLength dlc, uint8_t* payloadData, eMCP251XFD_FIFO toFIFO, bool flush);
+eERRORRESULT TransmitMessageToEXT2(uint32_t messageID, uint32_t* messageSEQ, setMCP251XFD_MessageCtrlFlags controlFlags, eMCP251XFD_DataLength dlc, uint8_t* payloadData, eMCP251XFD_FIFO toFIFO, bool flush);
 
 
 
