@@ -2,7 +2,7 @@
 MCP251XFD is a fully hardware independant **Driver** primarily aimed at embedded world
 
 # Presentation
-This driver only takes care of configuration and check of the internal registers and the formatting of the communication with the device. That means it does not directly take care of the physical communication, there is functions interfaces to do that. By doing this, the driver can control a MCP2517FD trough a I2C to SPI converter without any change, the transformation will be done in the interface functions.
+This driver only takes care of configuration and check of the internal registers and the formatting of the communication with the device. That means it does not directly take care of the physical communication, there is functions interfaces to do that. By doing this, the driver can control a MCP2517FD through a I2C to SPI converter without any change, the transformation will be done in the interface functions.
 Each driver's functions need a device structure that indicate with which device he must threat and communicate. Each device can have its own configuration.
 
 ## Feature

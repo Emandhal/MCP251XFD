@@ -793,7 +793,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
   messageGet->DLC = (eMCP251XFD_DataLength)Message->R1.DLC;
 
   //--- Extract TimeStamp ---
-  uint8_t* pBuff = &Buffer[sizeof(MCP251XFD_CAN_RX_Message)];              // Next bytes of the Buffer is for payload
+  uint8_t* pBuff = &Buffer[sizeof(MCP251XFD_CAN_RX_Message_Identifier) + sizeof(MCP251XFD_CAN_RX_Message_Control)]; // Next bytes of the Buffer is for timestamp and/or payload
   if (timeStamp != NULL)
   {
     *timeStamp = Message->TimeStamp;
@@ -809,7 +809,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
       uint8_t* pData = &messageGet->PayloadData[0];                        // Select the first byte of payload data
       uint8_t BytesDLC = MCP251XFD_DLCToByte(messageGet->DLC, CANFDframe); // Get how many byte need to be extract from the message to correspond to its DLC
       if (BytesPayload < BytesDLC) BytesDLC = BytesPayload;                // Get the least between BytesPayload and BytesDLC
-      while (BytesDLC-- > 0) *pBuff++ = *pData++;                          // Copy data
+      while (BytesDLC-- > 0) *pData++ = *pBuff++;                          // Copy data
     }
   }
 

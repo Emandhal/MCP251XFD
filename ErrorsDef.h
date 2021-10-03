@@ -91,6 +91,10 @@ extern "C" {
     X(ERR__UNKNOWN_CHANNEL     ,      , "Unknown channel error"                                 ) \
     X(ERR__BAD_DATA            ,      , "Bad data"                                              ) \
     X(ERR__BUSY                ,      , "Busy"                                                  ) \
+    X(ERR__EMPTY_DATA          ,      , "Empty data"                                            ) \
+    X(ERR__NOT_FOUND           ,      , "Not found"                                             ) \
+    X(ERR__INVALID_HANDLE      ,      , "Invalid handle"                                        ) \
+    X(ERR__ADDRESS_ALIGNMENT   ,      , "Address alignment error"                               ) \
 /*  // Device mode                                                                              */\
     X(ERR__NOT_IN_SLEEP_MODE   , =  90, "Operation impossible in sleep mode"                    ) \
     X(ERR__ALREADY_IN_SLEEP    ,      , "Already in sleep mode"                                 ) \

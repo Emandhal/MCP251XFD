@@ -35,6 +35,8 @@
  *****************************************************************************/
 
 /* Revision history:
+ * 1.0.3    Add MCP251XFD_StartCANListenOnly() function
+ *          Correct the MCP251XFD_ReceiveMessageFromFIFO() function [Thanks to mikucukyilmaz]
  * 1.0.2    MessageCtrlFlags is a set of instead of an enum, some reorganization of the code
  * 1.0.1    Simplify implementation of MCP251XFD_ConfigurePins(), MCP251XFD_SetGPIOPinsDirection(),
               MCP251XFD_GetGPIOPinsInputLevel(), and MCP251XFD_SetGPIOPinsOutputLevel() functions
@@ -3223,10 +3225,10 @@ ControlItemSize(MCP251XFD_CAN_TX_Message_Identifier, 4);
 
 #define MCP251XFD_CAN_MSGT0_SID_Pos         0
 #define MCP251XFD_CAN_MSGT0_SID_Mask        (0x7FFu << MCP251XFD_CAN_MSGT0_SID_Pos)
-#define MCP251XFD_CAN_MSGT0_SID_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_MSGT0_SID_Pos) & MCP251XFD_CAN_MSGT0_SID_Mask) //!< Standard Identifier filter
+#define MCP251XFD_CAN_MSGT0_SID_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_MSGT0_SID_Pos) & MCP251XFD_CAN_MSGT0_SID_Mask) //!< Set Standard Identifier
 #define MCP251XFD_CAN_MSGT0_EID_Pos         11
 #define MCP251XFD_CAN_MSGT0_EID_Mask        (0x3FFFFu << MCP251XFD_CAN_MSGT0_EID_Pos)
-#define MCP251XFD_CAN_MSGT0_EID_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_MSGT0_EID_Pos) & MCP251XFD_CAN_MSGT0_EID_Mask) //!< Extended Identifier filter
+#define MCP251XFD_CAN_MSGT0_EID_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_MSGT0_EID_Pos) & MCP251XFD_CAN_MSGT0_EID_Mask) //!< Set Extended Identifier
 #define MCP251XFD_CAN_MSGT0_SID11           (0x1u << 29) //!< In FD mode the standard ID can be extended to 12 bit using r1
 
 //-----------------------------------------------------------------------------
@@ -3255,7 +3257,7 @@ ControlItemSize(MCP251XFD_CAN_TX_Message_Control, 4);
 
 #define MCP251XFD_CAN_MSGT1_DLC_Pos         0
 #define MCP251XFD_CAN_MSGT1_DLC_Mask        (0xFu << MCP251XFD_CAN_MSGT1_DLC_Pos)
-#define MCP251XFD_CAN_MSGT1_DLC_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_MSGT1_DLC_Pos) & MCP251XFD_CAN_MSGT1_DLC_Mask) //!< Data Length Code
+#define MCP251XFD_CAN_MSGT1_DLC_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_MSGT1_DLC_Pos) & MCP251XFD_CAN_MSGT1_DLC_Mask) //!< Set Data Length Code
 #define MCP251XFD_CAN_MSGT1_IDE             (0x1u << 4) //!< Identifier Extension Flag
 #define MCP251XFD_CAN_MSGT1_RTR             (0x1u << 5) //!< Remote Transmission Request
 #define MCP251XFD_CAN_MSGT1_BRS             (0x1u << 6) //!< Bit Rate Switch
@@ -3263,7 +3265,7 @@ ControlItemSize(MCP251XFD_CAN_TX_Message_Control, 4);
 #define MCP251XFD_CAN_MSGT1_ESI             (0x1u << 8) //!< Error Status Indicator
 #define MCP251XFD_CAN_MSGT1_SEQ_Pos         9
 #define MCP251XFD_CAN_MSGT1_SEQ_Mask        (0x7FFFFFu << MCP251XFD_CAN_MSGT1_SEQ_Pos)
-#define MCP251XFD_CAN_MSGT1_SEQ_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_MSGT1_SEQ_Pos) & MCP251XFD_CAN_MSGT1_SEQ_Mask) //!< Sequence to keep track of transmitted messages in Transmit Event FIFO
+#define MCP251XFD_CAN_MSGT1_SEQ_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_MSGT1_SEQ_Pos) & MCP251XFD_CAN_MSGT1_SEQ_Mask) //!< Set sequence to keep track of transmitted messages in Transmit Event FIFO
 
 //-----------------------------------------------------------------------------
 
@@ -3346,10 +3348,10 @@ ControlItemSize(MCP251XFD_CAN_RX_Message_Identifier, 4);
 
 #define MCP251XFD_CAN_MSGR0_SID_Pos         0
 #define MCP251XFD_CAN_MSGR0_SID_Mask        (0x7FFu << MCP251XFD_CAN_MSGR0_SID_Pos)
-#define MCP251XFD_CAN_MSGR0_SID_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_MSGR0_SID_Mask) << MCP251XFD_CAN_MSGR0_SID_Pos) //!< Standard Identifier filter
+#define MCP251XFD_CAN_MSGR0_SID_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_MSGR0_SID_Mask) << MCP251XFD_CAN_MSGR0_SID_Pos) //!< Get Standard Identifier
 #define MCP251XFD_CAN_MSGR0_EID_Pos         11
 #define MCP251XFD_CAN_MSGR0_EID_Mask        (0x3FFFFu << MCP251XFD_CAN_MSGR0_EID_Pos)
-#define MCP251XFD_CAN_MSGR0_EID_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_MSGR0_EID_Mask) << MCP251XFD_CAN_MSGR0_EID_Pos) //!< Extended Identifier filter
+#define MCP251XFD_CAN_MSGR0_EID_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_MSGR0_EID_Mask) << MCP251XFD_CAN_MSGR0_EID_Pos) //!< Get Extended Identifier
 #define MCP251XFD_CAN_MSGR0_SID11           (0x1u << 29) //!< In FD mode the standard ID can be extended to 12 bit using r1
 
 //-----------------------------------------------------------------------------
@@ -3380,7 +3382,7 @@ ControlItemSize(MCP251XFD_CAN_RX_Message_Control, 4);
 
 #define MCP251XFD_CAN_MSGR1_DLC_Pos             0
 #define MCP251XFD_CAN_MSGR1_DLC_Mask            (0xFu << MCP251XFD_CAN_MSGR1_DLC_Pos)
-#define MCP251XFD_CAN_MSGR1_DLC_GET(value)      (((uint32_t)(value) & MCP251XFD_CAN_MSGR1_DLC_Mask) >> MCP251XFD_CAN_MSGR1_DLC_Pos)         //!< Data Length Code
+#define MCP251XFD_CAN_MSGR1_DLC_GET(value)      (((uint32_t)(value) & MCP251XFD_CAN_MSGR1_DLC_Mask) >> MCP251XFD_CAN_MSGR1_DLC_Pos)         //!< Get Data Length Code
 #define MCP251XFD_CAN_MSGR1_IDE                 (0x1u << 4) //!< Identifier Extension Flag
 #define MCP251XFD_CAN_MSGR1_RTR                 (0x1u << 5) //!< Remote Transmission Request
 #define MCP251XFD_CAN_MSGR1_BRS                 (0x1u << 6) //!< Bit Rate Switch
@@ -3388,7 +3390,7 @@ ControlItemSize(MCP251XFD_CAN_RX_Message_Control, 4);
 #define MCP251XFD_CAN_MSGR1_ESI                 (0x1u << 8) //!< Error Status Indicator
 #define MCP251XFD_CAN_MSGR1_FILTHIT_Pos         11
 #define MCP251XFD_CAN_MSGR1_FILTHIT_Mask        (0x1Fu << MCP251XFD_CAN_MSGR1_FILTHIT_Pos)
-#define MCP251XFD_CAN_MSGR1_FILTHIT_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_MSGR1_FILTHIT_Mask) >> MCP251XFD_CAN_MSGR1_FILTHIT_Pos) //!< Filter Hit, number of filter that matched
+#define MCP251XFD_CAN_MSGR1_FILTHIT_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_MSGR1_FILTHIT_Mask) >> MCP251XFD_CAN_MSGR1_FILTHIT_Pos) //!< Get Filter Hit, number of filter that matched
 
 //-----------------------------------------------------------------------------
 
@@ -4231,6 +4233,19 @@ inline eERRORRESULT MCP251XFD_StartCAN20(MCP251XFD *pComp)
 inline eERRORRESULT MCP251XFD_StartCANFD(MCP251XFD *pComp)
 {
   return MCP251XFD_RequestOperationMode(pComp, MCP251XFD_NORMAL_CANFD_MODE, false);
+}
+
+
+
+/*! @brief Start the MCP251XFD device in CAN Listen-Only mode
+ *
+ * This function asks for a mode change to CAN Listen-Only but do not wait for its actual change because normally the device is in configuration mode and the change to CAN Listen-Only mode will be instantaneous
+ * @param[in] *pComp Is the pointed structure of the device to be used
+ * @return Returns an #eERRORRESULT value enum
+ */
+inline eERRORRESULT MCP251XFD_StartCANListenOnly(MCP251XFD *pComp)
+{
+  return MCP251XFD_RequestOperationMode(pComp, MCP251XFD_LISTEN_ONLY_MODE, false);
 }
 
 
