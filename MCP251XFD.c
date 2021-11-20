@@ -1,8 +1,8 @@
 /*******************************************************************************
  * @file    MCP251XFD.c
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.1
- * @date    15/04/2020
+ * @version 1.0.4
+ * @date    16/11/2021
  * @brief   MCP251XFD driver
  *
  * The MCP251XFD component is a CAN-bus controller supporting CAN2.0A, CAN2.0B
@@ -197,9 +197,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
 
   //--- System interrupt enable -----------------------------
   Error = MCP251XFD_ConfigureInterrupt(pComp, (setMCP251XFD_InterruptEvents)pConf->SysInterruptFlags);   // Configure interrupts to enable
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_ConfigureInterruptEvents() then return the error
-
-  return ERR_OK;
+  return Error;
 }
 
 
@@ -638,9 +636,7 @@ eERRORRESULT MCP251XFD_WriteData(MCP251XFD *pComp, uint16_t address, const uint8
       Error = __MCP251XFD_WriteDataCRC(pComp, address, data, size);                                         // Transfer data with Write CRC
     }
   }
-  if (Error != ERR_OK) return Error;                                                                        // If there is an error while writing data then return the error
-
-  return ERR_OK;
+  return Error;
 }
 
 
@@ -696,7 +692,7 @@ eERRORRESULT MCP251XFD_TransmitMessageToFIFO(MCP251XFD *pComp, MCP251XFD_CANMess
   //--- Fill message controls (T1) ---
   Message->T1.T1 = 0;                          // Initialize message Controls to 0
   Message->T1.SEQ = messageToSend->MessageSEQ; // Set message Sequence
-  if (CANFDframe                                                     ) Message->T1.FDF = 1;
+  if (CANFDframe                                                          )      Message->T1.FDF = 1;
   if ((messageToSend->ControlFlags & MCP251XFD_SWITCH_BITRATE             ) > 0) Message->T1.BRS = 1;
   if ((messageToSend->ControlFlags & MCP251XFD_REMOTE_TRANSMISSION_REQUEST) > 0) Message->T1.RTR = 1;
   if ((messageToSend->ControlFlags & MCP251XFD_EXTENDED_MESSAGE_ID        ) > 0) Message->T1.IDE = 1;
@@ -826,9 +822,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
 //=============================================================================
 eERRORRESULT MCP251XFD_ConfigureCRC(MCP251XFD *pComp, setMCP251XFD_CRCEvents interrupts)
 {
-  eERRORRESULT Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CRC_CONFIG, interrupts); // Write configuration to the CRC register (last byte only)
-  if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_WriteData() then return the error
-  return ERR_OK;
+  return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CRC_CONFIG, interrupts); // Write configuration to the CRC register (last byte only)
 }
 
 
@@ -845,15 +839,14 @@ eERRORRESULT MCP251XFD_GetCRCEvents(MCP251XFD *pComp, setMCP251XFD_CRCEvents* ev
 #endif
   eERRORRESULT Error;
 
-  Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CRC_FLAGS, (uint8_t*)events); // Read status of the ECC register (third byte only)
+  Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CRC_FLAGS, (uint8_t*)events); // Read status of the CRC register (third byte only)
   if (Error != ERR_OK) return Error;                                           // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   *events = (setMCP251XFD_CRCEvents)(*events & MCP251XFD_CRC_EVENTS_MASK);     // Get CRC error interrupt flag status and CRC command format error interrupt flag status
   if (lastCRCMismatch != NULL)
   {
-    Error = MCP251XFD_ReadSFR16(pComp, RegMCP251XFD_CRC_CRC, lastCRCMismatch); // Read Address where last ECC error occurred (first 2 bytes only)
-    if (Error != ERR_OK) return Error;                                         // If there is an error while calling MCP251XFD_ReadSFR16() then return the error
+    Error = MCP251XFD_ReadSFR16(pComp, RegMCP251XFD_CRC_CRC, lastCRCMismatch); // Read Address where last CRC error occurred (first 2 bytes only)
   }
-  return ERR_OK;
+  return Error;
 }
 
 
@@ -867,12 +860,10 @@ eERRORRESULT MCP251XFD_GetCRCEvents(MCP251XFD *pComp, setMCP251XFD_CRCEvents* ev
 eERRORRESULT MCP251XFD_ConfigureECC(MCP251XFD *pComp, bool enableECC, setMCP251XFD_ECCEvents interrupts, uint8_t fixedParityValue)
 {
   uint8_t Config[2] = {MCP251XFD_SFR_ECCCON8_ECCDIS | MCP251XFD_SFR_ECCCON8_SECID | MCP251XFD_SFR_ECCCON8_DEDID, 0}; // By default, disable all controls
-  Config[0] |= (uint8_t)interrupts;                                                    // Single error correction and double error detection interrupts enable
-  if (enableECC) Config[0] |= MCP251XFD_SFR_ECCCON8_ECCEN;                             // If ECC enable then add the ECC enable flag
-  Config[1] = MCP251XFD_SFR_ECCCON8_PARITY_SET(fixedParityValue);                      // Add the fixed parity used during write to RAM when ECC is disabled
-  eERRORRESULT Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_ECCCON, &Config[0], 2); // Write configuration to the ECC register (first 2 bytes only)
-  if (Error != ERR_OK) return Error;                                                   // If there is an error while calling MCP251XFD_WriteData() then return the error
-  return ERR_OK;
+  Config[0] |= (uint8_t)interrupts;                                      // Single error correction and double error detection interrupts enable
+  if (enableECC) Config[0] |= MCP251XFD_SFR_ECCCON8_ECCEN;               // If ECC enable then add the ECC enable flag
+  Config[1] = MCP251XFD_SFR_ECCCON8_PARITY_SET(fixedParityValue);        // Add the fixed parity used during write to RAM when ECC is disabled
+  return MCP251XFD_WriteData(pComp, RegMCP251XFD_ECCCON, &Config[0], 2); // Write configuration to the ECC register (first 2 bytes only)
 }
 
 
@@ -894,9 +885,8 @@ eERRORRESULT MCP251XFD_GetECCEvents(MCP251XFD *pComp, setMCP251XFD_ECCEvents* ev
   if (lastErrorAddress != NULL)
   {
     Error = MCP251XFD_ReadSFR16(pComp, RegMCP251XFD_ECCSTAT_ERRADDR, lastErrorAddress); // Read Address where last ECC error occurred (last 2 bytes only)
-    if (Error != ERR_OK) return Error;                                                  // If there is an error while calling MCP251XFD_ReadData() then return the error
   }
-  return ERR_OK;
+  return Error;
 }
 
 
@@ -1128,8 +1118,7 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
   eERRORRESULT Error = ERR_OK;
   if (pConf->Stats != NULL)
     Error = MCP251XFD_CalculateBitrateStatistics(fsysclk, pConf, desiredDataBitrate == MCP251XFD_NO_CANFD); // If statistics are necessary, then calculate them
-  if (Error != ERR_OK) return Error;                                                                        // If there is an error while calling MCP251XFD_CalculateBitrateStatistics() then return the error
-  return ERR_OK;
+  return Error;                                                       // If there is an error while calling MCP251XFD_CalculateBitrateStatistics() then return the error
 }
 
 
@@ -1258,9 +1247,7 @@ eERRORRESULT MCP251XFD_AbortAllTransmissions(MCP251XFD *pComp)
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+3, &Config); // Read actual configuration of the CiCON register (Last byte only)
   if (Error != ERR_OK) return Error;                                // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   Config |= MCP251XFD_CAN_CiCON8_ABAT;                              // Add ABAT flag
-  Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiCON+3, Config); // Write the new configuration to the CiCON register (Last byte only)
-  if (Error != ERR_OK) return Error;                                // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
-  return ERR_OK;
+  return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiCON+3, Config);  // Write the new configuration to the CiCON register (Last byte only)
 }
 
 
@@ -1377,9 +1364,7 @@ eERRORRESULT MCP251XFD_ConfigureCANController(MCP251XFD *pComp, setMCP251XFD_CAN
     pComp->InternalConfig |= MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11;        // Add use SID11 to the internal configuration
   }
   else pComp->InternalConfig &= ~MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11;    // Else clear use SID11 to the internal configuration
-  Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiTDC_CONFIG, TConfig); // Write new configuration to the CiTDC register (Last byte only)
-  if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
-  return ERR_OK;
+  return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiTDC_CONFIG, TConfig);  // Write new configuration to the CiTDC register (Last byte only)
 }
 
 
@@ -1559,9 +1544,7 @@ eERRORRESULT MCP251XFD_ConfigureTimeStamp(MCP251XFD *pComp, bool enableTS, eMCP2
   if (Error != ERR_OK) return Error;                                             // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   if (interruptBaseCounter) Flags |= MCP251XFD_CAN_CiINT8_TBCIE;                 // Add Time Base Counter Interrupt Enable flag
   else Flags &= ~MCP251XFD_CAN_CiINT8_TBCIE;                                     // Else clear the interrupt flag
-  Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiINT_CONFIG, Flags);          // Write the new flags configuration to the CiINT register (Third byte only)
-  if (Error != ERR_OK) return Error;                                             // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
-  return ERR_OK;
+  return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiINT_CONFIG, Flags);           // Write the new flags configuration to the CiINT register (Third byte only)
 }
 
 
@@ -1571,9 +1554,7 @@ eERRORRESULT MCP251XFD_ConfigureTimeStamp(MCP251XFD *pComp, bool enableTS, eMCP2
 //=============================================================================
 eERRORRESULT MCP251XFD_SetTimeStamp(MCP251XFD *pComp, uint32_t value)
 {
-  eERRORRESULT Error = MCP251XFD_WriteSFR32(pComp, RegMCP251XFD_CiTBC, value); // Write the new value to the CiTBC register
-  if (Error != ERR_OK) return Error;                                           // If there is an error while calling MCP251XFD_WriteData() then return the error
-  return ERR_OK;
+  return MCP251XFD_WriteSFR32(pComp, RegMCP251XFD_CiTBC, value); // Write the new value to the CiTBC register
 }
 
 
@@ -1583,9 +1564,7 @@ eERRORRESULT MCP251XFD_SetTimeStamp(MCP251XFD *pComp, uint32_t value)
 //=============================================================================
 eERRORRESULT MCP251XFD_GetTimeStamp(MCP251XFD *pComp, uint32_t* value)
 {
-  eERRORRESULT Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiTBC, value); // Read the value to the CiTBC register
-  if (Error != ERR_OK) return Error;                                          // If there is an error while calling MCP251XFD_ReadData() then return the error
-  return ERR_OK;
+  return MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiTBC, value); // Read the value to the CiTBC register
 }
 
 
@@ -2453,10 +2432,7 @@ eERRORRESULT MCP251XFD_ResetDevice(MCP251XFD *pComp)
   //-- Perform Reset --------------------------------------------------------
   Buffer[0] = (MCP251XFD_SPI_INSTRUCTION_RESET << 4);
   Buffer[1] = 0;
-  Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], NULL, 2/*bytes only*/); // Perform reset
-  if (Error != ERR_OK) return Error;                                                                               // If there is an error while reading the register then return the error
-
-  return ERR_OK;
+  return pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], NULL, 2/*bytes only*/); // Perform reset
 }
 
 

@@ -1,8 +1,8 @@
 /*******************************************************************************
  * @file    MCP251XFD.h
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.1
- * @date    15/04/2020
+ * @version 1.0.4
+ * @date    16/11/2021
  * @brief   MCP251XFD driver
  *
  * The MCP251XFD component is a CAN-bus controller supporting CAN2.0A, CAN2.0B
@@ -35,11 +35,12 @@
  *****************************************************************************/
 
 /* Revision history:
+ * 1.0.4    Minor changes in the code and documentation [Thanks to BombaMat]
  * 1.0.3    Add MCP251XFD_StartCANListenOnly() function
  *          Correct the MCP251XFD_ReceiveMessageFromFIFO() function [Thanks to mikucukyilmaz]
  * 1.0.2    MessageCtrlFlags is a set of instead of an enum, some reorganization of the code
  * 1.0.1    Simplify implementation of MCP251XFD_ConfigurePins(), MCP251XFD_SetGPIOPinsDirection(),
-              MCP251XFD_GetGPIOPinsInputLevel(), and MCP251XFD_SetGPIOPinsOutputLevel() functions
+ *            MCP251XFD_GetGPIOPinsInputLevel(), and MCP251XFD_SetGPIOPinsOutputLevel() functions
  *          Correct MCP251XFD_EnterSleepMode() function's description
  * 1.0.0    Release version
  *****************************************************************************/
@@ -54,62 +55,27 @@
 #include <stdlib.h>
 //-----------------------------------------------------------------------------
 #include "ErrorsDef.h"
-//! @cond
-#if !defined(__cplusplus)
-# include "Conf_MCP251XFD.h"
-#else
+//-----------------------------------------------------------------------------
+#ifdef __cplusplus
 # define USE_MCP251XFD_TOOLS
   extern "C" {
+#  define __MCP251XFD_PACKED__
+#  define MCP251XFD_PACKITEM             __pragma(pack(push, 1))
+#  define MCP251XFD_UNPACKITEM           __pragma(pack(pop))
+#  define MCP251XFD_PACKENUM(name,type)  typedef enum name : type
+#  define MCP251XFD_UNPACKENUM(name)     name
+#else
+#  include "Conf_MCP251XFD.h"
+#  define __MCP251XFD_PACKED__           __attribute__((packed))
+#  define MCP251XFD_PACKITEM
+#  define MCP251XFD_UNPACKITEM
+#  define MCP251XFD_PACKENUM(name,type)  typedef enum __MCP251XFD_PACKED__
+#  define MCP251XFD_UNPACKENUM(name)     name
 #endif
-//! @endcond
-//-----------------------------------------------------------------------------
-
-#ifndef __PACKED__
-# ifndef __cplusplus
-#   define __PACKED__  __attribute__((packed))
-# else
-#   define __PACKED__
-# endif
-#endif
-
-#ifndef PACKITEM
-# ifndef __cplusplus
-#   define PACKITEM
-# else
-#   define PACKITEM  __pragma(pack(push, 1))
-# endif
-#endif
-
-#ifndef UNPACKITEM
-# ifndef __cplusplus
-#   define UNPACKITEM
-# else
-#   define UNPACKITEM  __pragma(pack(pop))
-# endif
-#endif
-
-#ifndef PACKENUM
-# ifndef __cplusplus
-#   define PACKENUM(name,type)  typedef enum __PACKED__
-# else
-#   define PACKENUM(name,type)  typedef enum name : type
-# endif
-#endif
-
-#ifndef UNPACKENUM
-# ifndef __cplusplus
-#   define UNPACKENUM(name)  name
-# else
-#   define UNPACKENUM(name)  name
-# endif
-#endif
-
 //-----------------------------------------------------------------------------
 
 //! This macro is used to check the size of an object. If not, it will raise a "divide by 0" error at compile time
-#ifndef ControlItemSize
-#  define ControlItemSize(item, size)  enum { item##_size_must_be_##size##_bytes = 1 / (int)(!!(sizeof(item) == size)) }
-#endif
+#define MCP251XFD_CONTROL_ITEM_SIZE(item, size)  enum { item##_size_must_be_##size##_bytes = 1 / (int)(!!(sizeof(item) == size)) }
 
 //-----------------------------------------------------------------------------
 
@@ -204,11 +170,11 @@ typedef struct MCP251XFD_RAMInfos
 
 
 
-// Driver configuration enum
+//! Driver configuration enum
 typedef enum
 {
   MCP251XFD_DRIVER_NORMAL_USE               = 0x00, //!< Use the driver with no special verifications, just settings verifications (usually the fastest mode)
-  MCP251XFD_DRIVER_SAFE_RESET               = 0x01, //!< Set Configuration mode first and next send a Reset command with a SPI clock at 1MHz max (MCP251XFD_OSCFREQ_MIN div by 2)
+  MCP251XFD_DRIVER_SAFE_RESET               = 0x01, //!< Set Configuration mode first and next send a Reset command with a SPI clock at 1MHz max (MCP251XFD_SYSCLK_MIN div by 2)
   MCP251XFD_DRIVER_ENABLE_ECC               = 0x02, //!< Enable the ECC just before the RAM initialization and activate ECCCON_SECIE and ECCCON_DEDIE interrupt flags
   MCP251XFD_DRIVER_INIT_CHECK_RAM           = 0x04, //!< Check RAM at initialization by writing some data and checking them on all the RAM range (slower at initialization, take a long time)
   MCP251XFD_DRIVER_INIT_SET_RAM_AT_0        = 0x08, //!< Set all bytes of the RAM to 0x00 (slower at initialization)
@@ -222,7 +188,7 @@ typedef eMCP251XFD_DriverConfig setMCP251XFD_DriverConfig; //! Set of Driver con
 
 
 // Safe Reset speed definition
-#define MCP251XFD_DRIVER_SAFE_RESET_SPI_CLK  ( 1000000 ) //!< Set the SPI safe reset clock speed at 1MHz because SPI speed max is SYSCLK/2 and Xtal/Resonator/Oscillator frequency min is 2MHz
+#define MCP251XFD_DRIVER_SAFE_RESET_SPI_CLK  ( MCP251XFD_SYSCLK_MIN / 2 ) //!< Set the SPI safe reset clock speed at 1MHz because SPI speed max is SYSCLK/2 and Xtal/Resonator/Oscillator frequency min is 2MHz
 
 
 
@@ -237,27 +203,27 @@ typedef eMCP251XFD_DriverConfig setMCP251XFD_DriverConfig; //! Set of Driver con
 
 
 //! int32_t to 2-uint16_t to 4-uint8_t conversion
-PACKITEM
-typedef union __PACKED__
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__
 {
   uint32_t Uint32;
   uint16_t Uint16[sizeof(uint32_t) / sizeof(uint16_t)];
   uint8_t  Bytes[sizeof(uint32_t) / sizeof(uint8_t)];
 } MCP251XFD_uint32t_Conv;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_uint32t_Conv, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_uint32t_Conv, 4);
 
 
 
 //! int16_t to 2-uint8_t conversion
-PACKITEM
-typedef union __PACKED__
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__
 {
   uint16_t Uint16;
   uint8_t  Bytes[sizeof(uint16_t) / sizeof(uint8_t)];
 } MCP251XFD_uint16t_Conv;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_uint16t_Conv, 2);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_uint16t_Conv, 2);
 
 
 
@@ -571,8 +537,8 @@ typedef enum
 //********************************************************************************************************************
 
 //! Oscillator Control Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_OSC_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_OSC_Register
 {
   uint32_t OSC;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -593,8 +559,8 @@ typedef union __PACKED__ MCP251XFD_OSC_Register
     uint32_t        : 19; //!< 13-31
   } Bits;
 } MCP251XFD_OSC_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_OSC_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_OSC_Register, 4);
 
 #define MCP251XFD_SFR_OSC_PLLEN   ((uint32_t)(0x1u << 0)) //!< PLL Enable
 #define MCP251XFD_SFR_OSC_PLLDIS  ((uint32_t)(0x0u << 0)) //!< PLL Disable
@@ -658,7 +624,7 @@ typedef enum
   MCP251XFD_SYSCLK_IS_CLKIN       , //!< SYSCLK is CLKIN (no PLL, eMCP251XFD_SCLKDIV.SCLK_DivBy1). For CLKIN at 20MHz or 40MHz
   MCP251XFD_SYSCLK_IS_CLKIN_DIV_2 , //!< SYSCLK is CLKIN divide by 2 (no PLL, eMCP251XFD_SCLKDIV.SCLK_DivBy2). For CLKIN at 20MHz or 40MHz
   MCP251XFD_SYSCLK_IS_CLKIN_MUL_5 , //!< SYSCLK is CLKIN multiply by 5 (PLL enable, eMCP251XFD_SCLKDIV.SCLK_DivBy2). For CLKIN at 4MHz
-  MCP251XFD_SYSCLK_IS_CLKIN_MUL_10, //!< SYSCLK is CLKIN multiply by 10 (PLL enable, eMCP251XFD_SCLKDIV.SCLK_DivBy1). For CLKIN at 4MHz
+  MCP251XFD_SYSCLK_IS_CLKIN_MUL_10, //!< SYSCLK is CLKIN multiply by 10 (PLL enable, eMCP251XFD_SCLKDIV.SCLK_DivBy1). For CLKIN at 2MHz or 4MHz
 } eMCP251XFD_CLKINtoSYSCLK;
 
 //-----------------------------------------------------------------------------
@@ -681,8 +647,8 @@ typedef enum
 #define MCP251XFD_GPIO1_HIGH    ( 0b10 ) //!< Define the GPIO1 high status
 
 //! Input/Output Control Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_IOCON_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_IOCON_Register
 {
   uint32_t IOCON;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -708,8 +674,8 @@ typedef union __PACKED__ MCP251XFD_IOCON_Register
     uint32_t        : 1; //!< 31
   } Bits;
 } MCP251XFD_IOCON_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_IOCON_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_IOCON_Register, 4);
 
 #define MCP251XFD_SFR_IOCON_GPIO0_INPUT   ((uint32_t)(0x1u <<  0)) //!< GPIO0 Data Input Direction
 #define MCP251XFD_SFR_IOCON_GPIO0_OUTPUT  ((uint32_t)(0x0u <<  0)) //!< GPIO0 Data Output Direction
@@ -787,14 +753,14 @@ typedef enum
 
 
 //! CRC Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CRC_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CRC_Register
 {
-  uint32_t CRC;
+  uint32_t CRCreg;
   uint8_t Bytes[sizeof(uint32_t)];
   struct
   {
-    uint32_t CRC     : 16; //!<  0-15 - Cycle Redundancy Check from last CRC mismatch
+    uint32_t CRCbits : 16; //!<  0-15 - Cycle Redundancy Check from last CRC mismatch
     uint32_t CRCERRIF:  1; //!< 16    - CRC Error Interrupt Flag: '1' = CRC mismatch occurred ; '0' = No CRC error has occurred
     uint32_t FERRIF  :  1; //!< 17    - CRC Command Format Error Interrupt Flag: '1' = Number of Bytes mismatch during “SPI with CRC” command occurred ; '0' = No SPI CRC command format error occurred
     uint32_t         :  6; //!< 18-23
@@ -803,8 +769,8 @@ typedef union __PACKED__ MCP251XFD_CRC_Register
     uint32_t         :  6; //!< 26-31
   } Bits;
 } MCP251XFD_CRC_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CRC_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CRC_Register, 4);
 
 #define MCP251XFD_SFR_CRC_Pos           0
 #define MCP251XFD_SFR_CRC_Mask          (0xFFFFu << MCP251XFD_SFR_CRC_Pos)
@@ -844,8 +810,8 @@ typedef eMCP251XFD_CRCEvents setMCP251XFD_CRCEvents; //! Set of CRC Events (can 
 
 
 //! ECC Control Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_ECCCON_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_ECCCON_Register
 {
   uint32_t ECCCON;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -859,8 +825,8 @@ typedef union __PACKED__ MCP251XFD_ECCCON_Register
     uint32_t       : 17; //!< 15-31
   } Bits;
 } MCP251XFD_ECCCON_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_ECCCON_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_ECCCON_Register, 4);
 
 #define MCP251XFD_SFR_ECCCON_ECCEN              ((uint32_t)(0x1u << 0)) //!< ECC Enable
 #define MCP251XFD_SFR_ECCCON_ECCDIS             ((uint32_t)(0x0u << 0)) //!< ECC Disable
@@ -891,8 +857,8 @@ ControlItemSize(MCP251XFD_ECCCON_Register, 4);
 
 
 //! ECC Status Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_ECCSTAT_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_ECCSTAT_Register
 {
   uint32_t ECCSTAT;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -906,8 +872,8 @@ typedef union __PACKED__ MCP251XFD_ECCSTAT_Register
     uint32_t        :  4; //!< 28-31
   } Bits;
 } MCP251XFD_ECCSTAT_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_ECCSTAT_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_ECCSTAT_Register, 4);
 
 #define MCP251XFD_SFR_ECCSTAT_SECIF               ((uint32_t)(0x1u << 1)) //!< Single Error Correction Interrupt Flag
 #define MCP251XFD_SFR_ECCSTAT_DEDIF               ((uint32_t)(0x1u << 2)) //!< Double Error Detection Interrupt Flag
@@ -941,8 +907,8 @@ typedef eMCP251XFD_ECCEvents setMCP251XFD_ECCEvents; //! Set of ECC Events (can 
 
 
 //! Device ID Register (MCP2518FD only)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_DEVID_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_DEVID_Register
 {
   uint32_t DEVID;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -953,8 +919,8 @@ typedef union __PACKED__ MCP251XFD_DEVID_Register
     uint32_t    : 24; //!< 8-31
   } Bits;
 } MCP251XFD_DEVID_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_DEVID_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_DEVID_Register, 4);
 
 #define MCP251XFD_SFR_DEVID_REV_Pos         0
 #define MCP251XFD_SFR_DEVID_REV_Mask        (0xFu << MCP251XFD_SFR_DEVID_REV_Pos)
@@ -1003,8 +969,8 @@ static const char* const MCP251XFD_DevicesNames[eMPC251XFD_DEVICE_COUNT] =
 //********************************************************************************************************************
 
 //! CAN Control Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiCON_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiCON_Register
 {
   uint32_t CiCON;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1030,8 +996,8 @@ typedef union __PACKED__ MCP251XFD_CiCON_Register
     uint32_t TXBWS   : 4; //!< 28-31 - Transmit Bandwidth Sharing bits
   } Bits;
 } MCP251XFD_CiCON_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiCON_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiCON_Register, 4);
 
 /*! @enum eMCP251XFD_DNETFilter
  * @brief Device Net Filter Bit Number bits for the CiCON.DNCNT register
@@ -1176,8 +1142,8 @@ typedef enum
 
 
 //! Nominal Bit Time Configuration Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiNBTCFG_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiNBTCFG_Register
 {
   uint32_t CiNBTCFG;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1191,8 +1157,8 @@ typedef union __PACKED__ MCP251XFD_CiNBTCFG_Register
     uint32_t BRP  : 8; //!< 24-31 - Baud Rate Prescaler bits; TQ = value/Fsys
   } Bits;
 } MCP251XFD_CiNBTCFG_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiNBTCFG_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiNBTCFG_Register, 4);
 
 #define MCP251XFD_CAN_CiNBTCFG_SJW_Pos           0
 #define MCP251XFD_CAN_CiNBTCFG_SJW_Mask          (0x7Fu << MCP251XFD_CAN_CiNBTCFG_SJW_Pos)
@@ -1212,8 +1178,8 @@ ControlItemSize(MCP251XFD_CiNBTCFG_Register, 4);
 
 
 //! Data Bit Time Configuration Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiDBTCFG_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiDBTCFG_Register
 {
   uint32_t CiDBTCFG;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1228,8 +1194,8 @@ typedef union __PACKED__ MCP251XFD_CiDBTCFG_Register
     uint32_t BRP  : 8; //!< 24-31 - Baud Rate Prescaler bits; TQ = value/Fsys
   } Bits;
 } MCP251XFD_CiDBTCFG_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiDBTCFG_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiDBTCFG_Register, 4);
 
 #define MCP251XFD_CAN_CiDBTCFG_SJW_Pos           0
 #define MCP251XFD_CAN_CiDBTCFG_SJW_Mask          (0xFu << MCP251XFD_CAN_CiDBTCFG_SJW_Pos)
@@ -1249,8 +1215,8 @@ ControlItemSize(MCP251XFD_CiDBTCFG_Register, 4);
 
 
 //! Transmitter Delay Compensation Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTDC_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTDC_Register
 {
   uint32_t CiTDC;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1267,8 +1233,8 @@ typedef union __PACKED__ MCP251XFD_CiTDC_Register
     uint32_t         : 6; //!< 26-31
   } Bits;
 } MCP251XFD_CiTDC_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTDC_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTDC_Register, 4);
 
 #define MCP251XFD_CAN_CiTDC_TDCV_Pos         0
 #define MCP251XFD_CAN_CiTDC_TDCV_Mask        (0x3Fu << MCP251XFD_CAN_CiTDC_TDCV_Pos)
@@ -1364,14 +1330,14 @@ typedef struct MCP251XFD_BitTimeConfig
 
 
 //! Time Base Counter Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTBC_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTBC_Register
 {
   uint32_t CiTBC;   //!< Time Base Counter. This is a free running timer that increments every TBCPRE clocks when TBCEN is set
   uint8_t Bytes[sizeof(uint32_t)];
 } MCP251XFD_CiTBC_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTBC_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTBC_Register, 4);
 
 #define MCP251XFD_CAN_CiTBC_Pos         0
 #define MCP251XFD_CAN_CiTBC_Mask        (0xFFFFFFFFu << MCP251XFD_CAN_CiTBC_Pos)
@@ -1382,8 +1348,8 @@ ControlItemSize(MCP251XFD_CiTBC_Register, 4);
 
 
 //! Time Stamp Control Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTSCON_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTSCON_Register
 {
   uint32_t CiTSCON;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1397,8 +1363,8 @@ typedef union __PACKED__ MCP251XFD_CiTSCON_Register
     uint32_t       : 13; //!< 19-31
   } Bits;
 } MCP251XFD_CiTSCON_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTSCON_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTSCON_Register, 4);
 
 //! TimeStamp sample point
 typedef enum
@@ -1446,8 +1412,8 @@ typedef enum
 
 
 //! Interrupt Code Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiVEC_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiVEC_Register
 {
   uint32_t CiVEC;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1463,8 +1429,8 @@ typedef union __PACKED__ MCP251XFD_CiVEC_Register
     uint32_t       : 1; //!< 31
   } Bits;
 } MCP251XFD_CiVEC_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiVEC_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiVEC_Register, 4);
 
 //! Interrupt Flag Code bits for the CiVEC.ICODE
 typedef enum
@@ -1547,8 +1513,8 @@ typedef enum
 
 
 //! Interrupt Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiINT_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiINT_Register
 {
   uint32_t CiINT;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1584,8 +1550,8 @@ typedef union __PACKED__ MCP251XFD_CiINT_Register
     uint32_t IVMIE   : 1; //!< 31    - Invalid Message Interrupt Enable bit
   } Bits;
 } MCP251XFD_CiINT_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiINT_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiINT_Register, 4);
 
 #define MCP251XFD_CAN_CiINT_TXIF      (0x1u <<  0) //! Transmit FIFO Interrupt Flag
 #define MCP251XFD_CAN_CiINT_RXIF      (0x1u <<  1) //! Receive FIFO Interrupt Flag
@@ -1705,8 +1671,8 @@ typedef eMCP251XFD_InterruptEvents setMCP251XFD_InterruptEvents; //! Set of Inte
 
 
 //! Receive Interrupt Status Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiRXIF_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiRXIF_Register
 {
   uint32_t CiRXIF;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1746,8 +1712,8 @@ typedef union __PACKED__ MCP251XFD_CiRXIF_Register
     uint32_t RFIF31: 1; //!< 31 - Receive FIFO 31 Interrupt Pending bit: '1' = Interrupt is pending ; '0' = Interrupt not pending
   } Bits;
 } MCP251XFD_CiRXIF_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiRXIF_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiRXIF_Register, 4);
 
 #define MCP251XFD_CAN_CiRXIF_RFIF1   (0x1u <<  1) //!< Receive FIFO  1 Interrupt Pending
 #define MCP251XFD_CAN_CiRXIF_RFIF2   (0x1u <<  2) //!< Receive FIFO  2 Interrupt Pending
@@ -1786,8 +1752,8 @@ ControlItemSize(MCP251XFD_CiRXIF_Register, 4);
 
 
 //! Receive Overflow Interrupt Status Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiRXOVIF_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiRXOVIF_Register
 {
   uint32_t CiRXOVIF;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1827,8 +1793,8 @@ typedef union __PACKED__ MCP251XFD_CiRXOVIF_Register
     uint32_t RFOVIF31: 1; //!< 31 - Receive FIFO 31 Overflow Interrupt Pending bit: '1' = Interrupt is pending ; '0' = Interrupt not pending
   } Bits;
 } MCP251XFD_CiRXOVIF_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiRXOVIF_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiRXOVIF_Register, 4);
 
 #define MCP251XFD_CAN_CiRXOVIF_RFOVIF1   (0x1u <<  1) //!< Receive FIFO  1 Overflow Interrupt Pending
 #define MCP251XFD_CAN_CiRXOVIF_RFOVIF2   (0x1u <<  2) //!< Receive FIFO  2 Overflow Interrupt Pending
@@ -1867,8 +1833,8 @@ ControlItemSize(MCP251XFD_CiRXOVIF_Register, 4);
 
 
 //! Transmit Interrupt Status Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTXIF_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTXIF_Register
 {
   uint32_t CiTXIF;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1908,8 +1874,8 @@ typedef union __PACKED__ MCP251XFD_CiTXIF_Register
     uint32_t TFIF31: 1; //!< 31 - Transmit FIFO 31 Interrupt Pending bit: '1' = Interrupt is pending ; '0' = Interrupt not pending
   } Bits;
 } MCP251XFD_CiTXIF_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTXIF_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXIF_Register, 4);
 
 #define MCP251XFD_CAN_CiRXIF_TFIF0   (0x1u <<  0) //!< Transmit TXQ Interrupt Pending
 #define MCP251XFD_CAN_CiRXIF_TFIF1   (0x1u <<  1) //!< Transmit FIFO  1 Interrupt Pending
@@ -1949,8 +1915,8 @@ ControlItemSize(MCP251XFD_CiTXIF_Register, 4);
 
 
 //! Transmit Attempt Interrupt Status Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTXATIF_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTXATIF_Register
 {
   uint32_t CiTXATIF;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -1990,8 +1956,8 @@ typedef union __PACKED__ MCP251XFD_CiTXATIF_Register
     uint32_t TFATIF31: 1; //!< 31 - Transmit FIFO 31 Attempt Interrupt Pending bit: '1' = Interrupt is pending ; '0' = Interrupt not pending
   } Bits;
 } MCP251XFD_CiTXATIF_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTXATIF_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXATIF_Register, 4);
 
 #define MCP251XFD_CAN_CiTXATIF_TFATIF0   (0x1u <<  0) //!< Transmit TXQ Attempt Interrupt Pending
 #define MCP251XFD_CAN_CiTXATIF_TFATIF1   (0x1u <<  1) //!< Transmit FIFO  1 Attempt Interrupt Pending
@@ -2076,8 +2042,8 @@ typedef eMCP251XFD_InterruptOnFIFO setMCP251XFD_InterruptOnFIFO; //! Set of Rece
 /*! Transmit Request Register
  * Bits can NOT be used for aborting a transmission
  */
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTXREQ_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTXREQ_Register
 {
   uint32_t CiTXREQ;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -2117,8 +2083,8 @@ typedef union __PACKED__ MCP251XFD_CiTXREQ_Register
     uint32_t TXREQ31: 1; //!< 31 - Message Send FIFO 31 Request bit (TXEN=1): Setting this bit to '1' requests sending a message ; The bit will automatically clear when the message(s) queued in the object is (are) successfully sent
   } Bits;
 } MCP251XFD_CiTXREQ_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTXREQ_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXREQ_Register, 4);
 
 #define MCP251XFD_CAN_CiTXREQ_TXREQ0   (0x1u <<  0) //!< Transmit Queue Message Send Request
 #define MCP251XFD_CAN_CiTXREQ_TXREQ1   (0x1u <<  1) //!< Message Send FIFO  1 Request
@@ -2158,8 +2124,8 @@ ControlItemSize(MCP251XFD_CiTXREQ_Register, 4);
 
 
 //! Transmit/Receive error count Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTREC_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTREC_Register
 {
   uint32_t CiTREC;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -2176,8 +2142,8 @@ typedef union __PACKED__ MCP251XFD_CiTREC_Register
     uint32_t       : 10; //!< 22-31
   } Bits;
 } MCP251XFD_CiTREC_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTREC_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTREC_Register, 4);
 
 #define MCP251XFD_CAN_CiTREC_REC_Pos         0
 #define MCP251XFD_CAN_CiTREC_REC_Mask        (0xFFu << MCP251XFD_CAN_CiTREC_REC_Pos)
@@ -2226,8 +2192,8 @@ typedef enum
 
 
 //! Bus Diagnostic Register 0
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiBDIAG0_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiBDIAG0_Register
 {
   uint32_t CiBDIAG0;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -2246,8 +2212,8 @@ typedef union __PACKED__ MCP251XFD_CiBDIAG0_Register
     uint32_t DTERRCNT: 8; //!< 24-31 - Data Bit Rate Transmit Error Counter bits
   } Bits;
 } MCP251XFD_CiBDIAG0_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiBDIAG0_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiBDIAG0_Register, 4);
 
 #define MCP251XFD_CAN_CiBDIAG0_NRERRCNT_Pos         0
 #define MCP251XFD_CAN_CiBDIAG0_NRERRCNT_Mask        (0xFFu << MCP251XFD_CAN_CiBDIAG0_NRERRCNT_Pos)
@@ -2267,7 +2233,7 @@ ControlItemSize(MCP251XFD_CiBDIAG0_Register, 4);
 
 
 //! Transmit and Receive Error status
-PACKENUM(eMCP251XFD_DiagStatus, uint16_t)
+MCP251XFD_PACKENUM(eMCP251XFD_DiagStatus, uint16_t)
 {
   MCP251XFD_DIAG_MASK         = 0xFBBF,
 
@@ -2287,16 +2253,16 @@ PACKENUM(eMCP251XFD_DiagStatus, uint16_t)
   MCP251XFD_DIAG_DCRC_ERR     = 0x2000, //!< Data Bitrate: The CRC check sum of a received message was incorrect. The CRC of an incoming message does not match with the CRC calculated from the received data
   MCP251XFD_DIAG_ESI_SET      = 0x4000, //!< ESI flag of a received CAN FD message was set
   MCP251XFD_DIAG_DLC_MISMATCH = 0x8000, //!< DLC Mismatch bit. During a transmission or reception, the specified DLC is larger than the PLSIZE of the FIFO element
-} UNPACKENUM(eMCP251XFD_DiagStatus);
-ControlItemSize(eMCP251XFD_DiagStatus, 2);
+} MCP251XFD_UNPACKENUM(eMCP251XFD_DiagStatus);
+MCP251XFD_CONTROL_ITEM_SIZE(eMCP251XFD_DiagStatus, 2);
 
 //-----------------------------------------------------------------------------
 
 
 
 //! Bus Diagnostics Register 1
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiBDIAG1_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiBDIAG1_Register
 {
   uint32_t CiBDIAG1;
   uint16_t Uint16[sizeof(uint32_t) / sizeof(uint16_t)];
@@ -2327,8 +2293,8 @@ typedef union __PACKED__ MCP251XFD_CiBDIAG1_Register
     uint32_t DLCMM   :  1; //!< 31    - DLC Mismatch bit. During a transmission or reception, the specified DLC is larger than the PLSIZE of the FIFO element
   } Bits;
 } MCP251XFD_CiBDIAG1_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiBDIAG1_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiBDIAG1_Register, 4);
 
 #define MCP251XFD_CAN_CiBDIAG1_EFMSGCNT_Pos         0
 #define MCP251XFD_CAN_CiBDIAG1_EFMSGCNT_Mask        (0xFFFFu << MCP251XFD_CAN_CiBDIAG1_EFMSGCNT_Pos)
@@ -2418,8 +2384,8 @@ typedef enum
 
 
 //! Transmit Event FIFO Control Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTEFCON_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTEFCON_Register
 {
   uint32_t CiTEFCON;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -2440,8 +2406,8 @@ typedef union __PACKED__ MCP251XFD_CiTEFCON_Register
     uint32_t        :  3; //!< 29-31
   } Bits;
 } MCP251XFD_CiTEFCON_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTEFCON_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTEFCON_Register, 4);
 
 #define MCP251XFD_CAN_CiTEFCON_TEFNEIE  (0x1u <<  0) //!< Transmit Event FIFO Not Empty Interrupt Enable
 #define MCP251XFD_CAN_CiTEFCON_TEFHIE   (0x1u <<  1) //!< Transmit Event FIFO Half Full Interrupt Enable
@@ -2510,8 +2476,8 @@ typedef enum
 
 
 //! Transmit Event FIFO Status Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTEFSTA_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTEFSTA_Register
 {
   uint32_t CiTEFSTA;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -2524,8 +2490,8 @@ typedef union __PACKED__ MCP251XFD_CiTEFSTA_Register
     uint32_t        : 28; //!<  4-31
   } Bits;
 } MCP251XFD_CiTEFSTA_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTEFSTA_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTEFSTA_Register, 4);
 
 #define MCP251XFD_CAN_CiTEFSTA_TEFNEIF  (0x1u << 0) //!< Transmit Event FIFO Not Empty Interrupt Flag
 #define MCP251XFD_CAN_CiTEFSTA_TEFHIF   (0x1u << 1) //!< Transmit Event FIFO Half Full Interrupt Flag
@@ -2558,14 +2524,14 @@ typedef enum
 /*! Time Base Counter Register
  * This register is not guaranteed to read correctly in Configuration mode and should only be accessed when the module is not in Configuration mode
  */
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTEFUA_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTEFUA_Register
 {
   uint32_t CiTEFUA; //!< Transmit Event FIFO User Address bits. A read of this register will return the address where the next object is to be read (FIFO tail)
   uint8_t Bytes[sizeof(uint32_t)];
 } MCP251XFD_CiTEFUA_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTEFUA_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTEFUA_Register, 4);
 
 #define MCP251XFD_CAN_CiTEFUA_Pos         0
 #define MCP251XFD_CAN_CiTEFUA_Mask        (0xFFFFFFFFu << MCP251XFD_CAN_CiTEFUA_Pos)
@@ -2578,8 +2544,8 @@ ControlItemSize(MCP251XFD_CiTEFUA_Register, 4);
 
 
 //!  Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTXQCON_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTXQCON_Register
 {
   uint32_t CiTXQCON;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -2603,8 +2569,8 @@ typedef union __PACKED__ MCP251XFD_CiTXQCON_Register
     uint32_t PLSIZE: 3; //!< 29-31 - Payload Size
   } Bits;
 } MCP251XFD_CiTXQCON_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTXQCON_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXQCON_Register, 4);
 
 #define MCP251XFD_CAN_CiTXQCON_TXQNIE  (0x1u <<  0) //!< Transmit Queue Not Full Interrupt Enable
 #define MCP251XFD_CAN_CiTXQCON_TXQEIE  (0x1u <<  2) //!< Transmit Queue Empty Interrupt Enable
@@ -2715,8 +2681,8 @@ typedef enum
 
 
 //! Transmit Queue Status Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTXQSTA_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTXQSTA_Register
 {
   uint32_t CiTXQSTA;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -2734,8 +2700,8 @@ typedef union __PACKED__ MCP251XFD_CiTXQSTA_Register
     uint32_t       : 19; //!< 13-31
   } Bits;
 } MCP251XFD_CiTXQSTA_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTXQSTA_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXQSTA_Register, 4);
 
 #define MCP251XFD_CAN_CiTXQSTA_TXQNIF            (0x1u << 0) //!< Transmit Queue Not Full Interrupt Flag
 #define MCP251XFD_CAN_CiTXQSTA_TXQEIF            (0x1u << 2) //!< Transmit Queue Empty Interrupt Flag
@@ -2780,14 +2746,14 @@ typedef enum
 /*! Transmit Queue User Address Register
  * This register is not guaranteed to read correctly in Configuration mode and should only be accessed when the module is not in Configuration mode
  */
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiTXQUA_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTXQUA_Register
 {
   uint32_t CiTXQUA; //!< TXQ User Address bits. A read of this register will return the address where the next message is to be written (TXQ head)
   uint8_t Bytes[sizeof(uint32_t)];
 } MCP251XFD_CiTXQUA_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiTXQUA_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXQUA_Register, 4);
 
 #define MCP251XFD_CAN_CiTXQUA_Pos         0
 #define MCP251XFD_CAN_CiTXQUA_Mask        (0xFFFFFFFFu << MCP251XFD_CAN_CiTXQUA_Pos)
@@ -2800,8 +2766,8 @@ ControlItemSize(MCP251XFD_CiTXQUA_Register, 4);
 
 
 //! FIFO Control Register m, (m = 1 to 31)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiFIFOCONm_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiFIFOCONm_Register
 {
   uint32_t CiFIFOCONm;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -2826,8 +2792,8 @@ typedef union __PACKED__ MCP251XFD_CiFIFOCONm_Register
     uint32_t PLSIZE  : 3; //!< 29-31 - Payload Size bits
   } Bits;
 } MCP251XFD_CiFIFOCONm_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiFIFOCONm_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFIFOCONm_Register, 4);
 
 #define MCP251XFD_CAN_CiFIFOCONm_TFNRFNIE       (0x1u <<  0) //!< Transmit/Receive FIFO Not Full/Not Empty Interrupt Enable
 #define MCP251XFD_CAN_CiFIFOCONm_TFHRFHIE       (0x1u <<  1) //!< Transmit/Receive FIFO Half Empty/Half Full Interrupt Enable
@@ -2892,8 +2858,8 @@ typedef enum
 
 
 //! FIFO Status Register m, (m = 1 to 31)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiFIFOSTAm_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiFIFOSTAm_Register
 {
   uint32_t CiFIFOSTAm;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -2911,8 +2877,8 @@ typedef union __PACKED__ MCP251XFD_CiFIFOSTAm_Register
     uint32_t         : 19; //!<  9-31
   } Bits;
 } MCP251XFD_CiFIFOSTAm_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiFIFOSTAm_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFIFOSTAm_Register, 4);
 
 #define MCP251XFD_CAN_CiFIFOSTAm_TFNRFNIF           (0x1u << 0) //!< Transmit/Receive FIFO Not Full/Not Empty Interrupt Flag
 #define MCP251XFD_CAN_CiFIFOSTAm_TFHRFHIF           (0x1u << 1) //!< Transmit/Receive FIFO Half Empty/Half Full Interrupt Flag
@@ -2973,14 +2939,14 @@ typedef enum
 /*! FIFO User Address Register m, (m = 1 to 31)
  * This register is not guaranteed to read correctly in Configuration mode and should only be accessed when the module is not in Configuration mode
  */
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiFIFOUAm_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiFIFOUAm_Register
 {
   uint32_t CiFIFOUAm; //!< FIFO User Address bits. If TXEN=1 (FIFO is configured as a Transmit FIFO): A read of this register will return the address where the next message is to be written (FIFO head). If TXEN=0 (FIFO is configured as a Receive FIFO): A read of this register will return the address where the next message is to be read (FIFO tail)
   uint8_t Bytes[sizeof(uint32_t)];
 } MCP251XFD_CiFIFOUAm_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiFIFOUAm_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFIFOUAm_Register, 4);
 
 #define MCP251XFD_CAN_CiFIFOUAm_Pos         0
 #define MCP251XFD_CAN_CiFIFOUAm_Mask        (0xFFFFFFFFu << MCP251XFD_CAN_CiFIFOUAm_Pos)
@@ -3041,8 +3007,8 @@ typedef enum
 
 
 //! Filter Control Register m, (m = 0 to 31)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiFLTCONm_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiFLTCONm_Register
 {
   uint8_t CiFLTCONm;
   struct
@@ -3052,8 +3018,8 @@ typedef union __PACKED__ MCP251XFD_CiFLTCONm_Register
     uint8_t FLTEN: 1; //!<  7   - Enable Filter to Accept Messages bit: '1' = Filter is enabled ; '0' = Filter is disabled
   } Bits;
 } MCP251XFD_CiFLTCONm_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiFLTCONm_Register, 1);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFLTCONm_Register, 1);
 
 #define MCP251XFD_CAN_CiFLTCONm_FBP_Pos         0
 #define MCP251XFD_CAN_CiFLTCONm_FBP_Mask        (0x1Fu << MCP251XFD_CAN_CiFLTCONm_FBP_Pos)
@@ -3074,8 +3040,8 @@ ControlItemSize(MCP251XFD_CiFLTCONm_Register, 1);
 
 
 //! Filter Object Register m, (m = 0 to 31)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiFLTOBJm_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiFLTOBJm_Register
 {
   uint32_t CiFLTOBJm;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -3088,8 +3054,8 @@ typedef union __PACKED__ MCP251XFD_CiFLTOBJm_Register
     uint32_t      :  1; //!< 31
   } Bits;
 } MCP251XFD_CiFLTOBJm_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiFLTOBJm_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFLTOBJm_Register, 4);
 
 #define MCP251XFD_CAN_CiFLTOBJm_SID_Pos         0
 #define MCP251XFD_CAN_CiFLTOBJm_SID_Mask        (0x7FFu << MCP251XFD_CAN_CiFLTOBJm_SID_Pos)
@@ -3110,8 +3076,8 @@ ControlItemSize(MCP251XFD_CiFLTOBJm_Register, 4);
 
 
 //! Mask Register m, (m = 0 to 31)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CiMASKm_Register
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CiMASKm_Register
 {
   uint32_t CiMASKm;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -3124,8 +3090,8 @@ typedef union __PACKED__ MCP251XFD_CiMASKm_Register
     uint32_t       :  1; //!< 31
   } Bits;
 } MCP251XFD_CiMASKm_Register;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CiMASKm_Register, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiMASKm_Register, 4);
 
 #define MCP251XFD_CAN_CiMASKm_MSID_Pos         0
 #define MCP251XFD_CAN_CiMASKm_MSID_Mask        (0x7FFu << MCP251XFD_CAN_CiMASKm_MSID_Pos)
@@ -3207,8 +3173,8 @@ typedef struct MCP251XFD_CANMessage
 
 
 //! CAN Transmit Message Identifier (T0)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CAN_TX_Message_Identifier
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CAN_TX_Message_Identifier
 {
   uint32_t T0;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -3220,8 +3186,8 @@ typedef union __PACKED__ MCP251XFD_CAN_TX_Message_Identifier
     uint32_t      :  2; //!< 30-31
   };
 } MCP251XFD_CAN_TX_Message_Identifier;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CAN_TX_Message_Identifier, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_TX_Message_Identifier, 4);
 
 #define MCP251XFD_CAN_MSGT0_SID_Pos         0
 #define MCP251XFD_CAN_MSGT0_SID_Mask        (0x7FFu << MCP251XFD_CAN_MSGT0_SID_Pos)
@@ -3236,8 +3202,8 @@ ControlItemSize(MCP251XFD_CAN_TX_Message_Identifier, 4);
 
 
 //! CAN Transmit Message Control Field (T1)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CAN_TX_Message_Control
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CAN_TX_Message_Control
 {
   uint32_t T1;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -3252,8 +3218,8 @@ typedef union __PACKED__ MCP251XFD_CAN_TX_Message_Control
     uint32_t SEQ: 23; //!< 9-31 - Sequence to keep track of transmitted messages in Transmit Event FIFO (Only bit <6:0> for the MCP2517X. Bits <22:7> should be at '0')
   };
 } MCP251XFD_CAN_TX_Message_Control;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CAN_TX_Message_Control, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_TX_Message_Control, 4);
 
 #define MCP251XFD_CAN_MSGT1_DLC_Pos         0
 #define MCP251XFD_CAN_MSGT1_DLC_Mask        (0xFu << MCP251XFD_CAN_MSGT1_DLC_Pos)
@@ -3280,8 +3246,8 @@ ControlItemSize(MCP251XFD_CAN_TX_Message_Control, 4);
 #define MCP251XFD_CAN_MSG_T1  1
 
 //! Transmit Message Object Register (TXQ and TX FIFO)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CAN_TX_Message
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CAN_TX_Message
 {
   uint32_t Word[2];
   uint8_t Bytes[8];
@@ -3291,8 +3257,8 @@ typedef union __PACKED__ MCP251XFD_CAN_TX_Message
     MCP251XFD_CAN_TX_Message_Control    T1; //!< CAN Transmit Message Control Field (T1)
   };
 } MCP251XFD_CAN_TX_Message;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CAN_TX_Message, 8);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_TX_Message, 8);
 
 //-----------------------------------------------------------------------------
 
@@ -3306,8 +3272,8 @@ ControlItemSize(MCP251XFD_CAN_TX_Message, 8);
 #define MCP251XFD_CAN_MSG_TE1  1
 
 //! Transmit Event Object Register (TEF)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CAN_TX_EventObject
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CAN_TX_EventObject
 {
   uint32_t Word[2];
   uint8_t Bytes[8];
@@ -3318,8 +3284,8 @@ typedef union __PACKED__ MCP251XFD_CAN_TX_EventObject
     uint32_t TimeStamp;                      //!< Transmit Message Time Stamp. TE2 (TXMSGTS) only exists in objects where CiTEFCON.TEFTSEN is set
   };
 } MCP251XFD_CAN_TX_EventObject;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CAN_TX_EventObject, 12);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_TX_EventObject, 12);
 
 //-----------------------------------------------------------------------------
 
@@ -3330,8 +3296,8 @@ ControlItemSize(MCP251XFD_CAN_TX_EventObject, 12);
 
 
 //! CAN Receive Message Identifier (R0)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CAN_RX_Message_Identifier
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CAN_RX_Message_Identifier
 {
   uint32_t R0;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -3343,8 +3309,8 @@ typedef union __PACKED__ MCP251XFD_CAN_RX_Message_Identifier
     uint32_t      :  2; //!< 30-31
   };
 } MCP251XFD_CAN_RX_Message_Identifier;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CAN_RX_Message_Identifier, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_RX_Message_Identifier, 4);
 
 #define MCP251XFD_CAN_MSGR0_SID_Pos         0
 #define MCP251XFD_CAN_MSGR0_SID_Mask        (0x7FFu << MCP251XFD_CAN_MSGR0_SID_Pos)
@@ -3359,8 +3325,8 @@ ControlItemSize(MCP251XFD_CAN_RX_Message_Identifier, 4);
 
 
 //! CAN Receive Message Control Field (R1)
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CAN_RX_Message_Control
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CAN_RX_Message_Control
 {
   uint32_t R1;
   uint8_t Bytes[sizeof(uint32_t)];
@@ -3377,8 +3343,8 @@ typedef union __PACKED__ MCP251XFD_CAN_RX_Message_Control
     uint32_t        : 16; //!< 16-31
   };
 } MCP251XFD_CAN_RX_Message_Control;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CAN_RX_Message_Control, 4);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_RX_Message_Control, 4);
 
 #define MCP251XFD_CAN_MSGR1_DLC_Pos             0
 #define MCP251XFD_CAN_MSGR1_DLC_Mask            (0xFu << MCP251XFD_CAN_MSGR1_DLC_Pos)
@@ -3400,8 +3366,8 @@ ControlItemSize(MCP251XFD_CAN_RX_Message_Control, 4);
 #define MCP251XFD_CAN_MSG_R1  1
 
 //! Receive Message Object Register
-PACKITEM
-typedef union __PACKED__ MCP251XFD_CAN_RX_Message
+MCP251XFD_PACKITEM
+typedef union __MCP251XFD_PACKED__ MCP251XFD_CAN_RX_Message
 {
   uint32_t Word[2];
   uint8_t Bytes[8];
@@ -3412,8 +3378,8 @@ typedef union __PACKED__ MCP251XFD_CAN_RX_Message
     uint32_t TimeStamp;                     //!< Transmit Message Time Stamp. R2 (RXMSGTS) only exits in objects where CiFIFOCONm.RXTSEN is set
   };
 } MCP251XFD_CAN_RX_Message;
-UNPACKITEM;
-ControlItemSize(MCP251XFD_CAN_RX_Message, 12);
+MCP251XFD_UNPACKITEM;
+MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_RX_Message, 12);
 
 //-----------------------------------------------------------------------------
 
@@ -3813,7 +3779,7 @@ eERRORRESULT MCP251XFD_WriteData(MCP251XFD *pComp, uint16_t address, const uint8
  * @param[in] data Is the data to write
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_WriteSFR8(MCP251XFD *pComp, uint16_t address, uint8_t data)
+inline eERRORRESULT MCP251XFD_WriteSFR8(MCP251XFD *pComp, uint16_t address, const uint8_t data)
 {
   return MCP251XFD_WriteData(pComp, address, &data, 1);
 }
@@ -3827,7 +3793,7 @@ inline eERRORRESULT MCP251XFD_WriteSFR8(MCP251XFD *pComp, uint16_t address, uint
  * @param[in] data Is the data to write
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_WriteSFR16(MCP251XFD *pComp, uint16_t address, uint16_t data)
+inline eERRORRESULT MCP251XFD_WriteSFR16(MCP251XFD *pComp, uint16_t address, const uint16_t data)
 {
   MCP251XFD_uint16t_Conv Tmp;
   Tmp.Uint16 = data;
@@ -3844,7 +3810,7 @@ inline eERRORRESULT MCP251XFD_WriteSFR16(MCP251XFD *pComp, uint16_t address, uin
  * @param[in] data Is the data to write
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_WriteSFR32(MCP251XFD *pComp, uint16_t address, uint32_t data)
+inline eERRORRESULT MCP251XFD_WriteSFR32(MCP251XFD *pComp, uint16_t address, const uint32_t data)
 {
   MCP251XFD_uint32t_Conv Tmp;
   Tmp.Uint32 = data;
@@ -4396,7 +4362,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFO(MCP251XFD *pComp, MCP251XFD_FIFO *confFIFO)
 
 /*! @brief Configure a FIFO list of the MCP251XFD device
  *
- * This function configures a set of FIFO at once
+ * This function configures a set of FIFO at once. All FIFO, TEF or TXQ that are not in the list are either disabled or cleared
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[in] *listFIFO Is the list of FIFO to configure
  * @param[in] count Is the count of FIFO in the list
@@ -5061,17 +5027,8 @@ uint8_t MCP251XFD_DLCToByte(eMCP251XFD_DataLength dlc, bool isCANFD);
 
 
 //-----------------------------------------------------------------------------
-#undef __PACKED__
-#undef PACKITEM
-#undef UNPACKITEM
-#undef PACKENUM
-#undef UNPACKENUM
-#undef ControlItemSize
-//-----------------------------------------------------------------------------
-//! @cond
 #ifdef __cplusplus
 }
 #endif
-//! @endcond
 //-----------------------------------------------------------------------------
 #endif /* MCP251XFD_H_INC */
