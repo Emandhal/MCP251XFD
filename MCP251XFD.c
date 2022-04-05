@@ -9,20 +9,17 @@
  * and CAN-FD with SPI interface
  * Follow datasheet MCP2517FD Rev.B (July  2019)
  *                  MCP2518FD Rev.A (April 2019)
+ *                  MCP251863 Rev.A (Feb   2022) [Have a MCP2518FD inside]
  * Follow MCP25XXFD Family Reference Manual (DS20005678D)
  ******************************************************************************/
 
 //-----------------------------------------------------------------------------
 #include "MCP251XFD.h"
 //-----------------------------------------------------------------------------
-/// @cond
-/**INDENT-OFF**/
 #ifdef __cplusplus
 #  include <cstdint>
 extern "C" {
 #endif
-/**INDENT-ON**/
-/// @endcond
 //-----------------------------------------------------------------------------
 
 
@@ -2559,11 +2556,7 @@ uint8_t MCP251XFD_DLCToByte(eMCP251XFD_DataLength dlc, bool isCANFD)
 
 
 //-----------------------------------------------------------------------------
-/// @cond
-/**INDENT-OFF**/
 #ifdef __cplusplus
 }
 #endif
-/**INDENT-ON**/
-/// @endcond
 //-----------------------------------------------------------------------------

@@ -8,8 +8,8 @@ Each driver's functions need a device structure that indicate with which device 
 ## Feature
 
 This driver has been designed to:
-* Be fully configurable (all features of the MCP2517FD and MCP2518FD are managed)
-* Detect which one of the MCP2517FD or the MCP2518FD is connected
+* Be fully configurable (all features of the MCP2517FD, MCP2518FD and MCP251863 are managed)
+* Detect which one of the MCP2517FD or the MCP2518FD (MCP251863 have a MCP2518FD inside) is connected
 * Take care of the CRC communication or Safe write if configured for the device
 * Manage all Sleep modes
 * Have no limit of configuration except the ones imposed by the device

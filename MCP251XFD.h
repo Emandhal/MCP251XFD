@@ -9,6 +9,7 @@
  * and CAN-FD with SPI interface
  * Follow datasheet MCP2517FD Rev.B (July  2019)
  *                  MCP2518FD Rev.A (April 2019)
+ *                  MCP251863 Rev.A (Feb   2022) [Have a MCP2518FD inside]
  * Follow MCP25XXFD Family Reference Manual (DS20005678D)
  ******************************************************************************/
 /* @page License
@@ -943,7 +944,7 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_DEVID_Register, 4);
 typedef enum
 {
   MCP2517FD         = 0x0, //!< MCP2517FD supported
-  MCP2518FD         = 0x1, //!< MCP2518FD supported
+  MCP2518FD         = 0x1, //!< MCP2518FD/MCP251863 supported
   eMPC251XFD_DEVICE_COUNT, // Device count of this enum, keep last
 } eMCP251XFD_Devices;
 
@@ -955,7 +956,7 @@ typedef enum
 static const char* const MCP251XFD_DevicesNames[eMPC251XFD_DEVICE_COUNT] =
 {
   "MCP2517FD",
-  "MCP2518FD",
+  "MCP2518FD", // Same for MCP251863
 };
 
 //-----------------------------------------------------------------------------
