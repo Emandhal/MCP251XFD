@@ -99,6 +99,9 @@ extern "C" {
     X(ERR__OLD_DATA            ,      , "Old data"                                              ) \
     X(ERR__CANCELED            ,      , "Canceled"                                              ) \
     X(ERR__NO_SYNC             ,      , "No synchronization"                                    ) \
+    X(ERR__NOT_INITIALIZED     ,      , "Not initialized"                                       ) \
+    X(ERR__BAD_ENDIANNESS      ,      , "Bad endianness"                                        ) \
+    X(ERR__INVALID_DATA        ,      , "Invalid data"                                          ) \
 /*  // Device mode                                                                              */\
     X(ERR__NOT_IN_SLEEP_MODE   , =  90, "Operation impossible in sleep mode"                    ) \
     X(ERR__ALREADY_IN_SLEEP    ,      , "Already in sleep mode"                                 ) \

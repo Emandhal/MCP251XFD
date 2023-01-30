@@ -20,18 +20,6 @@
 #ifdef __cplusplus
 #include "stdafx.h"
 extern "C" {
-  void SetConsoleColor(int text, int fond)
-  {// 0: noir          8: gris
-   // 1: bleu foncé    9: bleu
-   // 2: vert         10: vert fluo
-   // 3: bleu-gris    11: turquoise
-   // 4: marron       12: rouge
-   // 5: pourpre      13: rose fluo
-   // 6: kaki         14: jaune fluo
-   // 7: gris clair   15: blanc
-    HANDLE H = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(H, (fond << 4) + text);
-  }
 #endif
 /**INDENT-ON**/
 /// @endcond
@@ -42,6 +30,9 @@ extern "C" {
 
 
 //**********************************************************************************************************************************************************
+#ifdef USE_CONSOLE_RX
+
+
 //=============================================================================
 // Initialize the Console Reception
 //=============================================================================
@@ -60,9 +51,17 @@ void InitConsoleRx(ConsoleRx* pApi)
   memset(pApi->Buffer, 0, (sizeof(pApi->Buffer[0]) * pApi->BufferSize));
 }
 
+//-----------------------------------------------------------------------------
+#endif /* USE_CONSOLE_RX */
+
+
+
 
 
 //**********************************************************************************************************************************************************
+#ifdef USE_CONSOLE_TX
+
+
 //=============================================================================
 // Initialize the Console Transmit
 //=============================================================================
@@ -188,14 +187,14 @@ void __LOG(ConsoleTx* pApi, const char* context, bool whiteText, const char* for
 #ifdef __cplusplus
 const int SeverityColors[(size_t)lsLast_] =
 {
-  lsTitle   = 10, // lsTitle   -> Color: Text=green  ; Background=black
-  lsFatal   = 12, // lsFatal   -> Color: Text=red    ; Background=black
-  lsError   = 12, // lsError   -> Color: Text=red    ; Background=black
-  lsWarning = 14, // lsWarning -> Color: Text=yellow ; Background=black
-  lsInfo    = 11, // lsInfo    -> Color: Text=blue   ; Background=black
-  lsTrace   = 15, // lsTrace   -> Color: Text=white  ; Background=black
-  lsDebug   =  8, // lsDebug   -> Color: Text=grey   ; Background=black
-  lsSpecial =  6, // lsSpecial -> Color: Text=kaki   ; Background=black
+  lsTitle   = wccLIME  , // lsTitle   -> Color: Text=green  ; Background=black
+  lsFatal   = wccRED   , // lsFatal   -> Color: Text=red    ; Background=black
+  lsError   = wccRED   , // lsError   -> Color: Text=red    ; Background=black
+  lsWarning = wccYELLOW, // lsWarning -> Color: Text=yellow ; Background=black
+  lsInfo    = wccAQUA  , // lsInfo    -> Color: Text=blue   ; Background=black
+  lsTrace   = wccWHITE , // lsTrace   -> Color: Text=white  ; Background=black
+  lsDebug   = wccGRAY  , // lsDebug   -> Color: Text=grey   ; Background=black
+  lsSpecial = wccOLIVE , // lsSpecial -> Color: Text=kaki   ; Background=black
 };
 #else
 const char* SeverityColors[(size_t)lsLast_] =
@@ -222,18 +221,31 @@ void LOG(ConsoleTx* pApi, eSeverity severity, const char* format, ...)
   va_start(args, format);
 
 #ifdef __cplusplus
-  SetConsoleColor(SeverityColors[(size_t)severity], 0);
+  SetConsoleColor(SeverityColors[(size_t)severity], wccBLACK);
 #else
   SetStrToConsoleBuffer(pApi, SeverityColors[(size_t)severity]);
 #endif
 
-  bool KeepColorFor = (severity == lsFatal) | (severity == lsDebug);
+  bool KeepColorFor = (severity == lsFatal) || (severity == lsDebug);
   __LOG(pApi, "DEMO", !KeepColorFor, format, args);
 
   va_end(args);
 }
 
+
+
 #ifdef __cplusplus
+//=============================================================================
+// Set the Windows console color
+//=============================================================================
+void SetConsoleColor(eWinConsoleColor text, eWinConsoleColor background)
+{
+  HANDLE H = GetStdHandle(STD_OUTPUT_HANDLE);
+  SetConsoleTextAttribute(H, ((int)background << 4) + (int)text);
+}
+
+
+
 //=============================================================================
 // Send a formated Simulation Logs to console
 //=============================================================================
@@ -243,7 +255,7 @@ void LOGSIM(ConsoleTx* pApi, const char* format, ...)
   va_start(args, format);
 
 #ifdef __cplusplus
-  SetConsoleColor(3, 0);                      // Color: Text=blue-grey ; Background=black
+  SetConsoleColor(wccTEAL, wccBLACK);         // Color: Text=blue-grey ; Background=black
 #else
   SetStrToConsoleBuffer(pApi,"\x001B[0;96m"); // Color: Text=cyan bright ; Background=black
 #endif
@@ -344,231 +356,8 @@ void __BinDump(ConsoleTx* pApi, const char* context, const void* src, unsigned i
 }
 #endif
 
-
-
-
-
-//**********************************************************************************************************************************************************
-//=============================================================================
-// Convert a string to int32
-//=============================================================================
-int32_t String_ToInt32(char* buff)
-{
-  if (buff[0] == 0) return 0;             // Empty string? return 0
-  bool Sign = (buff[0] == '-');           // Minus character? Save it
-  if (Sign || (buff[0] == '+')) buff++;   // Minus character or Plus character? Go to next one
-  if (buff[0] == 0) return 0;             // Empty string? return 0
-
-  int32_t IntPart = 0;                    // Here is the integer part
-
-  // Integer part
-  while ((uint32_t)(buff[0] - 0x30) <= 9) // Here if buff[0] = '\0', the result should be > 9 then break the while...
-  {
-    IntPart *= 10;                        // Multiply the int part by 10
-    IntPart += buff[0] - 0x30;            // Add the unit value
-    buff++;                               // Next char
-  }
-  if (buff[0] != 0) return 0;             // Error, the last character should be '\0' set result to 0
-
-  if (Sign)                               // If negative value...
-    return -IntPart;                      // Then return a negative int32
-  return IntPart;                         // In all cases, return
-}
-
-
-
-//=============================================================================
-// Convert a string to int32 by reference
-//=============================================================================
-char* String_ToInt32ByRef(char* buff, int32_t* Result)
-{
-  if (buff[0] == 0) return 0;             // Empty string? return 0
-  bool Sign = (buff[0] == '-');           // Minus character? Save it
-  if (Sign || (buff[0] == '+')) buff++;   // Minus character or Plus character? Go to next one
-  if (buff[0] == 0) return 0;             // Empty string? return 0
-
-  int32_t IntPart = 0;                    // Here is the integer part
-
-  // Integer part
-  while ((uint32_t)(buff[0] - 0x30) <= 9) // Here if buff[0] = '\0', the result should be > 9 then break the while...
-  {
-    IntPart *= 10;                        // Multiply the int part by 10
-    IntPart += buff[0] - 0x30;            // Add the unit value
-    buff++;                               // Next char
-  }
-
-  *Result = IntPart;                      // In all cases, set IntPart as result
-  if (Sign)                               // If negative value...
-    *Result = -IntPart;                   // Then set negative IntPart as result
-  return buff;                            // Return the new position
-}
-
-
-
-//=============================================================================
-// Convert a uint32_t to String
-//=============================================================================
-uint32_t uint32_t_ToStr(uint32_t num, char* buff)
-{
-  char hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-  uint32_t len = 0, k = 0;
-  uint32_t NumVal = num;
-  do // For every 4 bits
-  {
-    // Get the equivalent hex digit
-    buff[len] = hex[NumVal % 10];
-    len++;
-    NumVal /= 10;
-  } while (NumVal != 0);
-  // Since we get the digits in the wrong order reverse the digits in the buffer
-  for(; k < (len / 2); k++)
-  { // Xor swapping
-    buff[k] ^= buff[len - k - 1];
-    buff[len - k - 1] ^= buff[k];
-    buff[k] ^= buff[len - k - 1];
-  }
-  // Null terminate the buffer and return the length in digits
-  buff[len] = '\0';
-  return len;
-}
-
-
-
-//=============================================================================
-// Convert a uint32_t to HexString
-//=============================================================================
-uint32_t uint32_t_ToHexStr(uint32_t num, char* buff)
-{
-  char hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ,'A', 'B', 'C', 'D', 'E', 'F' };
-  uint32_t len = 0, k = 0;
-  uint32_t NumVal = num;
-  do // For every 4 bits
-  {
-    // Get the equivalent hex digit
-    buff[len] = hex[NumVal & 0xF];
-    len++;
-    NumVal >>= 4;
-  } while (NumVal != 0);
-  // Since we get the digits in the wrong order reverse the digits in the buffer
-  for(; k < len/2 ; k++)
-  { // Xor swapping
-    buff[k] ^= buff[len - k - 1];
-    buff[len - k - 1] ^= buff[k];
-    buff[k] ^= buff[len - k - 1];
-  }
-  // Null terminate the buffer and return the length in digits
-  buff[len] = '\0';
-  return len;
-}
-
-
-
-//=============================================================================
-// Convert a string to float
-//=============================================================================
-float String_ToFloat(char* buff)
-{
-  if (buff[0] == 0) return 0.0f;                                    // Empty string? return 0.0
-  bool Sign = (buff[0] == '-');                                     // Minus character? Save it
-  if (Sign || (buff[0] == '+')) buff++;                             // Minus character or Plus character? Go to next one
-  if (buff[0] == 0) return 0.0f;                                    // Empty string? return 0.0
-
-  uint32_t IntPart = 0;                                             // Here is the integer part
-  uint32_t FracPart = 0;                                            // Here is the decimal part
-  uint32_t Pow10 = 1;                                               // Here is the factor of the decimal part
-
-  // Integer part
-  while ((uint32_t)(buff[0] - 0x30) <= 9)                           // Here if buff[0] = '\0', the result should be > 9 then break the while...
-  {
-    IntPart *= 10;                                                  // Multiply the int part by 10
-    IntPart += buff[0] - 0x30;                                      // Add the unit value
-    buff++;                                                         // Next char
-  }
-
-  // Decimal part
-  if ((buff[0] == '.') || (buff[0] == ','))                         // Decimal separator ?
-  {
-    buff++;
-    while ((uint32_t)(buff[0] - 0x30) <= 9)                         // Here if buff[0] = '\0', the result should be > 9 then break the while...
-    {
-      FracPart *= 10;                                               // Multiply the int part by 10
-      FracPart += buff[0] - 0x30;                                   // Add the unit value
-      buff++;                                                       // Next char
-      Pow10 *= 10;                                                  // Multiply the the power divide by 10
-    }
-  }
-  if (buff[0] != 0) return 0;                                       // Error, the last character should be '\0' set result to 0.0
-
-  float Result = (float)IntPart + ((float)FracPart / (float)Pow10); // Here, Pow10 could not be 0 (start from 1 and multiply by 10)
-  if (Sign)                                                         // If negative value...
-    return -Result;                                                 // Then return a negative float
-  return Result;                                                    // In all cases, return
-}
-
-
-
-//=============================================================================
-// Convert a float to string
-//=============================================================================
-size_t Float_ToString(float Val, char* buff, size_t buffSize, uint32_t IntDigitsMin, uint32_t DecDigits, bool Round)
-{ // A dual call of this function can be performed: first call for the size of the conversion and the second (with the buffer sized with the value returned by the first call) for the real conversion
-  if (IntDigitsMin < 1) IntDigitsMin = 1; // Force 1 integer digit minimum
-  bool Neg = (Val < 0);                   // Negative value ?
-  if (Neg) Val = -Val;                    // If it's a negative value, set it positive
-
-  int64_t iVal = 0;
-  float Rounding = 0.0f;
-
-  if (Round)                                                     // If value need to be rounded
-  {
-    Rounding = 5.0f;
-    for (int32_t z = (DecDigits + 1); --z >= 0;) Rounding /= 10; // Set the rounding value
-  }
-
-  //--- Calculate the decimal multiplier ---
-  float Mul = 1.0f;
-  for (int32_t zz = DecDigits; --zz >= 0;) Mul *= 10;            // Count the number of decimal digits
-  // Set the full value into a int64 and discard unwanted decimals digits
-  iVal = (int64_t)((Val + Rounding) * Mul);
-
-  //--- Calculate size needed ---
-  uint32_t IntSize, SizeNeeded = 0;
-  for (int64_t tmpVal = iVal; tmpVal > 0; tmpVal /= 10) SizeNeeded++;                   // Calculate spaces for digits
-  if (SizeNeeded >= DecDigits) IntSize = SizeNeeded - DecDigits; else IntSize = 0;      // Set the integer digits count
-  if (IntSize == 0) IntSize++;                                                          // Integer digits count should be a minimum of 1
-  if (Neg) IntSize++;                                                                   // The negative char count for a digit in the integer part
-  if (SizeNeeded < (IntDigitsMin + DecDigits)) SizeNeeded = (IntDigitsMin + DecDigits); // If not enough integer and decimal digits, and the good amount of digits
-  if (DecDigits > 0) SizeNeeded++;                                                      // If there is some decimal digits, add one for the decimal separator
-  if (Neg && (IntSize > IntDigitsMin)) SizeNeeded++;                                    // If negative value and the minimum int size is already reach, need a char for the '-'
-  SizeNeeded++;                                                                         // Add one for the '\0' string terminal character
-
-  //--- Fill string if possible ---
-  if (buffSize >= SizeNeeded)                                                                              // Fill buffer if the size is good
-  {
-    size_t DigitCount = SizeNeeded;                                                                        // Get the digits count
-    for (uint32_t Space = IntSize; Space < IntDigitsMin; Space++) { buff[0] = ' '; buff++; DigitCount--; } // Add ' ' char until the integer digit minimum is reach
-    if (Neg) { buff[0] = '-'; buff++; DigitCount--; }                                                      // Add the '-' char if negative
-
-    // Add digits
-    buff += DigitCount - 1;                        // Go to end of buffer
-    buff[0] = 0;                                   // Add the \0 string terminal
-    int64_t tmpVal = iVal;                         // Get full value integer
-    for (int32_t Digit = DigitCount; --Digit > 0;)
-    {
-      buff--;                                      // Decrement buff
-      buff[0] = (char)((tmpVal % 10) + 0x30);
-      tmpVal /= 10;
-      if (DecDigits == 1)
-      {
-        buff--;                                    // Decrement buff
-        buff[0] = '.';                             // Add the decimal separator
-        Digit--;
-      }
-      if (DecDigits > 0) DecDigits--;
-    }
-  }
-  return SizeNeeded; // return the final size
-}
+//-----------------------------------------------------------------------------
+#endif /* USE_CONSOLE_TX */
 
 
 

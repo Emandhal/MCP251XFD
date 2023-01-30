@@ -517,6 +517,7 @@
       <Value>../src/ASF/common/services/delay</Value>
       <Value>../../CRC</Value>
       <Value>../..</Value>
+      <Value>../src/Utils</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -677,6 +678,12 @@
     <Folder Include="src\Utils" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\Utils\StringTools.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Utils\StringTools.h">
+      <SubType>compile</SubType>
+    </Compile>
     <None Include="src\ASF\common\services\delay\delay.h">
       <SubType>compile</SubType>
     </None>

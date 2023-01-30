@@ -16,55 +16,57 @@
 /**INDENT-OFF**/
 #include "stdio.h"
 #include <stdarg.h>
+#include "Conf_Console.h"
 
 #ifndef __cplusplus
 # include "asf.h"
 #else
 extern "C" {
-  void SetConsoleColor(int text, int fond);
 #endif
 /**INDENT-ON**/
 /// @endcond
 //-----------------------------------------------------------------------------
 
-
-
 #ifndef __cplusplus
 
-#	define __FORMATPRINTF23__		__attribute__((__format__(__printf__, 2, 3))) // 2: Format at second argument ; 3: args at third argument (...)
-#	define __FORMATPRINTF40__		__attribute__((__format__(__printf__, 4, 0))) // 4: Format at fourth argument ; 0: for va_list
-#	define __FORMATPRINTF34__		__attribute__((__format__(__printf__, 3, 4))) // 3: Format at third  argument ; 3: args at fourth argument (...)
-#	define vprintf              viprintf
+#  define __FORMATPRINTF23__   __attribute__((__format__(__printf__, 2, 3))) // 2: Format at second argument ; 3: args at third argument (...)
+#  define __FORMATPRINTF30__   __attribute__((__format__(__printf__, 3, 0))) // 3: Format at third  argument ; 0: for va_list
+#  define __FORMATPRINTF34__   __attribute__((__format__(__printf__, 3, 4))) // 3: Format at third  argument ; 4: args at fourth argument (...)
+#  define __FORMATPRINTF40__   __attribute__((__format__(__printf__, 4, 0))) // 4: Format at fourth argument ; 0: for va_list
+#  define vprintf              viprintf
 
 #else
 
-#	define __FORMATPRINTF12__
-#	define __FORMATPRINTF20__
-#	define __FORMATPRINTF23__
+#  define __FORMATPRINTF23__
+#  define __FORMATPRINTF30__
+#  define __FORMATPRINTF34__
+#  define __FORMATPRINTF40__
 
 #endif
+
 //-----------------------------------------------------------------------------
 
 
 //********************************************************************************************************************
 // Console Receive API
 //********************************************************************************************************************
+#ifdef USE_CONSOLE_RX
 
 //! Circular Buffer for Console transmit structure
 typedef struct ConsoleRx ConsoleRx;
 struct ConsoleRx
 {
-  void *UserAPIData;                                    //!< Optional, can be used to store API data or NULL
+  void *UserAPIData;                                   //!< Optional, can be used to store API data or NULL
 
   //--- Interface driver call functions ---
-  void (*fnInterfaceInit)(ConsoleRx *pApi);             //!< This function will be called at API initialization to configure the interface driver (UART)
-  bool (*fnGetChar)(ConsoleRx *pApi, char *charToSend); //!< This function will be called when a character have to be get from the interface
+  void (*fnInterfaceInit)(ConsoleRx *pApi);            //!< This function will be called at API initialization to configure the interface driver (UART)
+  bool (*fnGetChar)(ConsoleRx *pApi, char *charToGet); //!< This function will be called when a character have to be get from the interface
 
   //--- Transmit buffer ---
-  volatile size_t InPos;                                //!< This is the input position in the buffer (where data will be write before being send to UART)
-  volatile size_t OutPos;                               //!< This is the output position in the buffer (where data will be read and send to UART)
-  size_t BufferSize;                                    //!< The buffer size
-  char *Buffer;                                         //!< The buffer itself (should be the same size as BufferSize)
+  volatile size_t InPos;                               //!< This is the input position in the buffer (where data will be write before being send to UART)
+  volatile size_t OutPos;                              //!< This is the output position in the buffer (where data will be read and send to UART)
+  size_t BufferSize;                                   //!< The buffer size
+  char *Buffer;                                        //!< The buffer itself (should be the same size as BufferSize)
 };
 //-----------------------------------------------------------------------------
 
@@ -76,6 +78,9 @@ struct ConsoleRx
  */
 void InitConsoleRx(ConsoleRx* pApi);
 
+//-----------------------------------------------------------------------------
+#endif /* USE_CONSOLE_RX */
+
 //**********************************************************************************************************************************************************
 
 
@@ -85,6 +90,7 @@ void InitConsoleRx(ConsoleRx* pApi);
 //********************************************************************************************************************
 // Console Transmit API
 //********************************************************************************************************************
+#ifdef USE_CONSOLE_TX
 
 //! Circular Buffer for Console transmit structure
 typedef struct ConsoleTx ConsoleTx;
@@ -102,6 +108,7 @@ struct ConsoleTx
   size_t BufferSize;                                    //!< The buffer size
   char *Buffer;                                         //!< The buffer itself (should be the same size as BufferSize)
 };
+
 //-----------------------------------------------------------------------------
 
 
@@ -171,7 +178,6 @@ inline uint32_t CharToDigit(const char aChar)
 
 //! Macro to get the lower case of a char
 #define LowerCase(x)  (((((unsigned int)(x)) - 'A') < 26) ? (x) + 32 : (x))
-
 //**********************************************************************************************************************************************************
 
 
@@ -190,6 +196,30 @@ typedef enum
   lsLast_,       //! Special value. Do not use and keep this the last value
 } eSeverity;
 
+//! Windows console colors
+typedef enum
+{
+  wccBLACK   = 0,
+  wccNAVY    = 1,
+  wccGREEN   = 2,
+  wccTEAL    = 3,
+  wccMAROON  = 4,
+  wccPURPLE  = 5,
+  wccOLIVE   = 6,
+  wccSILVER  = 7,
+  wccGRAY    = 8,
+  wccBLUE    = 9,
+  wccLIME    = 10,
+  wccAQUA    = 11,
+  wccRED     = 12,
+  wccFUCHISA = 13,
+  wccYELLOW  = 14,
+  wccWHITE   = 15,
+  wccLast_, // KEEP LAST!
+} eWinConsoleColor;
+
+//-----------------------------------------------------------------------------
+
 
 
 /*! @brief Send a formated Logs to console
@@ -205,7 +235,7 @@ void __LOG(ConsoleTx* pApi, const char* context, bool whiteText, const char* for
 
 
 
-/*! @brief Send a formated ESQS+ Logs to console
+/*! @brief Send a formated Logs to console
  *
  * @param[in] *pApi Is the Console transmit API to work with
  * @param[in] severity This is the log severity.
@@ -217,6 +247,15 @@ void LOG(ConsoleTx* pApi, eSeverity severity, const char* format, ...) __FORMATP
 
 
 #ifdef __cplusplus
+/*! @brief Set the Windows console color
+ *
+ * @param[in] text Is the text color of the Windows console
+ * @param[in] fond Is the background color of the Windows console
+ */
+void SetConsoleColor(eWinConsoleColor text, eWinConsoleColor background);
+
+
+
 /*! @brief Send a formated Simulation Logs to console
  *
  * @param[in] *pApi Is the Console transmit API to work with
@@ -272,87 +311,20 @@ void __BinDump(ConsoleTx* pApi, const char* context, const void* src, unsigned i
   //! Log Special, use it instead of LOG!
   #define LOGSPECIAL_(api, format, ...)         LOG(api, lsSpecial, format, ##__VA_ARGS__)
   //! Hexadecimal dump of memory
-  #define HEXDUMP_(api, context, src, size)     __HexDump(context, src, size)
+  #define HEXDUMP_(api, context, src, size)     __HexDump(api, context, src, size)
   //! Binary dump of memory
-  #define BINDUMP_(api, context, src, size)     __BinDump(context, src, size)
+  #define BINDUMP_(api, context, src, size)     __BinDump(api, context, src, size)
 #else
   #define LOGDEBUG_(api, format, ...)           do{}while(false)
   #define LOGSPECIAL_(api, format, ...)         do{}while(false)
-  #define HEXDUM_P(api, context, src, size)     do{}while(false)
-  #define BINDUM_P(api, context, src, size)     do{}while(false)
+  #define HEXDUMP_(api, context, src, size)     do{}while(false)
+  #define BINDUMP_(api, context, src, size)     do{}while(false)
 #endif
 
+//-----------------------------------------------------------------------------
+#endif /* USE_CONSOLE_TX */
 
 
-
-
-//********************************************************************************************************************
-// Console conversion utils
-//********************************************************************************************************************
-
-/*! @brief Convert a String to int32
- *
- * If too many char are present, the result may be uncertain. If a wrong character is found, the result is 0
- * @param[in] *buff Buffer of char where the string int32 is stored with a null terminal
- * @return the converted float value
- */
-int32_t String_ToInt32(char* buff);
-
-
-
-/*! @brief Convert a string to int32 by reference
- *
- * If too many char are present, the result may be uncertain. If a wrong character is found, the result is 0
- * @param[in] *buff Buffer of char where the string int32 is stored with a null terminal
- * @param[out] *result Is the result of the conversion
- * @return The new char* position
- */
-char* String_ToInt32ByRef(char* buff, int32_t* result);
-
-
-
-/*! @brief Convert a uint32_t to String
- *
- * @param[in] num The decimal number to be converted
- * @param[out] *buff Buffer of char where the number will be stored with a null terminal
- * @return Length of the buffer
- */
-uint32_t uint32_t_ToStr(uint32_t num, char* buff);
-
-
-
-/*! @brief Convert a uint32_t to HexString
- *
- * @param[in] num The decimal number to be converted
- * @param[out] *buff Buffer of char where the hex number will be stored with a null terminal
- * @return Length of the buffer
- */
-uint32_t uint32_t_ToHexStr(uint32_t num, char* buff);
-
-
-
-/*! @brief Convert a String to float
- *
- * If too many char are present, the result may be uncertain. If a wrong character is found, the result is 0.0
- * @param[in] *buff Buffer of char where the string float is stored with a null terminal
- * @return the converted float value
- */
-float String_ToFloat(char* buff);
-
-
-
-/*! @brief Convert a float to string
- *
- * A dual call of this function can be performed: first call for the size of the conversion and the second (with the buffer sized with the value returned by the first call) for the real conversion
- * @param[in] Val Is the float value to convert
- * @param[out] *buff Is the array of char that will contain the final string (remain untouch if buffSize < needed string size)
- * @param[in] buffSize Is the available buffer size
- * @param[in] IntDigitsMin Is the minimum size of the integer part of the float. The negative char count in the int part
- * @param[in] DecDigits Is the digit count of the decimal part
- * @param[in] Round Indicate if the value should be rounded or not (following the DecDigits value)
- * @return The size of the buffer needed for the conversion. It's the conversion final size with the \0 string terminal
- */
-size_t Float_ToString(float Val, char* buff, size_t buffSize, uint32_t IntDigitsMin, uint32_t DecDigits, bool Round);
 
 
 

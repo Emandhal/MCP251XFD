@@ -16,6 +16,7 @@
 #include "Console_V71Interface.h"
 #include "CANEXTFunctions.h"
 #include "MCP251XFD_V71InterfaceSync.h"
+#include "StringTools.h"
 //-----------------------------------------------------------------------------
 /// @cond 0
 /**INDENT-OFF**/

@@ -93,10 +93,10 @@ namespace UnitTest_Bitrates
           Assert::AreEqual(63u, TestBitTimeConf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 63");   // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
           Assert::AreEqual(63u, TestBitTimeConf.NSJW, L"Test NSJW (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 63");       // Synchronization Jump Width bits; Length is value x TQ
           //--- Data Bit Times ---
-          Assert::AreEqual( 0x0u, TestBitTimeConf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0x0");      // Baud Rate Prescaler bits; TQ = value/Fsys
-          Assert::AreEqual(0x0Eu, TestBitTimeConf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0x0E"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
-          Assert::AreEqual( 0x3u, TestBitTimeConf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0x3");  // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
-          Assert::AreEqual( 0x3u, TestBitTimeConf.DSJW, L"Test DSJW (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 15");       // Synchronization Jump Width bits; Length is value x TQ
+          Assert::AreEqual( 0u, TestBitTimeConf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0");      // Baud Rate Prescaler bits; TQ = value/Fsys
+          Assert::AreEqual(14u, TestBitTimeConf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 14"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
+          Assert::AreEqual( 3u, TestBitTimeConf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 3");  // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
+          Assert::AreEqual( 3u, TestBitTimeConf.DSJW, L"Test DSJW (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 3");      // Synchronization Jump Width bits; Length is value x TQ
           //--- Transmitter Delay Compensation ---
           Assert::AreEqual(MCP251XFD_AUTO_MODE, TestBitTimeConf.TDCMOD, L"Test TDCMOD (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be AUTO_MODE"); // Transmitter Delay Compensation Mode; Secondary Sample Point (SSP)
           Assert::AreEqual(               0x10, TestBitTimeConf.TDCO  , L"Test TDCO (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0x10");        // Transmitter Delay Compensation Offset; Secondary Sample Point (SSP). Two’s complement; offset can be positive, zero, or negative (used as positive only here)
@@ -122,15 +122,15 @@ namespace UnitTest_Bitrates
           Error = MCP251XFD_CalculateBitTimeConfiguration(SYSCLK_40MHz, NBR_1Mbps, MCP251XFD_NO_CANFD, &TestBitTimeConf);
           Assert::AreEqual(ERR_OK, Error, L"Test (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be ERR_OK");
           //--- Nominal Bit Times ---
-          Assert::AreEqual( 0u, TestBitTimeConf.NBRP  , L"Test NBRP (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 0");     // Baud Rate Prescaler bits; TQ = value/Fsys
-          Assert::AreEqual(30u, TestBitTimeConf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 254"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
-          Assert::AreEqual( 7u, TestBitTimeConf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 63");  // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
-          Assert::AreEqual( 7u, TestBitTimeConf.NSJW  , L"Test NSJW (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 63");    // Synchronization Jump Width bits; Length is value x TQ
+          Assert::AreEqual( 0u, TestBitTimeConf.NBRP  , L"Test NBRP (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 0");    // Baud Rate Prescaler bits; TQ = value/Fsys
+          Assert::AreEqual(30u, TestBitTimeConf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 30"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
+          Assert::AreEqual( 7u, TestBitTimeConf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 7");  // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
+          Assert::AreEqual( 7u, TestBitTimeConf.NSJW  , L"Test NSJW (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 7");    // Synchronization Jump Width bits; Length is value x TQ
           //--- Data Bit Times ---
-          Assert::AreEqual( 0x0u, TestBitTimeConf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 0x0");      // Baud Rate Prescaler bits; TQ = value/Fsys
-          Assert::AreEqual(0x0Eu, TestBitTimeConf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 0x0E"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
-          Assert::AreEqual( 0x3u, TestBitTimeConf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 0x3");  // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
-          Assert::AreEqual( 0x3u, TestBitTimeConf.DSJW, L"Test DSJW (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 15");       // Synchronization Jump Width bits; Length is value x TQ
+          Assert::AreEqual( 0u, TestBitTimeConf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 0");      // Baud Rate Prescaler bits; TQ = value/Fsys
+          Assert::AreEqual(14u, TestBitTimeConf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 14"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
+          Assert::AreEqual( 3u, TestBitTimeConf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 3");  // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
+          Assert::AreEqual( 3u, TestBitTimeConf.DSJW, L"Test DSJW (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 3");      // Synchronization Jump Width bits; Length is value x TQ
           //--- Transmitter Delay Compensation ---
           Assert::AreEqual(MCP251XFD_AUTO_MODE, TestBitTimeConf.TDCMOD, L"Test TDCMOD (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be AUTO_MODE"); // Transmitter Delay Compensation Mode; Secondary Sample Point (SSP)
           Assert::AreEqual(               0x10, TestBitTimeConf.TDCO  , L"Test TDCO (SYSCLK_40MHz, NBR_1Mbps, NO_CANFD), should be 0x10");        // Transmitter Delay Compensation Offset; Secondary Sample Point (SSP). Two’s complement; offset can be positive, zero, or negative (used as positive only here)
@@ -210,7 +210,7 @@ namespace UnitTest_Bitrates
           Assert::AreEqual(      8000u, TestStats.NSamplePoint  , L"Test NSamplePoint (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 80.00%");    // Nominal Sample Point. Should be as close as possible to 80%
           Assert::AreEqual(      8000u, TestStats.DSamplePoint  , L"Test DSamplePoint (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 80.00%");    // Data Sample Point. Should be as close as possible to 80%
           Assert::AreEqual(       100u, TestStats.OscTolC1      , L"Test OscTolC1 (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 1.00%");         // Condition 1 for the maximum tolerance of the oscillator (Equation 3-12 of MCP25XXFD Family Reference Manual)
-          Assert::AreEqual        (78u, TestStats.OscTolC2      , L"Test OscTolC2 (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 0.78%");         // Condition 2 for the maximum tolerance of the oscillator (Equation 3-13 of MCP25XXFD Family Reference Manual)
+          Assert::AreEqual(        78u, TestStats.OscTolC2      , L"Test OscTolC2 (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 0.78%");         // Condition 2 for the maximum tolerance of the oscillator (Equation 3-13 of MCP25XXFD Family Reference Manual)
           Assert::AreEqual(       100u, TestStats.OscTolC3      , L"Test OscTolC3 (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 1.00%");         // Condition 3 for the maximum tolerance of the oscillator (Equation 3-14 of MCP25XXFD Family Reference Manual)
           Assert::AreEqual(       118u, TestStats.OscTolC4      , L"Test OscTolC4 (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 1.18%");         // Condition 4 for the maximum tolerance of the oscillator (Equation 3-15 of MCP25XXFD Family Reference Manual)
           Assert::AreEqual(        87u, TestStats.OscTolC5      , L"Test OscTolC5 (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 0.87%");         // Condition 5 for the maximum tolerance of the oscillator (Equation 3-16 of MCP25XXFD Family Reference Manual)
@@ -292,15 +292,15 @@ namespace UnitTest_Bitrates
           Error = MCP251XFD_CalculateBitTimeConfiguration(SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps, &TestBitTimeConf);
           Assert::AreEqual(ERR_OK, Error, L"Test (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be ERR_OK");
           //--- Nominal Bit Times ---
-          Assert::AreEqual( 0u, TestBitTimeConf.NBRP  , L"Test NBRP (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0");     // Baud Rate Prescaler bits; TQ = value/Fsys
-          Assert::AreEqual(30u, TestBitTimeConf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 254"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
-          Assert::AreEqual( 7u, TestBitTimeConf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 63");  // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
-          Assert::AreEqual( 7u, TestBitTimeConf.NSJW  , L"Test NSJW (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 63");    // Synchronization Jump Width bits; Length is value x TQ
+          Assert::AreEqual( 0u, TestBitTimeConf.NBRP  , L"Test NBRP (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0");    // Baud Rate Prescaler bits; TQ = value/Fsys
+          Assert::AreEqual(30u, TestBitTimeConf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 30"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
+          Assert::AreEqual( 7u, TestBitTimeConf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 7");  // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
+          Assert::AreEqual( 7u, TestBitTimeConf.NSJW  , L"Test NSJW (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 7");    // Synchronization Jump Width bits; Length is value x TQ
           //--- Data Bit Times ---
-          Assert::AreEqual(0u, TestBitTimeConf.DBRP  , L"Test DBRP (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0x0");    // Baud Rate Prescaler bits; TQ = value/Fsys
-          Assert::AreEqual(2u, TestBitTimeConf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0x0E"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
-          Assert::AreEqual(0u, TestBitTimeConf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0x3");  // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
-          Assert::AreEqual(0u, TestBitTimeConf.DSJW  , L"Test DSJW (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 15");     // Synchronization Jump Width bits; Length is value x TQ
+          Assert::AreEqual(0u, TestBitTimeConf.DBRP  , L"Test DBRP (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0");   // Baud Rate Prescaler bits; TQ = value/Fsys
+          Assert::AreEqual(2u, TestBitTimeConf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 2"); // Time Segment 1 bits (Propagation Segment + Phase Segment 1); Length is value x TQ
+          Assert::AreEqual(0u, TestBitTimeConf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0"); // Time Segment 2 bits (Phase Segment 2); Length is value x TQ
+          Assert::AreEqual(0u, TestBitTimeConf.DSJW  , L"Test DSJW (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0");   // Synchronization Jump Width bits; Length is value x TQ
           //--- Transmitter Delay Compensation ---
           Assert::AreEqual(MCP251XFD_AUTO_MODE, TestBitTimeConf.TDCMOD, L"Test TDCMOD (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be AUTO_MODE"); // Transmitter Delay Compensation Mode; Secondary Sample Point (SSP)
           Assert::AreEqual(                  3, TestBitTimeConf.TDCO  , L"Test TDCO (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0x10");        // Transmitter Delay Compensation Offset; Secondary Sample Point (SSP). Two’s complement; offset can be positive, zero, or negative (used as positive only here)
@@ -317,6 +317,26 @@ namespace UnitTest_Bitrates
           Assert::AreEqual(     129u, TestStats.OscTolC4      , L"Test OscTolC4 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 1.29%");       // Condition 4 for the maximum tolerance of the oscillator (Equation 3-15 of MCP25XXFD Family Reference Manual)
           Assert::AreEqual(      53u, TestStats.OscTolC5      , L"Test OscTolC5 (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0.54%");       // Condition 5 for the maximum tolerance of the oscillator (Equation 3-16 of MCP25XXFD Family Reference Manual)
           Assert::AreEqual(      53u, TestStats.OscTolerance  , L"Test OscTolerance (SYSCLK_40MHz, NBR_1Mbps, DBR_8Mbps), should be 0.54%");   // Oscillator Tolerance, minimum of conditions 1-5 (Equation 3-11 of MCP25XXFD Family Reference Manual)
+        }
+
+        TEST_METHOD(TestMethod_MCP251XFD_TestCustomCalculateBitTime)
+        {
+            const uint32_t NBR_125kbps =  125000; // Normal Bitrate at 125kbps
+            const uint32_t NBR_250kbps =  250000; // Normal Bitrate at 250kbps
+            const uint32_t NBR_500kbps =  500000; // Normal Bitrate at 500kbps
+            const uint32_t NBR_1Mbps   = 1000000; // Normal Bitrate at 1Mbps
+            const uint32_t DBR_500kbps =  500000; // Data Bitrate at 500kbps
+            const uint32_t DBR_1Mbps   = 1000000; // Data Bitrate at 1Mbps
+            const uint32_t DBR_2Mbps   = 2000000; // Data Bitrate at 2Mbps
+            const uint32_t DBR_5Mbps   = 5000000; // Data Bitrate at 5Mbps
+            const uint32_t DBR_8Mbps   = 8000000; // Data Bitrate at 8Mbps
+            eERRORRESULT Error = ERR__TEST_ERROR;
+            MCP251XFD_BitTimeConfig TestBitTimeConf;
+            MCP251XFD_BitTimeStats TestStats;
+            TestBitTimeConf.Stats = &TestStats;
+
+            Error = MCP251XFD_CalculateBitTimeConfiguration(8000000, NBR_1Mbps, MCP251XFD_NO_CANFD, &TestBitTimeConf);
+            Assert::AreEqual(ERR_OK, Error, L"Test Custom, should be ERR_OK");
         }
 	};
 }

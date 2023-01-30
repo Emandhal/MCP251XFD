@@ -34,8 +34,8 @@ eERRORRESULT InterfaceTransferReadWrite(void *pIntDev, uint8_t, uint8_t *txData,
   memcpy(&TxTestBuf[TestBufPos], txData, size);   // Copy what is send to SPI to TxTestBuf
   if (rxData != NULL)
     memcpy(rxData, &RxTestBuf[TestBufPos], size); // Copy what is receive from SPI to RxTestBuf
-  TransferCounter++;                                                                // Increment buffer
-  BytesTransfered += size;                                                          // Add the count of byte transfered to the previous number of bytes transfered
+  TransferCounter++;                              // Increment buffer
+  BytesTransfered += size;                        // Add the count of byte transfered to the previous number of bytes transfered
   TestBufPos += size;
 
   return ERR_OK;
