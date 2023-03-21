@@ -25,7 +25,7 @@
     <RootNamespace>UnitTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectSubType>NativeUnitTestProject</ProjectSubType>
-    <ProjectName>UnitTest_BufSize81</ProjectName>
+    <ProjectName>UnitTest_BufSize</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -169,7 +169,7 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="UnitTest.cpp" />
     <ClCompile Include="UnitTestBitrates.cpp" />
-    <ClCompile Include="UnitTest_ReadWriteData81.cpp" />
+    <ClCompile Include="UnitTest_ReadWriteData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\CRC\CRC16_CMS.h" />

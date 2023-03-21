@@ -39,7 +39,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UnitTest_ReadWriteData81.cpp">
+    <ClCompile Include="UnitTest_ReadWriteData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UnitTestBitrates.cpp">

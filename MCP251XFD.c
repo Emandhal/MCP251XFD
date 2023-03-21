@@ -267,9 +267,9 @@ eERRORRESULT __MCP251XFD_ReadDataNormal(MCP251XFD *pComp, uint16_t address, uint
   {
     // Compose SPI command
     pBuf = &Buffer[0];
-    *pBuf = (MCP251XFD_SPI_INSTRUCTION_READ << 4) | ((address >> 8) & 0xF); // Set first byte of SPI command
+    *pBuf = MCP251XFD_SPI_FIRST_BYTE(MCP251XFD_SPI_INSTRUCTION_READ, address); // Set first byte of SPI command
     pBuf++;
-    *pBuf = address & 0xFF;                                                 // Set next byte of SPI command
+    *pBuf = address & 0xFF;                                                    // Set next byte of SPI command
     pBuf++;
 
     // If needed, set 0x00 byte while reading data on SPI interface else send garbage data
@@ -314,9 +314,9 @@ eERRORRESULT __MCP251XFD_ReadDataCRC(MCP251XFD *pComp, uint16_t address, uint8_t
 
   // Define the Increment value
   uint16_t Increment = MCP251XFD_TRANS_BUF_SIZE - 5;                             // Buffer size minus 2 for Command, minus 1 for length, minus 2 for CRC
-  if (InRAM)                                                                     // In RAM region ?
+  if (InRAM)                                                                     // In RAM region?
   {
-    if ((size % 4) != 0) return ERR__OUT_OF_RANGE;                               // size should be a multiple of 4 in case of Write CRC or Safe Write
+    if ((size & 0b11) != 0) return ERR__DATA_MODULO;                             // size should be a multiple of 4 in case of Write CRC or Safe Write
     Increment &= 0xFFFC;                                                         // If in RAM region then the increment should be the nearest less than or equal value multiple by 4
   }                                                                              // Here Increment cannot be 0 because MCP251XFD_TRANS_BUF_SIZE is compiler protected to be not less than 9
 
@@ -326,7 +326,7 @@ eERRORRESULT __MCP251XFD_ReadDataCRC(MCP251XFD *pComp, uint16_t address, uint8_t
   size_t ByteCount = 0;
   while (size > 0)
   {
-    uint16_t Addr = (MCP251XFD_SPI_INSTRUCTION_READ_CRC << 12) | (address & 0xFFF);
+    const uint16_t Addr = MCP251XFD_SPI_16BITS_WORD(MCP251XFD_SPI_INSTRUCTION_READ_CRC, address);
     // Compose SPI command
     pBuf = &Buffer[0];
     *pBuf = ((Addr >> 8) & 0xFF);                                                // Set first byte of SPI command
@@ -442,16 +442,16 @@ eERRORRESULT __MCP251XFD_WriteDataNormal(MCP251XFD *pComp, uint16_t address, con
   {
     // Compose SPI command
     pBuf = &Buffer[0];
-    *pBuf = (MCP251XFD_SPI_INSTRUCTION_WRITE << 4) | ((address >> 8) & 0xF); // Set first byte of SPI command
+    *pBuf = MCP251XFD_SPI_FIRST_BYTE(MCP251XFD_SPI_INSTRUCTION_WRITE, address); // Set first byte of SPI command
     pBuf++;
-    *pBuf = address & 0xFF;                                                  // Set next byte of SPI command
+    *pBuf = MCP251XFD_SPI_SECOND_BYTE(address);                                 // Set next byte of SPI command
     pBuf++;
 
     // Copy data to buffer
-    BufRemain = (MCP251XFD_TRANS_BUF_SIZE - 2);                              // Set how many data that will fit the rest of the buffer
+    BufRemain = (MCP251XFD_TRANS_BUF_SIZE - 2);                                 // Set how many data that will fit the rest of the buffer
     while ((BufRemain > 0) && (size > 0))
     {
-      *pBuf = *data;                                                         // Copy data
+      *pBuf = *data;                                                            // Copy data
       pBuf++;
       data++;
       BufRemain--;
@@ -480,9 +480,9 @@ eERRORRESULT __MCP251XFD_WriteDataCRC(MCP251XFD *pComp, uint16_t address, const 
 
   // Define the Increment value
   uint32_t Increment = MCP251XFD_TRANS_BUF_SIZE - 5;                             // Buffer size minus 2 for Cmd, minus 1 for length, minus 2 for CRC
-  if (InRAM)                                                                     // In RAM region ?
+  if (InRAM)                                                                     // In RAM region?
   {
-    if ((size % 4) != 0) return ERR__OUT_OF_RANGE;                               // size should be a multiple of 4 in case of Write CRC or Safe Write
+    if ((size & 0b11) != 0) return ERR__DATA_MODULO;                             // size should be a multiple of 4 in case of Write CRC or Safe Write
     Increment &= 0xFFFC;                                                         // If in RAM region then the increment should be the nearest less than or equal value multiple by 4
   }                                                                              // Here Increment cannot be 0 because MCP251XFD_TRANS_BUF_SIZE is compiler protected to be not less than 9
 
@@ -494,35 +494,35 @@ eERRORRESULT __MCP251XFD_WriteDataCRC(MCP251XFD *pComp, uint16_t address, const 
   {
     // Compose SPI command
     pBuf = &Buffer[0];
-    *pBuf = (MCP251XFD_SPI_INSTRUCTION_WRITE_CRC << 4) | ((address >> 8) & 0xF); // Set first byte of SPI command
+    *pBuf = MCP251XFD_SPI_FIRST_BYTE(MCP251XFD_SPI_INSTRUCTION_WRITE_CRC, address); // Set first byte of SPI command
     pBuf++;
-    *pBuf = address & 0xFF;                                                      // Set next byte of SPI command
+    *pBuf = MCP251XFD_SPI_SECOND_BYTE(address);                                     // Set next byte of SPI command
     pBuf++;
 
     // Set length of data
-    ByteCount = (size > Increment ? Increment : size);                           // Define byte count to send
+    ByteCount = (size > Increment ? Increment : size);                              // Define byte count to send
 #if MCP251XFD_TRANS_BUF_SIZE > (255 + 5)
     if (InRAM)
     {
-      ByteCount = (ByteCount > (UINT8_MAX << 2) ? (UINT8_MAX << 2) : ByteCount); // The maximum data word (4-bytes in RAM) per transfer is 255 max (255*4 bytes)
-      *pBuf = (ByteCount >> 2) & 0xFF;                                           // Set how many data word that is requested
+      ByteCount = (ByteCount > (UINT8_MAX << 2) ? (UINT8_MAX << 2) : ByteCount);    // The maximum data word (4-bytes in RAM) per transfer is 255 max (255*4 bytes)
+      *pBuf = (ByteCount >> 2) & 0xFF;                                              // Set how many data word that is requested
     }
     else
     {
-      ByteCount = (ByteCount > UINT8_MAX ? UINT8_MAX : ByteCount);               // The maximum data (byte in SFR and 4-bytes in RAM) per transfer is 255 max
-      *pBuf = ByteCount & 0xFF;                                                  // Set how many data byte that is requested
+      ByteCount = (ByteCount > UINT8_MAX ? UINT8_MAX : ByteCount);                  // The maximum data (byte in SFR and 4-bytes in RAM) per transfer is 255 max
+      *pBuf = ByteCount & 0xFF;                                                     // Set how many data byte that is requested
     }
 #else
-    if (InRAM) *pBuf = (ByteCount >> 2) & 0xFF;                                  // If in RAM, set how many data word that is requested
-    else *pBuf = ByteCount & 0xFF;                                               // Set how many data byte that is requested
+    if (InRAM) *pBuf = (ByteCount >> 2) & 0xFF;                                     // If in RAM, set how many data word that is requested
+    else *pBuf = ByteCount & 0xFF;                                                  // Set how many data byte that is requested
 #endif
     pBuf++;
 
     // Copy data to buffer
-    BufRemain = Increment;                                                       // Set how many data that will fit in the buffer
+    BufRemain = Increment;                                                          // Set how many data that will fit in the buffer
     while ((BufRemain > 0) && (size > 0))
     {
-      *pBuf = *data;                                                             // Copy data
+      *pBuf = *data;                                                                // Copy data
       pBuf++;
       data++;
       BufRemain--;
@@ -560,9 +560,9 @@ eERRORRESULT __MCP251XFD_SafeWriteData(MCP251XFD *pComp, uint16_t address, const
 
   // Define the Increment value
   uint32_t Increment = 1;                                               // By default the write data increment is 1 (byte per byte)
-  if (InRAM)                                                            // In RAM region ?
+  if (InRAM)                                                            // In RAM region?
   {
-    if ((size % 4) != 0) return ERR__OUT_OF_RANGE;                      // size should be a multiple of 4 in case of Write CRC or Safe Write
+    if ((size & 0b11) != 0) return ERR__DATA_MODULO;                    // size should be a multiple of 4 in case of Write CRC or Safe Write
     Increment = 4;                                                      // If in RAM region then the increment should be the nearest less than or equal value multiple by 4
   }                                                                     // Here Increment cannot be 0 because MCP251XFD_TRANS_BUF_SIZE is compiler protected to be not less than 9
 
@@ -573,16 +573,16 @@ eERRORRESULT __MCP251XFD_SafeWriteData(MCP251XFD *pComp, uint16_t address, const
   {
     // Compose SPI command
     pBuf = &Buffer[0];
-    *pBuf = (MCP251XFD_SPI_INSTRUCTION_SAFE_WRITE << 4) | ((address >> 8) & 0xF); // Set first byte of SPI command
+    *pBuf = MCP251XFD_SPI_FIRST_BYTE(MCP251XFD_SPI_INSTRUCTION_SAFE_WRITE, address); // Set first byte of SPI command
     pBuf++;
-    *pBuf = address & 0xFF;                                                       // Set next byte of SPI command
+    *pBuf = MCP251XFD_SPI_SECOND_BYTE(address);                                      // Set next byte of SPI command
     pBuf++;
 
     // Copy data to buffer
-    BufRemain = Increment;                                                        // Set how many data that will fit in the buffer
+    BufRemain = Increment;                                                           // Set how many data that will fit in the buffer
     while ((BufRemain > 0) && (size > 0))
     {
-      *pBuf = *data;                                                              // Copy data
+      *pBuf = *data;                                                                 // Copy data
       pBuf++;
       data++;
       BufRemain--;
