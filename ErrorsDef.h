@@ -1,12 +1,12 @@
-/******************************************************************************
+/*!****************************************************************************
  * @file    ErrorsDef.h
  * @author  Fabien MAILLY
  * @version 1.0.0
  * @date    24/08/2020
  * @brief   Errors definitions
  *
- * These errors definitions are compatibles with all the libraries realized by
- * the author
+ * @details These errors definitions are compatibles with all the libraries
+ * realized by the author
  *****************************************************************************/
  /* @page License
  *

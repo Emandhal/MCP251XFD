@@ -1,19 +1,15 @@
-/*******************************************************************************
-  File name:    Console.h
-  Author:       FMA
-  Version:      1.0
-  Date (d/m/y): 08/12/2017
-  Description:  Some functions for RS-232 console communication
-
-  History :
-*******************************************************************************/
+/*!*****************************************************************************
+ * @file    Console.h
+ * @author  Fabien 'Emandhal' MAILLY
+ * @version 1.0.0
+ * @date    08/12/2017
+ * @brief   Some functions for RS-232 console communication
+ ******************************************************************************/
 #ifndef CONSOLE_H_
 #define CONSOLE_H_
 //=============================================================================
 
 //-----------------------------------------------------------------------------
-/// @cond 0
-/**INDENT-OFF**/
 #include "stdio.h"
 #include <stdarg.h>
 #include "Conf_Console.h"
@@ -23,8 +19,6 @@
 #else
 extern "C" {
 #endif
-/**INDENT-ON**/
-/// @endcond
 //-----------------------------------------------------------------------------
 
 #ifndef __cplusplus
@@ -240,7 +234,7 @@ void __LOG(ConsoleTx* pApi, const char* context, bool whiteText, const char* for
  * @param[in] *pApi Is the Console transmit API to work with
  * @param[in] severity This is the log severity.
  * @param[in] *format Format string (printf format), followed by arguments.
- * @param[in] args Arguments of the formated string.
+ * @param[in] ... Arguments of the formated string.
  */
 void LOG(ConsoleTx* pApi, eSeverity severity, const char* format, ...) __FORMATPRINTF34__;
 
@@ -260,7 +254,7 @@ void SetConsoleColor(eWinConsoleColor text, eWinConsoleColor background);
  *
  * @param[in] *pApi Is the Console transmit API to work with
  * @param[in] *format Format string (printf format), followed by arguments.
- * @param[in] args Arguments of the formated string.
+ * @param[in] ... Arguments of the formated string.
  */
 void LOGSIM(ConsoleTx* pApi, const char* format, ...);
 #endif
@@ -329,12 +323,8 @@ void __BinDump(ConsoleTx* pApi, const char* context, const void* src, unsigned i
 
 
 //-----------------------------------------------------------------------------
-/// @cond 0
-/**INDENT-OFF**/
 #ifdef __cplusplus
 }
 #endif
-/**INDENT-ON**/
-/// @endcond
 //-----------------------------------------------------------------------------
 #endif /* CONSOLE_H_ */

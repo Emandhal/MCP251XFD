@@ -88,7 +88,11 @@
 
 
 
-// Limits definitions for MCP251XFD
+//********************************************************************************************************************
+// MCP251XFD limits definitions
+//********************************************************************************************************************
+
+// Frequencies and bitrate limits for MCP251XFD
 #define MCP251XFD_XTALFREQ_MIN     (  4000000u ) //!< Min Xtal/Resonator frequency
 #define MCP251XFD_XTALFREQ_MAX     ( 40000000u ) //!< Max Xtal/Resonator frequency
 #define MCP251XFD_OSCFREQ_MIN      (  2000000u ) //!< Min Oscillator frequency
@@ -137,7 +141,7 @@
 #define MCP251XFD_TDCV_MIN      (   0 ) //!< Min TDCV
 #define MCP251XFD_TDCV_MAX      (  63 ) //!< Max TDCV
 
-
+//-----------------------------------------------------------------------------
 
 // FIFO definitions
 #define MCP251XFD_TEF_MAX        (  1 ) //!< 1 TEF maximum
@@ -147,7 +151,7 @@
 #define MCP251XFD_TX_FIFO_MAX    ( MCP251XFD_TXQ_MAX + MCP251XFD_FIFO_MAX )                     //!< Maximum 32 transmit FIFO (TXQ + 31 FIFO)
 #define MCP251XFD_RX_FIFO_MAX    ( MCP251XFD_TEF_MAX + MCP251XFD_FIFO_MAX )                     //!< Maximum 32 receive FIFO (TEF + 31 FIFO)
 
-
+//-----------------------------------------------------------------------------
 
 // Memory mapping definitions for MCP251XFD
 #define MCP251XFD_CAN_CONTROLLER_SIZE  (  752u ) //!< CAN controller size
@@ -159,7 +163,13 @@
 #define MCP251XFD_CONTROLLER_SFR_ADDR  ( 0xE00u ) //!< SFR Controller Memory base address
 #define MCP251XFD_END_ADDR             ( 0xFFFu ) //!< Last possible address
 
+//-----------------------------------------------------------------------------
 
+
+
+//********************************************************************************************************************
+// MCP251XFD's RAM definitions
+//********************************************************************************************************************
 
 //! MCP251XFD RAM FIFO Informations structure
 typedef struct MCP251XFD_RAMInfos
@@ -169,39 +179,7 @@ typedef struct MCP251XFD_RAMInfos
   uint8_t  ByteInObject;    //!< How many bytes in an object of the FIFO
 } MCP251XFD_RAMInfos;
 
-
-
-//! Driver configuration enum
-typedef enum
-{
-  MCP251XFD_DRIVER_NORMAL_USE               = 0x00, //!< Use the driver with no special verifications, just settings verifications (usually the fastest mode)
-  MCP251XFD_DRIVER_SAFE_RESET               = 0x01, //!< Set Configuration mode first and next send a Reset command with a SPI clock at 1MHz max (MCP251XFD_SYSCLK_MIN div by 2)
-  MCP251XFD_DRIVER_ENABLE_ECC               = 0x02, //!< Enable the ECC just before the RAM initialization and activate ECCCON_SECIE and ECCCON_DEDIE interrupt flags
-  MCP251XFD_DRIVER_INIT_CHECK_RAM           = 0x04, //!< Check RAM at initialization by writing some data and checking them on all the RAM range (slower at initialization, take a long time)
-  MCP251XFD_DRIVER_INIT_SET_RAM_AT_0        = 0x08, //!< Set all bytes of the RAM to 0x00 (slower at initialization)
-  MCP251XFD_DRIVER_CLEAR_BUFFER_BEFORE_READ = 0x10, //!< This send 0x00 byte while reading SPI interface, mainly for cybersecurity purpose (little bit slower)
-  MCP251XFD_DRIVER_USE_READ_WRITE_CRC       = 0x20, //!< Use CRC with all commands and data going to and from the controller (add 3 more bytes to each transaction, 2 for CRC + 1 for length)
-  MCP251XFD_DRIVER_USE_SAFE_WRITE           = 0x40, //!< Each SFR write or memory write is sent one at a time (slower but send only the 2 bytes for CRC)
-} eMCP251XFD_DriverConfig;
-
-typedef eMCP251XFD_DriverConfig setMCP251XFD_DriverConfig; //! Set of Driver configuration (can be OR'ed)
-
-
-
-// Safe Reset speed definition
-#define MCP251XFD_DRIVER_SAFE_RESET_SPI_CLK  ( MCP251XFD_SYSCLK_MIN / 2 ) //!< Set the SPI safe reset clock speed at 1MHz because SPI speed max is SYSCLK/2 and Xtal/Resonator/Oscillator frequency min is 2MHz
-
-
-
-// SPI commands instructions (first 2 bytes are CAAA where C is 4-bits Command and A is 12-bits Address)
-#define MCP251XFD_SPI_INSTRUCTION_RESET       ( 0x00 ) //!< Reset instruction
-#define MCP251XFD_SPI_INSTRUCTION_READ        ( 0x03 ) //!< Read instruction
-#define MCP251XFD_SPI_INSTRUCTION_WRITE       ( 0x02 ) //!< Write instruction
-#define MCP251XFD_SPI_INSTRUCTION_WRITE_CRC   ( 0x0A ) //!< Write with CRC instruction
-#define MCP251XFD_SPI_INSTRUCTION_READ_CRC    ( 0x0B ) //!< Read with CRC instruction
-#define MCP251XFD_SPI_INSTRUCTION_SAFE_WRITE  ( 0x0C ) //!< Safe Write instruction
-
-
+//-----------------------------------------------------------------------------
 
 //! int32_t to 2-uint16_t to 4-uint8_t conversion
 MCP251XFD_PACKITEM
@@ -226,7 +204,48 @@ typedef union __MCP251XFD_PACKED__
 MCP251XFD_UNPACKITEM;
 MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_uint16t_Conv, 2);
 
+//-----------------------------------------------------------------------------
 
+
+
+//********************************************************************************************************************
+// MCP251XFD's driver definitions
+//********************************************************************************************************************
+
+//! Driver configuration enum
+typedef enum
+{
+  MCP251XFD_DRIVER_NORMAL_USE               = 0x00, //!< Use the driver with no special verifications, just settings verifications (usually the fastest mode)
+  MCP251XFD_DRIVER_SAFE_RESET               = 0x01, //!< Set Configuration mode first and next send a Reset command with a SPI clock at 1MHz max (MCP251XFD_SYSCLK_MIN div by 2)
+  MCP251XFD_DRIVER_ENABLE_ECC               = 0x02, //!< Enable the ECC just before the RAM initialization and activate ECCCON_SECIE and ECCCON_DEDIE interrupt flags
+  MCP251XFD_DRIVER_INIT_CHECK_RAM           = 0x04, //!< Check RAM at initialization by writing some data and checking them on all the RAM range (slower at initialization, take a long time)
+  MCP251XFD_DRIVER_INIT_SET_RAM_AT_0        = 0x08, //!< Set all bytes of the RAM to 0x00 (slower at initialization)
+  MCP251XFD_DRIVER_CLEAR_BUFFER_BEFORE_READ = 0x10, //!< This send 0x00 byte while reading SPI interface, mainly for cybersecurity purpose (little bit slower)
+  MCP251XFD_DRIVER_USE_READ_WRITE_CRC       = 0x20, //!< Use CRC with all commands and data going to and from the controller (add 3 more bytes to each transaction, 2 for CRC + 1 for length)
+  MCP251XFD_DRIVER_USE_SAFE_WRITE           = 0x40, //!< Each SFR write or memory write is sent one at a time (slower but send only the 2 bytes for CRC)
+} eMCP251XFD_DriverConfig;
+
+typedef eMCP251XFD_DriverConfig setMCP251XFD_DriverConfig; //! Set of Driver configuration (can be OR'ed)
+
+//-----------------------------------------------------------------------------
+
+// Safe Reset speed definition
+#define MCP251XFD_DRIVER_SAFE_RESET_SPI_CLK  ( MCP251XFD_SYSCLK_MIN / 2 ) //!< Set the SPI safe reset clock speed at 1MHz because SPI speed max is SYSCLK/2 and Xtal/Resonator/Oscillator frequency min is 2MHz
+
+//-----------------------------------------------------------------------------
+
+// SPI commands instructions (first 2 bytes are CAAA where C is 4-bits Command and A is 12-bits Address)
+#define MCP251XFD_SPI_INSTRUCTION_RESET       ( 0x00 ) //!< Reset instruction
+#define MCP251XFD_SPI_INSTRUCTION_READ        ( 0x03 ) //!< Read instruction
+#define MCP251XFD_SPI_INSTRUCTION_WRITE       ( 0x02 ) //!< Write instruction
+#define MCP251XFD_SPI_INSTRUCTION_WRITE_CRC   ( 0x0A ) //!< Write with CRC instruction
+#define MCP251XFD_SPI_INSTRUCTION_READ_CRC    ( 0x0B ) //!< Read with CRC instruction
+#define MCP251XFD_SPI_INSTRUCTION_SAFE_WRITE  ( 0x0C ) //!< Safe Write instruction
+
+#define MCP251XFD_SPI_FIRST_BYTE(instruction,address)   ( ((instruction) << 4) | (((address) >> 8) & 0xF) )  //!< Set first byte of SPI command
+#define MCP251XFD_SPI_SECOND_BYTE(address)              ( (address) & 0xFF )                                 //!< Set next byte of SPI command
+#define MCP251XFD_SPI_16BITS_WORD(instruction,address)  ( ((instruction) << 12) | ((address) & 0xFFF) )      //!< Set first and second byte of SPI command into a 16-bit word
+//-----------------------------------------------------------------------------
 
 
 

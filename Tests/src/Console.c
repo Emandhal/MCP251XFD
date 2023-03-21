@@ -1,12 +1,10 @@
-/*******************************************************************************
-  File name:    Console.c
-  Author:       FMA
-  Version:      1.0
-  Date (d/m/y): 08/12/2017
-  Description:  Some functions for RS-232 console communication
-
-  History :
-*******************************************************************************/
+/*!*****************************************************************************
+ * @file    Console.c
+ * @author  Fabien 'Emandhal' MAILLY
+ * @version 1.0.0
+ * @date    08/12/2017
+ * @brief   Some functions for RS-232 console communication
+ ******************************************************************************/
 
 //-----------------------------------------------------------------------------
 #include "stdarg.h"
@@ -15,14 +13,10 @@
 #include "Console.h"
 #include "string.h"
 //-----------------------------------------------------------------------------
-/// @cond 0
-/**INDENT-OFF**/
 #ifdef __cplusplus
 #include "stdafx.h"
 extern "C" {
 #endif
-/**INDENT-ON**/
-/// @endcond
 //-----------------------------------------------------------------------------
 
 
@@ -364,10 +358,6 @@ void __BinDump(ConsoleTx* pApi, const char* context, const void* src, unsigned i
 
 
 //-----------------------------------------------------------------------------
-/// @cond 0
-/**INDENT-OFF**/
 #ifdef __cplusplus
 }
 #endif
-/**INDENT-ON**/
-/// @endcond

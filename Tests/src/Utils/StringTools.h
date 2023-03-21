@@ -1,13 +1,10 @@
-/*******************************************************************************
-    File name:    StringTools.h
-    Author:       FMA
-    Version:      1.0
-    Date (d/m/y): 15/02/2021
-    Description:  Tool to convert data to string and string to data in fixed
-                  buffers
-
-    History :
-*******************************************************************************/
+/*!*****************************************************************************
+ * @file    StringTools.h
+ * @author  Fabien 'Emandhal' MAILLY
+ * @version 1.0.0
+ * @date    15/02/2021
+ * @brief   Tool to convert data to string and string to data in fixed buffers
+ ******************************************************************************/
 #ifndef STRING_TOOLS_H_INC
 #define STRING_TOOLS_H_INC
 //=============================================================================
@@ -18,13 +15,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 //-----------------------------------------------------------------------------
-/// @cond 0
-/**INDENT-OFF**/
 #ifdef __cplusplus
 extern "C" {
 #endif
-/**INDENT-ON**/
-/// @endcond
 //-----------------------------------------------------------------------------
 
 
@@ -161,12 +154,8 @@ size_t Float_ToString(float Val, char* buff, size_t buffSize, uint32_t IntDigits
 
 
 //-----------------------------------------------------------------------------
-/// @cond 0
-/**INDENT-OFF**/
 #ifdef __cplusplus
 }
 #endif
-/**INDENT-ON**/
-/// @endcond
 //-----------------------------------------------------------------------------
 #endif /* STRING_TOOLS_H_INC */

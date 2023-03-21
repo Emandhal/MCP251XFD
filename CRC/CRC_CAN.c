@@ -1,36 +1,31 @@
-/*******************************************************************************
-    File name:    CRC_CAN.c
-    Author:       FMA
-    Version:      0.1b
-    Date (d/m/y): 09/03/2020
-    Description:  CRC15-CAN, CRC17-CAN and CRC21-CAN implementations
-                  The CRC15-CAN polynomial is x^15 + x^14 + x^10 + x^8 + x^7 + x^4 + x^3 + 1 (0xC599)
-                   - Do not use RefIN and RefOUT, the initial value 0x0000
-                   - The result is XORed with 0x0000
-                   - http://reveng.sourceforge.net/crc-catalogue/1-15.htm#crc.cat-bits.15
-                  The CRC17-CAN polynomial is x^17 + x^16 + x^14 + x^13 + x^11 + x^6 + x^4 + x^3 + x^1 + 1 (0x3685B)
-                   - Do not use RefIN and RefOUT, the initial value 0x0000
-                   - The result is XORed with 0x0000
-                   - http://reveng.sourceforge.net/crc-catalogue/17plus.htm#crc.cat-bits.17
-                  The CRC21-CAN polynomial is x^21 + x^20 + x^13 + x^11 + x^7 + x^4 + x^3 + 1 (0x302899)
-                  - Do not use RefIN and RefOUT, the initial value 0x0000
-                  - The result is XORed with 0x0000
-                  - http://reveng.sourceforge.net/crc-catalogue/17plus.htm#crc.cat-bits.21
-
-    History :
-*******************************************************************************/
+/*!*****************************************************************************
+ * @file    CRC_CAN.c
+ * @author  Fabien 'Emandhal' MAILLY
+ * @version 1.0.0
+ * @date    09/03/2020
+ * @brief   CRC15-CAN, CRC17-CAN and CRC21-CAN implementations
+ * @details
+ *  The CRC15-CAN polynomial is x^15 + x^14 + x^10 + x^8 + x^7 + x^4 + x^3 + 1 (0xC599)
+ *   - Do not use RefIN and RefOUT, the initial value 0x0000
+ *   - The result is XORed with 0x0000
+ *   - http://reveng.sourceforge.net/crc-catalogue/1-15.htm#crc.cat-bits.15
+ *  The CRC17-CAN polynomial is x^17 + x^16 + x^14 + x^13 + x^11 + x^6 + x^4 + x^3 + x^1 + 1 (0x3685B)
+ *   - Do not use RefIN and RefOUT, the initial value 0x0000
+ *   - The result is XORed with 0x0000
+ *   - http://reveng.sourceforge.net/crc-catalogue/17plus.htm#crc.cat-bits.17
+ *  The CRC21-CAN polynomial is x^21 + x^20 + x^13 + x^11 + x^7 + x^4 + x^3 + 1 (0x302899)
+ *   - Do not use RefIN and RefOUT, the initial value 0x0000
+ *   - The result is XORed with 0x0000
+ *   - http://reveng.sourceforge.net/crc-catalogue/17plus.htm#crc.cat-bits.21
+ ******************************************************************************/
 
 //-----------------------------------------------------------------------------
 #include "CRC_CAN.h"
 //-----------------------------------------------------------------------------
-/// @cond 0
-/**INDENT-OFF**/
 #ifdef __cplusplus
 #include <cstdint>
 extern "C" {
 #endif
-/**INDENT-ON**/
-/// @endcond
 //-----------------------------------------------------------------------------
 
 
@@ -248,11 +243,7 @@ uint32_t PartialComputeCRC21CAN(uint32_t crc, const uint8_t* data, size_t bitSiz
 
 
 //-----------------------------------------------------------------------------
-/// @cond 0
-/**INDENT-OFF**/
 #ifdef __cplusplus
 }
 #endif
-/**INDENT-ON**/
-/// @endcond
 //-----------------------------------------------------------------------------

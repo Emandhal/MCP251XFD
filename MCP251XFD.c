@@ -705,7 +705,7 @@ eERRORRESULT MCP251XFD_TransmitMessageToFIFO(MCP251XFD *pComp, MCP251XFD_CANMess
     uint8_t* pData = &messageToSend->PayloadData[0];                     // Select the first byte of payload data
     uint8_t BytesToCopy = BytesDLC;                                      // Get how many byte in the payload data will be copied
     while (BytesToCopy-- > 0) *pBuff++ = *pData++;                       // Copy data
-    if ((BytesDLC & 0x3) > 0)                                            // Not modulo 4 ?
+    if ((BytesDLC & 0x3) > 0)                                            // Not modulo 4?
       for (uint8_t z = 0; z < (4 - (BytesDLC & 0x3)); z++) *pBuff++ = 0; // Fill with 0
   }
 
@@ -1757,7 +1757,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
       if (TEFcount > MCP251XFD_TEF_MAX) return ERR__TOO_MANY_TEF;
 
       //--- Configure TEF ---
-      UseTmpRAMInfos = (listFIFO[zTEF].RAMInfos == NULL);           // Is there a RAMInfos structure attached to the configuration ?
+      UseTmpRAMInfos = (listFIFO[zTEF].RAMInfos == NULL);           // Is there a RAMInfos structure attached to the configuration?
       if (UseTmpRAMInfos) listFIFO[zTEF].RAMInfos = &TmpRAMInfos;   // If not RAMInfos structure attached, then set a temporary one
       Error = MCP251XFD_ConfigureTEF(pComp, true, &listFIFO[zTEF]); // Configure the TEF
       if (Error != ERR_OK) return Error;                            // If there is an error while calling MCP251XFD_ConfigureTEF() then return the error
@@ -1781,7 +1781,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
       if (TXQcount > MCP251XFD_TXQ_MAX) return ERR__TOO_MANY_TXQ;
 
       //--- Configure TXQ --
-      UseTmpRAMInfos = (listFIFO[zTXQ].RAMInfos == NULL);                        // Is there a RAMInfos structure attached to the configuration ?
+      UseTmpRAMInfos = (listFIFO[zTXQ].RAMInfos == NULL);                        // Is there a RAMInfos structure attached to the configuration?
       if (UseTmpRAMInfos) listFIFO[zTXQ].RAMInfos = &TmpRAMInfos;                // If not RAMInfos structure attached, then set a temporary one
       Error = MCP251XFD_ConfigureTXQ(pComp, true, &listFIFO[zTXQ]);              // Configure the TXQ
       if (Error != ERR_OK) return Error;                                         // If there is an error while calling MCP251XFD_ConfigureTXQ() then return the error
@@ -1812,7 +1812,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
         }
         LastFIFO = zFIFO;
         //--- Configure FIFO --
-        UseTmpRAMInfos = (listFIFO[z].RAMInfos == NULL);                        // Is there a RAMInfos structure attached to the configuration ?
+        UseTmpRAMInfos = (listFIFO[z].RAMInfos == NULL);                        // Is there a RAMInfos structure attached to the configuration?
         if (UseTmpRAMInfos) listFIFO[z].RAMInfos = &TmpRAMInfos;                // If not RAMInfos structure attached, then set a temporary one
         Error = MCP251XFD_ConfigureFIFO(pComp, &listFIFO[z]);                   // Configure the FIFO
         if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_ConfigureFIFO() then return the error
@@ -2206,7 +2206,7 @@ eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pC
   RxCode = MCP251XFD_CAN_CiVEC8_RXCODE_GET(RxCode);                                                   // Extract RXCODE
   if ( RxCode < MCP251XFD_FIFO1 ) return ERR__UNKNOWN_ELEMENT;                                        // FIFO0 is reserved so not possible
   if ((RxCode > MCP251XFD_FIFO31) && (RxCode != MCP251XFD_NO_INTERRUPT)) return ERR__UNKNOWN_ELEMENT; // Only FIFO1 to 31 and no Interrupt code possible so the rest is not possible
-  if (RxCode == MCP251XFD_NO_INTERRUPT) return ERR_OK;                                                // No interrupt ? Good
+  if (RxCode == MCP251XFD_NO_INTERRUPT) return ERR_OK;                                                // No interrupt? Good
   *name = (eMCP251XFD_FIFO)RxCode;// Save the current FIFO name interrupt
 
   //--- Get status flags of the FIFO ---
@@ -2234,7 +2234,7 @@ eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(MCP251XFD *p
   if (Error != ERR_OK) return Error;                                                                  // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   TxCode = MCP251XFD_CAN_CiVEC8_TXCODE_GET(TxCode);                                                   // Extract TXCODE
   if ((TxCode > MCP251XFD_FIFO31) && (TxCode != MCP251XFD_NO_INTERRUPT)) return ERR__UNKNOWN_ELEMENT; // Only FIFO0 (TXQ) to 31 and no Interrupt code possible so the rest is not possible
-  if (TxCode == MCP251XFD_NO_INTERRUPT) return ERR_OK;                                                // No interrupt ? Good
+  if (TxCode == MCP251XFD_NO_INTERRUPT) return ERR_OK;                                                // No interrupt? Good
   *name = (eMCP251XFD_FIFO)TxCode;                                                                    // Save the current FIFO name interrupt
 
   //--- Get status flags of the FIFO ---
@@ -2473,7 +2473,7 @@ uint32_t MCP251XFD_MessageIDtoObjectMessageIdentifier(uint32_t messageID, bool e
   uint32_t ResultOMI = 0; // Initialize message ID to 0
 
   //--- Fill message ID (T0 or R0 or TE0) ---
-  if (extended) // Message use extended ID ?
+  if (extended) // Message use extended ID?
   {
     ResultOMI = ((messageID >> MCP251XFD_EID_Size) & MCP251XFD_SID_Mask) | ((messageID & MCP251XFD_EID_Mask) << MCP251XFD_SID_Size);
     if (UseSID11) ResultOMI |= (messageID & (1 << (MCP251XFD_EID_Size + MCP251XFD_SID_Size)));
@@ -2496,7 +2496,7 @@ uint32_t MCP251XFD_ObjectMessageIdentifierToMessageID(uint32_t objectMessageID, 
   uint32_t ResultID = 0; // Initialize message ID to 0
 
   //--- Extract object message ID (T0 or R0 or TE0) ---
-  if (extended) // Message use extended ID ?
+  if (extended) // Message use extended ID?
   {
     ResultID = ((objectMessageID >> MCP251XFD_SID_Size) & MCP251XFD_EID_Mask) | ((objectMessageID & MCP251XFD_SID_Mask) << MCP251XFD_EID_Size);
     if (UseSID11) ResultID |= (objectMessageID & (1 << (MCP251XFD_EID_Size + MCP251XFD_SID_Size)));
