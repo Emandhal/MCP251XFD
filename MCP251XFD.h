@@ -1673,30 +1673,34 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiINT_Register, 4);
 #define MCP251XFD_CAN_CiINT16_WAKIE     (0x1u << 14) //! Bus Wake Up Interrupt Enable
 #define MCP251XFD_CAN_CiINT16_IVMIE     (0x1u << 15) //! Invalid Message Interrupt Enable
 
+#define MCP251XFD_CAN_INT_ALL_INT          ( MCP251XFD_CAN_CiINT16_TXIE   | MCP251XFD_CAN_CiINT16_RXIE   | MCP251XFD_CAN_CiINT16_TEFIE  | MCP251XFD_CAN_CiINT16_TXATIE   | MCP251XFD_CAN_CiINT16_RXOVIE | \
+                                             MCP251XFD_CAN_CiINT16_TBCIE  | MCP251XFD_CAN_CiINT16_MODIE  | MCP251XFD_CAN_CiINT16_ECCIE  | MCP251XFD_CAN_CiINT16_SPICRCIE |                                \
+                                             MCP251XFD_CAN_CiINT16_SERRIE | MCP251XFD_CAN_CiINT16_CERRIE | MCP251XFD_CAN_CiINT16_WAKIE  | MCP251XFD_CAN_CiINT16_IVMIE )
+#define MCP251XFD_CAN_INT_CLEARABLE_FLAGS  ( MCP251XFD_CAN_CiINT16_TBCIE  | MCP251XFD_CAN_CiINT16_MODIE  | MCP251XFD_CAN_CiINT16_SERRIE | MCP251XFD_CAN_CiINT16_CERRIE   | MCP251XFD_CAN_CiINT16_WAKIE | MCP251XFD_CAN_CiINT16_IVMIE )
 
 //! Interrupt Events, can be OR'ed.
 typedef enum
 {
   // TEF, TXQ and FIFO interrupts
-  MCP251XFD_INT_NO_EVENT                    = 0x0000, //!< No interrupt events
-  MCP251XFD_INT_TX_EVENT                    = 0x0001, //!< Transmit events. Equivalent to INT0
-  MCP251XFD_INT_RX_EVENT                    = 0x0002, //!< Receive events. Equivalent to INT1
-  MCP251XFD_INT_TEF_EVENT                   = 0x0010, //!< TEF events. Clearable in specific FIFO
-  MCP251XFD_INT_TX_ATTEMPTS_EVENT           = 0x0400, //!< Transmit attempts events. Clearable in specific FIFO
-  MCP251XFD_INT_RX_OVERFLOW_EVENT           = 0x0800, //!< Receive overflow events. Clearable in specific FIFO
+  MCP251XFD_INT_NO_EVENT                    = 0x0000                        , //!< No interrupt events
+  MCP251XFD_INT_TX_EVENT                    = MCP251XFD_CAN_CiINT16_TXIE    , //!< Transmit events. Equivalent to INT0
+  MCP251XFD_INT_RX_EVENT                    = MCP251XFD_CAN_CiINT16_RXIE    , //!< Receive events. Equivalent to INT1
+  MCP251XFD_INT_TEF_EVENT                   = MCP251XFD_CAN_CiINT16_TEFIE   , //!< TEF events. Clearable in specific FIFO
+  MCP251XFD_INT_TX_ATTEMPTS_EVENT           = MCP251XFD_CAN_CiINT16_TXATIE  , //!< Transmit attempts events. Clearable in specific FIFO
+  MCP251XFD_INT_RX_OVERFLOW_EVENT           = MCP251XFD_CAN_CiINT16_RXOVIE  , //!< Receive overflow events. Clearable in specific FIFO
   // System interrupts
-  MCP251XFD_INT_TIME_BASE_COUNTER_EVENT     = 0x0004, //!< Time base counter events. Clearable in CiINT
-  MCP251XFD_INT_OPERATION_MODE_CHANGE_EVENT = 0x0008, //!< Operation mode change events. Clearable in CiINT
-  MCP251XFD_INT_RAM_ECC_EVENT               = 0x0100, //!< ECC RAM events. Clearable in ECCSTA
-  MCP251XFD_INT_SPI_CRC_EVENT               = 0x0200, //!< SPI CRC events. Clearable in CRC
-  MCP251XFD_INT_SYSTEM_ERROR_EVENT          = 0x1000, //!< System error events. Clearable in CiINT
-  MCP251XFD_INT_BUS_ERROR_EVENT             = 0x2000, //!< Bus error events. Clearable in CiINT
-  MCP251XFD_INT_BUS_WAKEUP_EVENT            = 0x4000, //!< Bus wakeup events, only when sleeping. Clearable in CiINT
-  MCP251XFD_INT_RX_INVALID_MESSAGE_EVENT    = 0x8000, //!< Invalid receipt message events. Clearable in CiINT
+  MCP251XFD_INT_TIME_BASE_COUNTER_EVENT     = MCP251XFD_CAN_CiINT16_TBCIE   , //!< Time base counter events. Clearable in CiINT
+  MCP251XFD_INT_OPERATION_MODE_CHANGE_EVENT = MCP251XFD_CAN_CiINT16_MODIE   , //!< Operation mode change events. Clearable in CiINT
+  MCP251XFD_INT_RAM_ECC_EVENT               = MCP251XFD_CAN_CiINT16_ECCIE   , //!< ECC RAM events. Clearable in ECCSTA
+  MCP251XFD_INT_SPI_CRC_EVENT               = MCP251XFD_CAN_CiINT16_SPICRCIE, //!< SPI CRC events. Clearable in CRC
+  MCP251XFD_INT_SYSTEM_ERROR_EVENT          = MCP251XFD_CAN_CiINT16_SERRIE  , //!< System error events. Clearable in CiINT
+  MCP251XFD_INT_BUS_ERROR_EVENT             = MCP251XFD_CAN_CiINT16_CERRIE  , //!< Bus error events. Clearable in CiINT
+  MCP251XFD_INT_BUS_WAKEUP_EVENT            = MCP251XFD_CAN_CiINT16_WAKIE   , //!< Bus wakeup events, only when sleeping. Clearable in CiINT
+  MCP251XFD_INT_RX_INVALID_MESSAGE_EVENT    = MCP251XFD_CAN_CiINT16_IVMIE   , //!< Invalid receipt message events. Clearable in CiINT
 
-  MCP251XFD_INT_ENABLE_ALL_EVENTS           = 0xFF1F, //!< Enable all events
-  MCP251XFD_INT_EVENTS_STATUS_FLAGS_MASK    = 0xFF1F, //!< Events flags mask
-  MCP251XFD_INT_CLEARABLE_FLAGS_MASK        = 0xF00C, //!< Clearable in CiINT
+  MCP251XFD_INT_ENABLE_ALL_EVENTS           = MCP251XFD_CAN_INT_ALL_INT        , //!< Enable all events
+  MCP251XFD_INT_EVENTS_STATUS_FLAGS_MASK    = MCP251XFD_CAN_INT_ALL_INT        , //!< Events flags mask
+  MCP251XFD_INT_CLEARABLE_FLAGS_MASK        = MCP251XFD_CAN_INT_CLEARABLE_FLAGS, //!< Clearable in CiINT
 } eMCP251XFD_InterruptEvents;
 
 typedef eMCP251XFD_InterruptEvents setMCP251XFD_InterruptEvents; //! Set of Interrupt Events (can be OR'ed)
@@ -2203,23 +2207,28 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTREC_Register, 4);
 #define MCP251XFD_CAN_CiTREC8_TXBO           (0x1u << 5) //!< Transmitter in Bus Off State (TEC > 255). In Configuration mode, TXBO is set, since the module is not on the bus
 
 
+#define MCP251XFD_CAN_CiTREC8_TX_ERROR   ( MCP251XFD_CAN_CiTREC8_EWARN | MCP251XFD_CAN_CiTREC8_TXWARN | MCP251XFD_CAN_CiTREC8_TXBP | MCP251XFD_CAN_CiTREC8_TXBO )
+#define MCP251XFD_CAN_CiTREC8_RX_ERROR   ( MCP251XFD_CAN_CiTREC8_EWARN | MCP251XFD_CAN_CiTREC8_RXWARN | MCP251XFD_CAN_CiTREC8_RXBP )
+#define MCP251XFD_CAN_CiTREC8_ALL_ERROR  ( MCP251XFD_CAN_CiTREC8_TX_ERROR | MCP251XFD_CAN_CiTREC8_RX_ERROR )
+
 //! Transmit and Receive Error status
 typedef enum
 {
-  MCP251XFD_ERROR_STATUS_FLAGS_MASK = 0x3F, //!< Error Status Flags Mask
-  MCP251XFD_TX_RX_WARNING_STATE     = 0x01, //!< Transmitter or Receiver is in Error Warning State
+  MCP251XFD_ERROR_STATUS_FLAGS_MASK = MCP251XFD_CAN_CiTREC8_ALL_ERROR, //!< Error Status Flags Mask
+  MCP251XFD_TX_RX_WARNING_STATE     = MCP251XFD_CAN_CiTREC8_EWARN    , //!< Transmitter or Receiver is in Error Warning State
 
   // Transmit Error status
-  MCP251XFD_TX_NO_ERROR          = 0x00, //!< No Transmit Error
-  MCP251XFD_TX_WARNING_STATE     = 0x04, //!< Transmitter in Error Warning State
-  MCP251XFD_TX_BUS_PASSIVE_STATE = 0x10, //!< Transmitter in Error Passive State
-  MCP251XFD_TX_BUS_OFF_STATE     = 0x20, //!< Transmitter in Bus Off State
-  MCP251XFD_TX_ERROR_MASK        = 0x35, //!< Transmitter Error Mask
+  MCP251XFD_TX_NO_ERROR          = 0x00                          , //!< No Transmit Error
+  MCP251XFD_TX_WARNING_STATE     = MCP251XFD_CAN_CiTREC8_TXWARN  , //!< Transmitter in Error Warning State
+  MCP251XFD_TX_BUS_PASSIVE_STATE = MCP251XFD_CAN_CiTREC8_TXBP    , //!< Transmitter in Error Passive State
+  MCP251XFD_TX_BUS_OFF_STATE     = MCP251XFD_CAN_CiTREC8_TXBO    , //!< Transmitter in Bus Off State
+  MCP251XFD_TX_ERROR_MASK        = MCP251XFD_CAN_CiTREC8_TX_ERROR, //!< Transmitter Error Mask
 
   // Receive Error status
-  MCP251XFD_RX_WARNING_STATE     = 0x02, //!< Receiver in Error Warning State
-  MCP251XFD_RX_BUS_PASSIVE_STATE = 0x08, //!< Receiver in Error Passive State
-  MCP251XFD_RX_ERROR_MASK        = 0x0B, //!< Receiver Error Mask
+  MCP251XFD_RX_NO_ERROR          = 0x00                          , //!< No Receive Error
+  MCP251XFD_RX_WARNING_STATE     = MCP251XFD_CAN_CiTREC8_RXWARN  , //!< Receiver in Error Warning State
+  MCP251XFD_RX_BUS_PASSIVE_STATE = MCP251XFD_CAN_CiTREC8_RXBP    , //!< Receiver in Error Passive State
+  MCP251XFD_RX_ERROR_MASK        = MCP251XFD_CAN_CiTREC8_RX_ERROR, //!< Receiver Error Mask
 } eMCP251XFD_TXRXErrorStatus;
 
 //-----------------------------------------------------------------------------
@@ -2541,15 +2550,17 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTEFSTA_Register, 4);
 #define MCP251XFD_CAN_CiTEFSTA8_TEFOVIF  (0x1u << 3) //!< Transmit Event FIFO Overflow Interrupt Flag
 
 
+#define MCP251XFD_CAN_CiTEFSTA8_ALL_EVENTS  ( MCP251XFD_CAN_CiTEFSTA8_TEFNEIF | MCP251XFD_CAN_CiTEFSTA8_TEFHIF | MCP251XFD_CAN_CiTEFSTA8_TEFFIF | MCP251XFD_CAN_CiTEFSTA8_TEFOVIF )
+
 //! Transmit Event FIFO status
 typedef enum
 {
-  MCP251XFD_TEF_FIFO_EMPTY       = 0x00, //!< TEF FIFO empty
-  MCP251XFD_TEF_FIFO_NOT_EMPTY   = 0x01, //!< TEF FIFO not empty
-  MCP251XFD_TEF_FIFO_HALF_FULL   = 0x02, //!< TEF FIFO half full
-  MCP251XFD_TEF_FIFO_FULL        = 0x04, //!< TEF FIFO full
-  MCP251XFD_TEF_FIFO_OVERFLOW    = 0x08, //!< TEF overflow
-  MCP251XFD_TEF_FIFO_STATUS_MASK = 0x0F, //!< TEF status mask
+  MCP251XFD_TEF_FIFO_EMPTY       = 0x00                              , //!< TEF FIFO empty
+  MCP251XFD_TEF_FIFO_NOT_EMPTY   = MCP251XFD_CAN_CiTEFSTA8_TEFNEIF   , //!< TEF FIFO not empty
+  MCP251XFD_TEF_FIFO_HALF_FULL   = MCP251XFD_CAN_CiTEFSTA8_TEFHIF    , //!< TEF FIFO half full
+  MCP251XFD_TEF_FIFO_FULL        = MCP251XFD_CAN_CiTEFSTA8_TEFFIF    , //!< TEF FIFO full
+  MCP251XFD_TEF_FIFO_OVERFLOW    = MCP251XFD_CAN_CiTEFSTA8_TEFOVIF   , //!< TEF overflow
+  MCP251XFD_TEF_FIFO_STATUS_MASK = MCP251XFD_CAN_CiTEFSTA8_ALL_EVENTS, //!< TEF status mask
 } eMCP251XFD_TEFstatus;
 
 //-----------------------------------------------------------------------------
@@ -2761,17 +2772,20 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXQSTA_Register, 4);
 #define MCP251XFD_CAN_CiTXQSTA8_TXQCI_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTXQSTA8_TXQCI_Pos) & MCP251XFD_CAN_CiTXQSTA8_TXQCI_Mask) //!< Transmit Queue Message Index
 
 
+#define MCP251XFD_CAN_CiTXQSTA8_ALL_EVENTS  ( MCP251XFD_CAN_CiTXQSTA8_TXQNIF | MCP251XFD_CAN_CiTXQSTA8_TXQEIF | MCP251XFD_CAN_CiTXQSTA8_TXATIF \
+                                            | MCP251XFD_CAN_CiTXQSTA8_TXERR | MCP251XFD_CAN_CiTXQSTA8_TXLARB | MCP251XFD_CAN_CiTXQSTA8_TXABT )
+
 //! Transmit Queue status
 typedef enum
 {
-  MCP251XFD_TXQ_FULL               = 0x00, //!< TXQ full
-  MCP251XFD_TXQ_NOT_FULL           = 0x01, //!< TXQ not full
-  MCP251XFD_TXQ_EMPTY              = 0x04, //!< TXQ empty
-  MCP251XFD_TXQ_ATTEMPTS_EXHAUSTED = 0x10, //!< TXQ attempts exhausted
-  MCP251XFD_TXQ_BUS_ERROR          = 0x20, //!< TXQ bus error
-  MCP251XFD_TXQ_ARBITRATION_LOST   = 0x40, //!< TXQ arbitration lost
-  MCP251XFD_TXQ_ABORTED            = 0x80, //!< TXQ aborted
-  MCP251XFD_TXQ_STATUS_MASK        = 0xF5, //!< TXQ status mask
+  MCP251XFD_TXQ_FULL               = 0x00                              , //!< TXQ full
+  MCP251XFD_TXQ_NOT_FULL           = MCP251XFD_CAN_CiTXQSTA8_TXQNIF    , //!< TXQ not full
+  MCP251XFD_TXQ_EMPTY              = MCP251XFD_CAN_CiTXQSTA8_TXQEIF    , //!< TXQ empty
+  MCP251XFD_TXQ_ATTEMPTS_EXHAUSTED = MCP251XFD_CAN_CiTXQSTA8_TXATIF    , //!< TXQ attempts exhausted
+  MCP251XFD_TXQ_BUS_ERROR          = MCP251XFD_CAN_CiTXQSTA8_TXERR     , //!< TXQ bus error
+  MCP251XFD_TXQ_ARBITRATION_LOST   = MCP251XFD_CAN_CiTXQSTA8_TXLARB    , //!< TXQ arbitration lost
+  MCP251XFD_TXQ_ABORTED            = MCP251XFD_CAN_CiTXQSTA8_TXABT     , //!< TXQ aborted
+  MCP251XFD_TXQ_STATUS_MASK        = MCP251XFD_CAN_CiTXQSTA8_ALL_EVENTS, //!< TXQ status mask
 } eMCP251XFD_TXQstatus;
 
 //-----------------------------------------------------------------------------
@@ -2942,6 +2956,11 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFIFOSTAm_Register, 4);
 #define MCP251XFD_CAN_CiFIFOSTAm8_FIFOCI_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiFIFOSTAm8_FIFOCI_Pos) & MCP251XFD_CAN_CiFIFOSTAm8_FIFOCI_Mask) //!< FIFO Message Index
 
 
+#define MCP251XFD_CAN_CiFIFOSTAm8_TX_FIFO  ( MCP251XFD_CAN_CiFIFOSTAm8_TFNRFNIF | MCP251XFD_CAN_CiFIFOSTAm8_TFHRFHIF | MCP251XFD_CAN_CiFIFOSTAm8_TFERFFIF | \
+                                             MCP251XFD_CAN_CiFIFOSTAm8_TXATIF | MCP251XFD_CAN_CiFIFOSTAm8_TXERR | MCP251XFD_CAN_CiFIFOSTAm8_TXLARB | MCP251XFD_CAN_CiFIFOSTAm8_TXABT )
+#define MCP251XFD_CAN_CiFIFOSTAm8_RX_FIFO  ( MCP251XFD_CAN_CiFIFOSTAm8_TFNRFNIF | MCP251XFD_CAN_CiFIFOSTAm8_TFHRFHIF | MCP251XFD_CAN_CiFIFOSTAm8_TFERFFIF | \
+                                             MCP251XFD_CAN_CiFIFOSTAm8_RXOVIF )
+
 //! Transmit and Receive FIFO status
 typedef enum
 {
@@ -2949,22 +2968,22 @@ typedef enum
 
   // Transmit FIFO status
   MCP251XFD_TX_FIFO_FULL               = 0x00, //!< Transmit FIFO full
-  MCP251XFD_TX_FIFO_NOT_FULL           = 0x01, //!< Transmit FIFO not full
-  MCP251XFD_TX_FIFO_HALF_EMPTY         = 0x02, //!< Transmit FIFO half empty
-  MCP251XFD_TX_FIFO_EMPTY              = 0x04, //!< Transmit FIFO empty
-  MCP251XFD_TX_FIFO_ATTEMPTS_EXHAUSTED = 0x10, //!< Transmit FIFO attempts exhausted
-  MCP251XFD_TX_FIFO_BUS_ERROR          = 0x20, //!< Transmit bus error
-  MCP251XFD_TX_FIFO_ARBITRATION_LOST   = 0x40, //!< Transmit arbitration lost
-  MCP251XFD_TX_FIFO_ABORTED            = 0x80, //!< Transmit aborted
-  MCP251XFD_TX_FIFO_STATUS_MASK        = 0xF7, //!< Transmit FIFO status mask
+  MCP251XFD_TX_FIFO_NOT_FULL           = MCP251XFD_CAN_CiFIFOSTAm8_TFNRFNIF, //!< Transmit FIFO not full
+  MCP251XFD_TX_FIFO_HALF_EMPTY         = MCP251XFD_CAN_CiFIFOSTAm8_TFHRFHIF, //!< Transmit FIFO half empty
+  MCP251XFD_TX_FIFO_EMPTY              = MCP251XFD_CAN_CiFIFOSTAm8_TFERFFIF, //!< Transmit FIFO empty
+  MCP251XFD_TX_FIFO_ATTEMPTS_EXHAUSTED = MCP251XFD_CAN_CiFIFOSTAm8_TXATIF  , //!< Transmit FIFO attempts exhausted
+  MCP251XFD_TX_FIFO_BUS_ERROR          = MCP251XFD_CAN_CiFIFOSTAm8_TXERR   , //!< Transmit bus error
+  MCP251XFD_TX_FIFO_ARBITRATION_LOST   = MCP251XFD_CAN_CiFIFOSTAm8_TXLARB  , //!< Transmit arbitration lost
+  MCP251XFD_TX_FIFO_ABORTED            = MCP251XFD_CAN_CiFIFOSTAm8_TXABT   , //!< Transmit aborted
+  MCP251XFD_TX_FIFO_STATUS_MASK        = MCP251XFD_CAN_CiFIFOSTAm8_TX_FIFO , //!< Transmit FIFO status mask
 
   // Receive FIFO status
   MCP251XFD_RX_FIFO_EMPTY       = 0x00, //!< Receive FIFO empty
-  MCP251XFD_RX_FIFO_NOT_EMPTY   = 0x01, //!< Receive FIFO not empty
-  MCP251XFD_RX_FIFO_HALF_FULL   = 0x02, //!< Receive FIFO half full
-  MCP251XFD_RX_FIFO_FULL        = 0x04, //!< Receive FIFO full
-  MCP251XFD_RX_FIFO_OVERFLOW    = 0x08, //!< Receive overflow
-  MCP251XFD_RX_FIFO_STATUS_MASK = 0x0F, //!< Receive FIFO status mask
+  MCP251XFD_RX_FIFO_NOT_EMPTY   = MCP251XFD_CAN_CiFIFOSTAm8_TFNRFNIF, //!< Receive FIFO not empty
+  MCP251XFD_RX_FIFO_HALF_FULL   = MCP251XFD_CAN_CiFIFOSTAm8_TFHRFHIF, //!< Receive FIFO half full
+  MCP251XFD_RX_FIFO_FULL        = MCP251XFD_CAN_CiFIFOSTAm8_TFERFFIF, //!< Receive FIFO full
+  MCP251XFD_RX_FIFO_OVERFLOW    = MCP251XFD_CAN_CiFIFOSTAm8_RXOVIF  , //!< Receive overflow
+  MCP251XFD_RX_FIFO_STATUS_MASK = MCP251XFD_CAN_CiFIFOSTAm8_RX_FIFO , //!< Receive FIFO status mask
 } eMCP251XFD_FIFOstatus;
 
 //-----------------------------------------------------------------------------
