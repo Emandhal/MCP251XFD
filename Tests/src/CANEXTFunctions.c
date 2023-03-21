@@ -98,7 +98,7 @@ MCP251XFD MCP251XFD_Ext1 =
   //--- CRC16-USB call function ---
   .fnComputeCRC16  = ComputeCRC16_V71,
   //--- Interface clocks ---
-  .SPIClockSpeed   = 20000000, // 20MHz
+  .SPIClockSpeed   = 17000000, // 20MHz
 };
 
 

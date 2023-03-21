@@ -9,7 +9,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace Microsoft {namespace VisualStudio {namespace CppUnitTestFramework
 {
   template<> inline std::wstring ToString<eERRORRESULT>(const eERRORRESULT& t) { RETURN_WIDE_STRING(t); }
-  template<> inline std::wstring ToString<unsigned short>(const unsigned short& t) { RETURN_WIDE_STRING(t); }
+//  template<> inline std::wstring ToString<unsigned short>(const unsigned short& t) { RETURN_WIDE_STRING(t); }
 } } }
 
 namespace UnitTest_Misc
@@ -34,6 +34,27 @@ namespace UnitTest_Misc
 
 
 	public:
+
+        TEST_METHOD(TestMethod_SubstractWithWrap)
+        {
+//#define TIME_DIFF(begin,end)  ((end) >= (begin) ? (end) - (begin) : ((UINT32_MAX - (begin)) + ((end) + 1)))
+#define TIME_DIFF(begin,end) (((end) >= (begin)) ? ((end) - (begin)) : (UINT32_MAX - ((begin) - (end) - 1)))
+
+            uint32_t begin = 0;
+            uint32_t end = begin + 10;
+            uint32_t Result = TIME_DIFF(begin, end);
+            Assert::AreEqual(10u, Result, L"SUBSTRACT_WITH_WRAP(0, 10): result should be '10'");
+
+            begin = UINT32_MAX - 2;
+            end = begin + 13;
+            Result = TIME_DIFF(begin, end);
+            Assert::AreEqual(13u, Result, L"SUBSTRACT_WITH_WRAP(UINT32_MAX-2, 10): result should be '13'");
+
+            begin = UINT32_MAX - 2;
+            end = begin + 3;
+            Result = TIME_DIFF(begin, end);
+            Assert::AreEqual(3u, Result, L"SUBSTRACT_WITH_WRAP(UINT32_MAX-2, 0): result should be '3'");
+        }
 
 		TEST_METHOD(TestMethod_ComputeCRC16USB)
 		{

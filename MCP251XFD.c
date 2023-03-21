@@ -1,15 +1,15 @@
-/*******************************************************************************
+/*!*****************************************************************************
  * @file    MCP251XFD.c
  * @author  Fabien 'Emandhal' MAILLY
  * @version 1.0.4
  * @date    16/11/2021
  * @brief   MCP251XFD driver
- *
+ * @details
  * The MCP251XFD component is a CAN-bus controller supporting CAN2.0A, CAN2.0B
  * and CAN-FD with SPI interface
- * Follow datasheet MCP2517FD Rev.B (July  2019)
- *                  MCP2518FD Rev.A (April 2019)
- *                  MCP251863 Rev.A (Feb   2022) [Have a MCP2518FD inside]
+ * Follow datasheet MCP2517FD Rev.B (July 2019)
+ *                  MCP2518FD Rev.B (Dec  2020)
+ *                  MCP251863 Rev.A (Sept 2022) [Have a MCP2518FD inside]
  * Follow MCP25XXFD Family Reference Manual (DS20005678D)
  ******************************************************************************/
 
@@ -44,7 +44,8 @@ static eERRORRESULT __MCP251XFD_SafeWriteData(MCP251XFD *pComp, uint16_t address
 // Test all RAM address of the MCP251XFD for the driver flag DRIVER_INIT_CHECK_RAM
 static eERRORRESULT __MCP251XFD_TestRAM(MCP251XFD *pComp);
 //-----------------------------------------------------------------------------
-#define USE_SID11  ( (pComp->InternalConfig & (MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11 | MCP251XFD_CANFD_ENABLED)) == (MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11 | MCP251XFD_CANFD_ENABLED) )
+#define MCP251XFD_USE_SID11             ( (pComp->InternalConfig & (MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11 | MCP251XFD_CANFD_ENABLED)) == (MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11 | MCP251XFD_CANFD_ENABLED) )
+#define MCP251XFD_TIME_DIFF(begin,end)  ( ((end) >= (begin)) ? ((end) - (begin)) : (UINT32_MAX - ((begin) - (end) - 1)) ) // Works only if time difference is strictly inferior to (UINT32_MAX/2) and call often
 //-----------------------------------------------------------------------------
 
 
@@ -111,17 +112,17 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
 
   //--- Check clocks stabilization --------------------------
   uint8_t CheckVal = ((uint8_t)(Config) & MCP251XFD_SFR_OSC8_CHECKFLAGS) | MCP251XFD_SFR_OSC8_OSCRDY;    // Check if PLL Locked (if enabled), OSC clock is running and stable, and SCLKDIV is synchronized (if divided by 2)
-  uint32_t Timeout = pComp->fnGetCurrentms() + 4;                                                        // Wait at least 3ms (see TOSCSTAB in Table 7-3 from datasheet Electrical Specifications) + 1ms because GetCurrentms can be 1 cycle before the new ms
+  uint32_t StartTime = pComp->fnGetCurrentms();                                                          // Start the timeout
   while (true)
   {
     Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_OSC_CHECK, &Config);                                  // Read current OSC register mode with
     if (Error != ERR_OK) return Error;                                                                   // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
     if ((Config & MCP251XFD_SFR_OSC8_CHECKFLAGS) == CheckVal) break;                                     // Check if the controller's clocks are ready
-    if (pComp->fnGetCurrentms() >= Timeout) return ERR__DEVICE_TIMEOUT;                                  // Timout ? return the error
+    if (MCP251XFD_TIME_DIFF(StartTime, pComp->fnGetCurrentms()) > 4) return ERR__DEVICE_TIMEOUT;         // Wait at least 3ms (see TOSCSTAB in Table 7-3 from datasheet Electrical Specifications) + 1ms because GetCurrentms can be 1 cycle before the new ms. If timeout then return the error
   }
 
   //--- Set desired SPI clock speed -------------------------
-  if (pComp->SPIClockSpeed > (CompFreq >> 1)) return ERR__SPI_FREQUENCY_ERROR;                           // The SPI clock should not be superior to SYSCLK div 2
+  if (pComp->SPIClockSpeed > (((CompFreq >> 1) * 85) / 100)) return ERR__SPI_FREQUENCY_ERROR;            // Ensure that FSCK is less than or equal to 0.85*(FSYSCLK/2). Follows datasheets errata for: The SPI can write corrupted data to the RAM at fast SPI speeds
   if ((pComp->DriverConfig & MCP251XFD_DRIVER_SAFE_RESET) > 0)
   {
     Error = pComp->fnSPI_Init(pComp->InterfaceDevice, pComp->SPI_ChipSelect, pComp->SPIClockSpeed);      // Set the SPI speed clock to desired clock speed
@@ -684,7 +685,7 @@ eERRORRESULT MCP251XFD_TransmitMessageToFIFO(MCP251XFD *pComp, MCP251XFD_CANMess
   //--- Fill message ID (T0) ---
   bool Extended   = ((messageToSend->ControlFlags & MCP251XFD_EXTENDED_MESSAGE_ID) > 0);
   bool CANFDframe = ((messageToSend->ControlFlags & MCP251XFD_CANFD_FRAME        ) > 0);
-  Message->T0.T0  = MCP251XFD_MessageIDtoObjectMessageIdentifier(messageToSend->MessageID, Extended, USE_SID11 && CANFDframe);
+  Message->T0.T0  = MCP251XFD_MessageIDtoObjectMessageIdentifier(messageToSend->MessageID, Extended, MCP251XFD_USE_SID11 && CANFDframe);
 
   //--- Fill message controls (T1) ---
   Message->T1.T1 = 0;                          // Initialize message Controls to 0
@@ -772,7 +773,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
   //--- Extract message ID (R0) ---
   bool Extended   = (Message->R1.IDE == 1);
   bool CANFDframe = (Message->R1.FDF == 1);
-  messageGet->MessageID = MCP251XFD_ObjectMessageIdentifierToMessageID(Message->R0.R0, Extended, USE_SID11 && CANFDframe); // Extract SID/EID from R0
+  messageGet->MessageID = MCP251XFD_ObjectMessageIdentifierToMessageID(Message->R0.R0, Extended, MCP251XFD_USE_SID11 && CANFDframe); // Extract SID/EID from R0
 
   //--- Extract message controls (R1) ---
   messageGet->ControlFlags = MCP251XFD_NO_MESSAGE_CTRL_FLAGS;
@@ -1311,13 +1312,14 @@ eERRORRESULT MCP251XFD_WaitOperationModeChange(MCP251XFD *pComp, eMCP251XFD_Oper
   eERRORRESULT Error;
   uint8_t Config;
 
-  uint32_t Timeout = pComp->fnGetCurrentms() + 7;                       // Wait at least 7ms because the longest message is 731 bit long and the minimum bitrate is 125kbit/s that mean 5,8ms + 2x 6bytes @ 1Mbit/s over SPI that mean 96�s = ~6ms + 1ms because GetCurrentms can be 1 cycle before the new ms
+  uint32_t StartTime = pComp->fnGetCurrentms();                       // Start the timeout
   while (true)
   {
-    Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+2, &Config);   // Read current configuration mode with the current driver configuration
-    if (Error != ERR_OK) return Error;                                  // If there is an error while reading the register then return the error
-    if (MCP251XFD_CAN_CiCON8_OPMOD_GET(Config) == askedMode) break;     // Check if the controller is in configuration mode
-    if (pComp->fnGetCurrentms() >= Timeout) return ERR__DEVICE_TIMEOUT; // Timeout ? return the error
+    Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+2, &Config); // Read current configuration mode with the current driver configuration
+    if (Error != ERR_OK) return Error;                                // If there is an error while reading the register then return the error
+    if (MCP251XFD_CAN_CiCON8_OPMOD_GET(Config) == askedMode) break;   // Check if the controller is in configuration mode
+    if (MCP251XFD_TIME_DIFF(StartTime, pComp->fnGetCurrentms()) > 7)  // Wait at least 7ms because the longest message is 731 bit long and the minimum bitrate is 125kbit/s that mean 5,8ms + 2x 6bytes @ 1Mbit/s over SPI that mean 96�s = ~6ms + 1ms because GetCurrentms can be 1 cycle before the new ms
+      return ERR__DEVICE_TIMEOUT;                                     // Timeout? return the error
   }
   return ERR_OK;
 }
@@ -1854,13 +1856,13 @@ eERRORRESULT MCP251XFD_ResetFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name)
 
   //--- Now wait the reset to be effective ---
   uint8_t Config = 0;
-  uint32_t Timeout = pComp->fnGetCurrentms() + 3;                                                         // Wait at least 3ms
+  uint32_t StartTime = pComp->fnGetCurrentms();                                                           // Start the timeout
   while (true)
   {
     Error = MCP251XFD_ReadSFR8(pComp, Address, &Config);                                                  // Read current FIFO configuration (Second byte only)
     if (Error != ERR_OK) return Error;                                                                    // If there is an error while reading the register then return the error
     if ((Config & MCP251XFD_CAN_CiFIFOCONm8_FRESET) == 0) break;                                          // Check if the FIFO was reset
-    if (pComp->fnGetCurrentms() >= Timeout) return ERR__DEVICE_TIMEOUT;                                   // Timout ? return the error
+    if (MCP251XFD_TIME_DIFF(StartTime, pComp->fnGetCurrentms()) > 3) return ERR__DEVICE_TIMEOUT;          // Wait at least 3ms. If timeout then return the error
   }
   return ERR_OK;
 }
@@ -1953,7 +1955,7 @@ eERRORRESULT MCP251XFD_GetNextMessageAddressFIFO(MCP251XFD *pComp, eMCP251XFD_FI
     if (name == MCP251XFD_TXQ) Address = RegMCP251XFD_CiTXQSTA_TXQCI;                             // If it's the TXQ then select its address
 
     //--- Get FIFO status ---
-    return MCP251XFD_ReadSFR8(pComp, Address, nextIndex);                                         // Read FIFO status (Second byte only)
+    Error = MCP251XFD_ReadSFR8(pComp, Address, nextIndex);                                        // Read FIFO status (Second byte only)
     if (Error != ERR_OK) return Error;                                                            // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
     *nextIndex &= MCP251XFD_CAN_CiFIFOSTAm8_FIFOCI_Mask;
   }
@@ -2016,7 +2018,7 @@ eERRORRESULT MCP251XFD_ConfigureFilter(MCP251XFD *pComp, MCP251XFD_Filter *confF
   uint16_t AddrFLTCON = RegMCP251XFD_CiFLTCONm + confFilter->Filter;      // Select the address of the FLTCON
   Error = MCP251XFD_ReadSFR8(pComp, AddrFLTCON, &FilterConf.CiFLTCONm);   // Read actual flags configuration of the RegMCP251XFD_CiFLTCONm register
   if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
-  if (FilterConf.Bits.FLTEN)
+  if ((FilterConf.CiFLTCONm & MCP251XFD_CAN_CiFLTCONm_ENABLE) > 0)
   {
     FilterConf.CiFLTCONm = MCP251XFD_CAN_CiFLTCONm8_DISABLE;              // Disable the filter
     Error = MCP251XFD_WriteSFR8(pComp, AddrFLTCON, FilterConf.CiFLTCONm); // Write the new flags configuration to the RegMCP251XFD_CiFLTCONm register
@@ -2026,7 +2028,7 @@ eERRORRESULT MCP251XFD_ConfigureFilter(MCP251XFD *pComp, MCP251XFD_Filter *confF
   if (confFilter->EnableFilter)
   {
     //--- Get the SID11 configuration ---
-    bool UseSID11 = USE_SID11;
+    bool UseSID11 = MCP251XFD_USE_SID11;
 
     //--- Check values ---
     if ((confFilter->AcceptanceID & confFilter->AcceptanceMask) != confFilter->AcceptanceID) return ERR__FILTER_CONSISTENCY;
@@ -2045,20 +2047,20 @@ eERRORRESULT MCP251XFD_ConfigureFilter(MCP251XFD *pComp, MCP251XFD_Filter *confF
     //=== Fill Filter Object register ===
     MCP251XFD_CiFLTOBJm_Register FltObj;
     FltObj.CiFLTOBJm = MCP251XFD_MessageIDtoObjectMessageIdentifier(confFilter->AcceptanceID, (confFilter->Match != MCP251XFD_MATCH_ONLY_SID), UseSID11);
-    if (confFilter->Match == MCP251XFD_MATCH_ONLY_EID) FltObj.Bits.EXIDE = 1;                                  // If filter match only messages with extended identifier set the bit EXIDE
+    if (confFilter->Match == MCP251XFD_MATCH_ONLY_EID) FltObj.CiFLTOBJm |= MCP251XFD_CAN_CiFLTOBJm_EXIDE;      // If filter match only messages with extended identifier set the bit EXIDE
     //--- Send the filter object config ---
     uint16_t AddrFLTObj = RegMCP251XFD_CiFLTOBJm + ((uint16_t)confFilter->Filter * MCP251XFD_FILTER_REG_SIZE); // Select the address of the CiFLTOBJ
-    MCP251XFD_WriteSFR32(pComp, AddrFLTObj, FltObj.CiFLTOBJm);                                                 // Write the new flags configuration to the RegMCP251XFD_CiFLTOBJm register
+    Error = MCP251XFD_WriteSFR32(pComp, AddrFLTObj, FltObj.CiFLTOBJm);                                         // Write the new flags configuration to the RegMCP251XFD_CiFLTOBJm register
     if (Error != ERR_OK) return Error;                                                                         // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
 
 
     //=== Fill Filter Mask register ===
     MCP251XFD_CiMASKm_Register FltMask;
     FltMask.CiMASKm = MCP251XFD_MessageIDtoObjectMessageIdentifier(confFilter->AcceptanceMask, (confFilter->Match != MCP251XFD_MATCH_ONLY_SID), UseSID11);
-    if (confFilter->Match != MCP251XFD_MATCH_SID_EID) FltMask.Bits.MIDE = 1;                                   // If filter match only messages with standard or extended identifier set the bit MIDE
+    if (confFilter->Match != MCP251XFD_MATCH_SID_EID) FltMask.CiMASKm |= MCP251XFD_CAN_CiMASKm_MIDE;           // If filter match only messages with standard or extended identifier set the bit MIDE
     //--- Send the filter mask config ---
     uint16_t AddrMask = RegMCP251XFD_CiMASKm + ((uint16_t)confFilter->Filter * MCP251XFD_FILTER_REG_SIZE);     // Select the address of the CiMASK
-    MCP251XFD_WriteSFR32(pComp, AddrMask, FltMask.CiMASKm);                                                    // Write the new flags configuration to the RegMCP251XFD_CiMASKm register
+    Error = MCP251XFD_WriteSFR32(pComp, AddrMask, FltMask.CiMASKm);                                            // Write the new flags configuration to the RegMCP251XFD_CiMASKm register
     if (Error != ERR_OK) return Error;                                                                         // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
 
     //=== Configure Filter control ===
@@ -2126,7 +2128,7 @@ eERRORRESULT MCP251XFD_DisableFilter(MCP251XFD *pComp, eMCP251XFD_Filter name)
   uint16_t AddrFLTCON = RegMCP251XFD_CiFLTCONm + name;                    // Select the address of the FLTCON
   Error = MCP251XFD_ReadSFR8(pComp, AddrFLTCON, &FilterConf.CiFLTCONm);   // Read actual flags configuration of the RegMCP251XFD_CiFLTCONm register
   if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
-  if (FilterConf.Bits.FLTEN)
+  if ((FilterConf.CiFLTCONm & MCP251XFD_CAN_CiFLTCONm_ENABLE) > 0)
   {
     FilterConf.CiFLTCONm &= ~MCP251XFD_CAN_CiFLTCONm8_ENABLE;             // Disable the filter
     Error = MCP251XFD_WriteSFR8(pComp, AddrFLTCON, FilterConf.CiFLTCONm); // Write the new flags configuration to the RegMCP251XFD_CiFLTCONm register

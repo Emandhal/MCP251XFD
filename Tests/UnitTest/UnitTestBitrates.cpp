@@ -9,7 +9,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace Microsoft { namespace VisualStudio { namespace CppUnitTestFramework
 {
   template<> inline std::wstring ToString<eERRORRESULT>(const eERRORRESULT& t) { RETURN_WIDE_STRING(t); }
-  template<> inline std::wstring ToString<unsigned short>(const unsigned short& t) { RETURN_WIDE_STRING(t); }
+//  template<> inline std::wstring ToString<unsigned short>(const unsigned short& t) { RETURN_WIDE_STRING(t); }
   template<> inline std::wstring ToString<eMCP251XFD_TDCMode>(const eMCP251XFD_TDCMode& t) { RETURN_WIDE_STRING(t); }
 } } }
 

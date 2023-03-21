@@ -1,15 +1,15 @@
-/*******************************************************************************
+/*!*****************************************************************************
  * @file    MCP251XFD.h
  * @author  Fabien 'Emandhal' MAILLY
  * @version 1.0.4
  * @date    16/11/2021
  * @brief   MCP251XFD driver
- *
+ * @details
  * The MCP251XFD component is a CAN-bus controller supporting CAN2.0A, CAN2.0B
  * and CAN-FD with SPI interface
- * Follow datasheet MCP2517FD Rev.B (July  2019)
- *                  MCP2518FD Rev.A (April 2019)
- *                  MCP251863 Rev.A (Feb   2022) [Have a MCP2518FD inside]
+ * Follow datasheet MCP2517FD Rev.B (July 2019)
+ *                  MCP2518FD Rev.B (Dec  2020)
+ *                  MCP251863 Rev.A (Sept 2022) [Have a MCP2518FD inside]
  * Follow MCP25XXFD Family Reference Manual (DS20005678D)
  ******************************************************************************/
 /* @page License
@@ -36,6 +36,9 @@
  *****************************************************************************/
 
 /* Revision history:
+ * 1.0.5    Do a safer timeout for functions
+ *          Mark RegMCP251XFD_IOCON as deprecated following MCP2517FD: DS80000792C (§6), MCP2518FD: DS80000789C (§5), MCP251863: DS80000984A (§5)
+ *          Change SPI max speed following MCP2517FD: DS80000792C (§5), MCP2518FD: DS80000789C (§4), MCP251863: DS80000984A (§4)
  * 1.0.4    Minor changes in the code and documentation [Thanks to BombaMat]
  * 1.0.3    Add MCP251XFD_StartCANListenOnly() function
  *          Correct the MCP251XFD_ReceiveMessageFromFIFO() function [Thanks to mikucukyilmaz]
@@ -104,9 +107,9 @@
 #define MCP251XFD_NOMBITRATE_MAX   (  1000000u ) //!< Max Nominal bitrate
 #define MCP251XFD_DATABITRATE_MIN  (   500000u ) //!< Min Data bitrate
 #define MCP251XFD_DATABITRATE_MAX  (  8000000u ) //!< Max Data bitrate
-#define MCP251XFD_SPICLOCK_MAX     ( 20000000u ) //!< Max SPI clock frequency for MCP251XFD
+#define MCP251XFD_SPICLOCK_MAX     ( 17000000u ) //!< Max SPI clock frequency for MCP251XFD (Ensure that FSCK is less than or equal to 0.85 * (FSYSCLK/2))
 
-
+//-----------------------------------------------------------------------------
 
 // Limits Bit Rate configuration range for MCP251XFD
 #define MCP251XFD_tTXDtRXD_MAX  ( 255 ) //!< tTXD-RXD is the propagation delay of the transceiver, a maximum 255ns according to ISO 11898-1:2015
@@ -530,11 +533,14 @@ typedef enum
   RegMCP251XFD_OSC                = 0xE00,                     //!< Oscillator Control Register
   RegMCP251XFD_OSC_CONFIG         = RegMCP251XFD_OSC+0,        //!< Oscillator Control Register - Configuration register
   RegMCP251XFD_OSC_CHECK          = RegMCP251XFD_OSC+1,        //!< Oscillator Control Register - Check frequency configuration register
+#if defined(_MSC_VER) || (defined(__cplusplus) && (__cplusplus >= 201103L/*C++11*/)) || (!defined(__cplusplus))
   RegMCP251XFD_IOCON              = 0xE04,                     //!< Input/Output Control Register
-  RegMCP251XFD_IOCON_DIRECTION    = RegMCP251XFD_IOCON+0,      //!< Input/Output Control Register - Pins direction
-  RegMCP251XFD_IOCON_OUTLEVEL     = RegMCP251XFD_IOCON+1,      //!< Input/Output Control Register - Pin output level
-  RegMCP251XFD_IOCON_INLEVEL      = RegMCP251XFD_IOCON+2,      //!< Input/Output Control Register - Pin input level
-  RegMCP251XFD_IOCON_PINMODE      = RegMCP251XFD_IOCON+3,      //!< Input/Output Control Register - Pin mode
+                                                               //!< @deprecated Use RegMCP251XFD_IOCON_x subregisters with MCP251XFD_ReadSFR8() and MCP251XFD_WriteSFR8(). Follows datasheets errata for: Writing multiple bytes to the IOCON register using one SPI WRITE instruction may overwrite LAT0 and LAT1
+#endif
+  RegMCP251XFD_IOCON_DIRECTION    = 0xE04+0,                   //!< Input/Output Control Register - Pins direction
+  RegMCP251XFD_IOCON_OUTLEVEL     = 0xE04+1,                   //!< Input/Output Control Register - Pin output level
+  RegMCP251XFD_IOCON_INLEVEL      = 0xE04+2,                   //!< Input/Output Control Register - Pin input level
+  RegMCP251XFD_IOCON_PINMODE      = 0xE04+3,                   //!< Input/Output Control Register - Pin mode
   RegMCP251XFD_CRC                = 0xE08,                     //!< CRC Register
   RegMCP251XFD_CRC_CRC            = RegMCP251XFD_CRC+0,        //!< CRC Register - Last CRC mismatch
   RegMCP251XFD_CRC_FLAGS          = RegMCP251XFD_CRC+2,        //!< CRC Register - Status flags
@@ -547,6 +553,15 @@ typedef enum
   RegMCP251XFD_ECCSTAT_ERRADDR    = RegMCP251XFD_ECCSTAT+2,    //!< ECC Status Register - ECC error address
   RegMCP251XFD_DEVID              = 0xE14,                     //!< Device ID Register
 } eMCP251XFD_Registers;
+
+//-----------------------------------------------------------------------------
+#if defined(__GNUC__) && !(defined(__cplusplus) && (__cplusplus >= 201103L/*C++11*/)) || (!defined(__cplusplus))
+   typedef __attribute__((deprecated)) eMCP251XFD_Registers eMCP251XFD_Registers_deprecated; //! Create a new type for deprecated registers
+#  define RegMCP251XFD_IOCON ((eMCP251XFD_Registers_deprecated)RegMCP251XFD_IOCON) //! Override RegMCP251XFD_IOCON definition to force deprecated warning for the use of this register
+#elif defined _MSC_VER
+#  pragma deprecated(RegMCP251XFD_IOCON)
+#endif
+//-----------------------------------------------------------------------------
 
 
 
