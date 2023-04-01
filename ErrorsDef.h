@@ -110,12 +110,13 @@ extern "C" {
     X(ERR__CANNOT_GO_IDLE_STATE,      , "Cannot go in idle state"                               ) \
                                                                                                   \
 /*  //--- Devices errors ---                                                                    */\
-/*  // MCP251XFD errors                                                                         */\
+/*  // CAN errors                                                                               */\
     X(ERR__RAM_TEST_FAIL       , = 100, "RAM test fail"                                         ) \
     X(ERR__BITTIME_ERROR       ,      , "Can't calculate a good Bit Time"                       ) \
     X(ERR__TOO_MANY_TEF        ,      , "Too many TEF to configure"                             ) \
     X(ERR__TOO_MANY_TXQ        ,      , "Too many TXQ to configure"                             ) \
     X(ERR__TOO_MANY_FIFO       ,      , "Too many FIFO to configure"                            ) \
+    X(ERR__TOO_MANY_BUFFER     ,      , "Too many Buffer to configure"                          ) \
     X(ERR__SID11_NOT_AVAILABLE ,      , "SID11 not available in CAN2.0 mode"                    ) \
     X(ERR__FILTER_CONSISTENCY  ,      , "Filter inconsistency between Mask and filter"          ) \
     X(ERR__FILTER_TOO_LARGE    ,      , "Filter too large between filter and config"            ) \

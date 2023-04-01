@@ -179,7 +179,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   Error = MCP251XFD_ConfigurePins(pComp, pConf->GPIO0PinMode, pConf->GPIO1PinMode, pConf->INTsOutMode, pConf->TXCANOutMode, (pConf->ClkoPinConfig == MCP251XFD_CLKO_SOF)); // Configure pins
   if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_ConfigurePins() then return the error
 
-  //--- Set Normal and Data bitrate -------------------------
+  //--- Set Nominal and Data bitrate ------------------------
   MCP251XFD_BitTimeConfig ConfBitTime;
   ConfBitTime.Stats = pConf->BitTimeStats;
   Error = MCP251XFD_CalculateBitTimeConfiguration(CompFreq, pConf->NominalBitrate, pConf->DataBitrate, &ConfBitTime); // Calculate Bit Time
@@ -1907,7 +1907,7 @@ eERRORRESULT MCP251XFD_FlushFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name)
 //=============================================================================
 // Get status of a FIFO of the MCP251XFD device
 //=============================================================================
-eERRORRESULT MCP251XFD_GetFIFOStatus(MCP251XFD *pComp, eMCP251XFD_FIFO name, eMCP251XFD_FIFOstatus *statusFlags)
+eERRORRESULT MCP251XFD_GetFIFOStatus(MCP251XFD *pComp, eMCP251XFD_FIFO name, setMCP251XFD_FIFOstatus *statusFlags)
 {
 #ifdef CHECK_NULL_PARAM
   if (statusFlags == NULL) return ERR__PARAMETER_ERROR;
@@ -2193,7 +2193,7 @@ eERRORRESULT MCP251XFD_ClearInterruptEvents(MCP251XFD *pComp, setMCP251XFD_Inter
 //=============================================================================
 // Get current receive FIFO name and status that generate an interrupt (if any)
 //=============================================================================
-eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, eMCP251XFD_FIFOstatus *flags)
+eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, setMCP251XFD_FIFOstatus *flags)
 {
 #ifdef CHECK_NULL_PARAM
   if (name == NULL) return ERR__PARAMETER_ERROR;
@@ -2209,7 +2209,7 @@ eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pC
   if ( RxCode < MCP251XFD_FIFO1 ) return ERR__UNKNOWN_ELEMENT;                                        // FIFO0 is reserved so not possible
   if ((RxCode > MCP251XFD_FIFO31) && (RxCode != MCP251XFD_NO_INTERRUPT)) return ERR__UNKNOWN_ELEMENT; // Only FIFO1 to 31 and no Interrupt code possible so the rest is not possible
   if (RxCode == MCP251XFD_NO_INTERRUPT) return ERR_OK;                                                // No interrupt? Good
-  *name = (eMCP251XFD_FIFO)RxCode;// Save the current FIFO name interrupt
+  *name = (eMCP251XFD_FIFO)RxCode;                                                                    // Save the current FIFO name interrupt
 
   //--- Get status flags of the FIFO ---
   if ((*name != MCP251XFD_NO_FIFO) && (flags != NULL))
@@ -2222,7 +2222,7 @@ eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pC
 //=============================================================================
 // Get current transmit FIFO name and status that generate an interrupt (if any)
 //=============================================================================
-eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, eMCP251XFD_FIFOstatus *flags)
+eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, setMCP251XFD_FIFOstatus *flags)
 {
 #ifdef CHECK_NULL_PARAM
   if (name == NULL) return ERR__PARAMETER_ERROR;

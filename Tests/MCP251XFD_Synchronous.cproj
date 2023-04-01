@@ -678,6 +678,10 @@
     <Folder Include="src\Utils" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\ErrorsDef.h">
+      <SubType>compile</SubType>
+      <Link>src\ErrorsDef.h</Link>
+    </Compile>
     <Compile Include="src\Utils\StringTools.c">
       <SubType>compile</SubType>
     </Compile>
@@ -750,9 +754,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\Console.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\ErrorsDef.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\MCANFunctions.c">

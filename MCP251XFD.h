@@ -2563,6 +2563,8 @@ typedef enum
   MCP251XFD_TEF_FIFO_STATUS_MASK = MCP251XFD_CAN_CiTEFSTA8_ALL_EVENTS, //!< TEF status mask
 } eMCP251XFD_TEFstatus;
 
+typedef eMCP251XFD_TEFstatus setMCP251XFD_TEFstatus; //! Set of Transmit Event FIFO status (can be OR'ed)
+
 //-----------------------------------------------------------------------------
 
 
@@ -2788,6 +2790,8 @@ typedef enum
   MCP251XFD_TXQ_STATUS_MASK        = MCP251XFD_CAN_CiTXQSTA8_ALL_EVENTS, //!< TXQ status mask
 } eMCP251XFD_TXQstatus;
 
+typedef eMCP251XFD_TXQstatus setMCP251XFD_TXQstatus; //! Set of Transmit Queue status (can be OR'ed)
+
 //-----------------------------------------------------------------------------
 
 
@@ -2985,6 +2989,8 @@ typedef enum
   MCP251XFD_RX_FIFO_OVERFLOW    = MCP251XFD_CAN_CiFIFOSTAm8_RXOVIF  , //!< Receive overflow
   MCP251XFD_RX_FIFO_STATUS_MASK = MCP251XFD_CAN_CiFIFOSTAm8_RX_FIFO , //!< Receive FIFO status mask
 } eMCP251XFD_FIFOstatus;
+
+typedef eMCP251XFD_FIFOstatus setMCP251XFD_FIFOstatus; //! Set of Transmit and Receive FIFO status (can be OR'ed)
 
 //-----------------------------------------------------------------------------
 
@@ -4547,7 +4553,7 @@ inline eERRORRESULT MCP251XFD_FlushAllFIFO(MCP251XFD *pComp)
  * @param[out] *statusFlags Is the return value of status flags
  * @return Returns an #eERRORRESULT value enum
  */
-eERRORRESULT MCP251XFD_GetFIFOStatus(MCP251XFD *pComp, eMCP251XFD_FIFO name, eMCP251XFD_FIFOstatus *statusFlags);
+eERRORRESULT MCP251XFD_GetFIFOStatus(MCP251XFD *pComp, eMCP251XFD_FIFO name, setMCP251XFD_FIFOstatus *statusFlags);
 
 
 
@@ -4558,10 +4564,10 @@ eERRORRESULT MCP251XFD_GetFIFOStatus(MCP251XFD *pComp, eMCP251XFD_FIFO name, eMC
  * @param[out] *statusFlags Is the return value of status flags
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetTEFStatus(MCP251XFD *pComp, eMCP251XFD_TEFstatus *statusFlags)
+inline eERRORRESULT MCP251XFD_GetTEFStatus(MCP251XFD *pComp, setMCP251XFD_TEFstatus *statusFlags)
 {
-  eERRORRESULT Error = MCP251XFD_GetFIFOStatus(pComp, MCP251XFD_TEF, (eMCP251XFD_FIFOstatus*)statusFlags);
-  *statusFlags = (eMCP251XFD_TEFstatus)((*statusFlags) & MCP251XFD_TEF_FIFO_STATUS_MASK);
+  eERRORRESULT Error = MCP251XFD_GetFIFOStatus(pComp, MCP251XFD_TEF, (setMCP251XFD_FIFOstatus*)statusFlags);
+  *statusFlags = (setMCP251XFD_TEFstatus)((*statusFlags) & MCP251XFD_TEF_FIFO_STATUS_MASK);
   return Error;
 }
 
@@ -4574,10 +4580,10 @@ inline eERRORRESULT MCP251XFD_GetTEFStatus(MCP251XFD *pComp, eMCP251XFD_TEFstatu
  * @param[out] *statusFlags Is the return value of status flags
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetTXQStatus(MCP251XFD *pComp, eMCP251XFD_TXQstatus *statusFlags)
+inline eERRORRESULT MCP251XFD_GetTXQStatus(MCP251XFD *pComp, setMCP251XFD_TXQstatus *statusFlags)
 {
-  eERRORRESULT Error = MCP251XFD_GetFIFOStatus(pComp, MCP251XFD_TXQ, (eMCP251XFD_FIFOstatus*)statusFlags);
-  *statusFlags = (eMCP251XFD_TXQstatus)((*statusFlags) & MCP251XFD_TXQ_STATUS_MASK);
+  eERRORRESULT Error = MCP251XFD_GetFIFOStatus(pComp, MCP251XFD_TXQ, (setMCP251XFD_FIFOstatus*)statusFlags);
+  *statusFlags = (setMCP251XFD_TXQstatus)((*statusFlags) & MCP251XFD_TXQ_STATUS_MASK);
   return Error;
 }
 
@@ -4690,10 +4696,10 @@ eERRORRESULT MCP251XFD_ClearInterruptEvents(MCP251XFD *pComp, setMCP251XFD_Inter
  * Once the interrupt with the highest priority is cleared, the next highest priority interrupt will show up
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[out] *name Is the returned name of the FIFO that generate an interrupt
- * @param[out] *flags Is the return value of status flags of the FIFO (can be NULL if it's not needed)
+ * @param[out] *flags Is the return value of status flags of the FIFO (can be NULL if it's not needed). Flags can be OR'ed
  * @return Returns an #eERRORRESULT value enum
  */
-eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, eMCP251XFD_FIFOstatus *flags);
+eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, setMCP251XFD_FIFOstatus *flags);
 
 
 
@@ -4720,10 +4726,10 @@ inline eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameInterrupt(MCP251XFD *pCom
  * Once the interrupt with the highest priority is cleared, the next highest priority interrupt will show up
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[out] *name Is the returned name of the FIFO that generate an interrupt
- * @param[out] *flags Is the return value of status flags of the FIFO (can be NULL if it's not needed)
+ * @param[out] *flags Is the return value of status flags of the FIFO (can be NULL if it's not needed). Flags can be OR'ed
  * @return Returns an #eERRORRESULT value enum
  */
-eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, eMCP251XFD_FIFOstatus *flags);
+eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, setMCP251XFD_FIFOstatus *flags);
 
 
 
