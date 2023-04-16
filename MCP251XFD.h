@@ -1,8 +1,8 @@
 /*!*****************************************************************************
  * @file    MCP251XFD.h
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.4
- * @date    16/11/2021
+ * @version 1.0.6
+ * @date    16/04/2023
  * @brief   MCP251XFD driver
  * @details
  * The MCP251XFD component is a CAN-bus controller supporting CAN2.0A, CAN2.0B
@@ -14,7 +14,7 @@
  ******************************************************************************/
 /* @page License
  *
- * Copyright (c) 2020 Fabien MAILLY
+ * Copyright (c) 2020-2023 Fabien MAILLY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@
  *****************************************************************************/
 
 /* Revision history:
+ * 1.0.6    Reduce code size by merging all Data Reads and all Data Writes
  * 1.0.5    Do a safer timeout for functions
  *          Mark RegMCP251XFD_IOCON as deprecated following MCP2517FD: DS80000792C (§6), MCP2518FD: DS80000789C (§5), MCP251863: DS80000984A (§5)
  *          Change SPI max speed following MCP2517FD: DS80000792C (§5), MCP2518FD: DS80000789C (§4), MCP251863: DS80000984A (§4)

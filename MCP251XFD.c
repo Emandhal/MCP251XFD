@@ -1,8 +1,8 @@
 /*!*****************************************************************************
  * @file    MCP251XFD.c
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.4
- * @date    16/11/2021
+ * @version 1.0.6
+ * @date    16/04/2023
  * @brief   MCP251XFD driver
  * @details
  * The MCP251XFD component is a CAN-bus controller supporting CAN2.0A, CAN2.0B
@@ -249,363 +249,98 @@ eERRORRESULT MCP251XFD_GetDeviceID(MCP251XFD *pComp, eMCP251XFD_Devices* device,
 
 
 //**********************************************************************************************************************************************************
-// [STATIC] Read data from the MCP251XFD in normal mode (DO NOT USE DIRECTLY, use MCP251XFD_ReadData() instead)
-eERRORRESULT __MCP251XFD_ReadDataNormal(MCP251XFD *pComp, uint16_t address, uint8_t* data, uint16_t size)
-{
-#ifdef CHECK_NULL_PARAM
-  if ((pComp == NULL) || (data == NULL))  return ERR__PARAMETER_ERROR;
-  if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
-#endif
-  eERRORRESULT Error;
-  uint8_t Buffer[MCP251XFD_TRANS_BUF_SIZE];
-
-  // Create all clusters of data and send them
-  uint8_t* pBuf;
-  size_t BufRemain = 0;
-  uint16_t BufSize = MCP251XFD_TRANS_BUF_SIZE;
-  while (size > 0)
-  {
-    // Compose SPI command
-    pBuf = &Buffer[0];
-    *pBuf = MCP251XFD_SPI_FIRST_BYTE(MCP251XFD_SPI_INSTRUCTION_READ, address); // Set first byte of SPI command
-    pBuf++;
-    *pBuf = address & 0xFF;                                                    // Set next byte of SPI command
-    pBuf++;
-
-    // If needed, set 0x00 byte while reading data on SPI interface else send garbage data
-    if ((pComp->DriverConfig & MCP251XFD_DRIVER_CLEAR_BUFFER_BEFORE_READ) > 0)
-    {
-      for (size_t z = 2; z < MCP251XFD_TRANS_BUF_SIZE; z++)
-        Buffer[z] = 0x00;
-    }
-
-    // Now send the data through SPI interface
-    BufSize = MCP251XFD_TRANS_BUF_SIZE;
-    if (size < (MCP251XFD_TRANS_BUF_SIZE - 2)) BufSize = (size + 2); // Define how many bytes will be transfer
-    Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], &Buffer[0], BufSize); // Transfer the data in the buffer
-    if (Error != ERR_OK) return Error;                               // If there is an error while transferring data then return the error
-
-    // Copy buffer to data
-    BufRemain = (MCP251XFD_TRANS_BUF_SIZE - 2);                      // Set how many data that will fit the rest of the buffer
-    while ((BufRemain > 0) && (size > 0))
-    {
-      *data = *pBuf;                                                 // Copy data
-      pBuf++;
-      data++;
-      BufRemain--;
-      size--;
-      address++;
-    }
-  }
-
-  return ERR_OK;
-}
-
-// [STATIC] Read data from the MCP251XFD with CRC (DO NOT USE DIRECTLY, use MCP251XFD_ReadData() instead)
-eERRORRESULT __MCP251XFD_ReadDataCRC(MCP251XFD *pComp, uint16_t address, uint8_t* data, uint16_t size)
-{
-#ifdef CHECK_NULL_PARAM
-  if ((pComp == NULL) || (data == NULL))  return ERR__PARAMETER_ERROR;
-  if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
-#endif
-  bool InRAM = (address >= MCP251XFD_RAM_ADDR) && (address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE)); // True if address is in the RAM region ; False if address is in Controller SFR or CAN SFR region
-  eERRORRESULT Error;
-  uint8_t Buffer[MCP251XFD_TRANS_BUF_SIZE];
-
-  // Define the Increment value
-  uint16_t Increment = MCP251XFD_TRANS_BUF_SIZE - 5;                             // Buffer size minus 2 for Command, minus 1 for length, minus 2 for CRC
-  if (InRAM)                                                                     // In RAM region?
-  {
-    if ((size & 0b11) != 0) return ERR__DATA_MODULO;                             // size should be a multiple of 4 in case of Write CRC or Safe Write
-    Increment &= 0xFFFC;                                                         // If in RAM region then the increment should be the nearest less than or equal value multiple by 4
-  }                                                                              // Here Increment cannot be 0 because MCP251XFD_TRANS_BUF_SIZE is compiler protected to be not less than 9
-
-  // Create all clusters of data and send them
-  uint8_t* pBuf;
-  size_t BufRemain = 0;
-  size_t ByteCount = 0;
-  while (size > 0)
-  {
-    const uint16_t Addr = MCP251XFD_SPI_16BITS_WORD(MCP251XFD_SPI_INSTRUCTION_READ_CRC, address);
-    // Compose SPI command
-    pBuf = &Buffer[0];
-    *pBuf = ((Addr >> 8) & 0xFF);                                                // Set first byte of SPI command
-    pBuf++;
-    *pBuf = Addr & 0xFF;                                                         // Set next byte of SPI command
-    pBuf++;
-
-    // Set length of data
-    uint8_t LenData = 0;
-    ByteCount = (size > Increment ? Increment : size);                           // Define byte count to send
-#if MCP251XFD_TRANS_BUF_SIZE > (255 + 5)
-    if (InRAM)
-    {
-      ByteCount = (ByteCount > (UINT8_MAX << 2) ? (UINT8_MAX << 2) : ByteCount); // The maximum data word (4-bytes in RAM) per transfer is 255 max (255*4 bytes)
-      LenData = (ByteCount >> 2) & 0xFF;                                         // Set how many data word that is requested
-    }
-    else
-    {
-      ByteCount = (ByteCount > UINT8_MAX ? UINT8_MAX : ByteCount);               // The maximum data (byte in SFR and 4-bytes in RAM) per transfer is 255 max
-      LenData = ByteCount & 0xFF;                                                // Set how many data byte that is requested
-    }
-#else
-    if (InRAM) LenData = (ByteCount >> 2) & 0xFF;                                // If in RAM, set how many data word that is requested
-    else LenData = ByteCount & 0xFF;                                             // Set how many data byte that is requested
-#endif
-    *pBuf = LenData;
-    pBuf++;
-
-    // If needed, set 0x00 byte while reading data on SPI interface else send garbage data
-    if ((pComp->DriverConfig & MCP251XFD_DRIVER_CLEAR_BUFFER_BEFORE_READ) > 0)
-    {
-      for (size_t z = 3; z < (ByteCount + 2 + 1 - 2); z++)                       // Here 2 for Command + 1 for Length - 2 for CRC (CRC on the SPI send is not checked by the controller thus will be set to 0 too)
-      Buffer[z] = 0x00;
-    }
-
-    // Now send the data through SPI interface
-    Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], &Buffer[0], (2 + 1 + 2 + ByteCount)); // Transfer the data in the buffer (2 for Command + 1 for Length + 2 for CRC)
-    if (Error != ERR_OK) return Error;                                           // If there is an error while transferring data then return the error
-
-    // Copy buffer to data
-    BufRemain = ByteCount;                                                       // Set how many data that will fit in the buffer
-    while ((BufRemain > 0) && (size > 0))
-    {
-      *data = *pBuf;                                                             // Copy data
-      pBuf++;
-      data++;
-      BufRemain--;
-      size--;
-      address++;
-    }
-
-    // Replace Head data of the Tx buffer into the Rx buffer
-    Buffer[0] = (uint8_t)((Addr >> 8) & 0xFF);
-    Buffer[1] = (uint8_t)((Addr >> 0) & 0xFF);
-    Buffer[2] = LenData;
-
-    // Compute CRC and compare to the one in the buffer
-#ifdef CHECK_NULL_PARAM
-    if (pComp->fnComputeCRC16 == NULL) return ERR__PARAMETER_ERROR;        // If the CRC function is not present, raise an error
-#endif
-    uint16_t CRC = pComp->fnComputeCRC16(&Buffer[0], (ByteCount + 2 + 1)); // Compute CRC on the Buffer data (2 for Command + 1 for Length)
-    uint16_t BufCRC = *pBuf << 8;                                          // Get CRC MSB on the next buffer byte
-    pBuf++;
-    BufCRC |= *pBuf;                                                       // Get CRC LSB on the next buffer byte
-    if (CRC != BufCRC) return ERR__CRC_ERROR;                              // If CRC mismatch, then raise an error
-  }
-
-  return ERR_OK;
-}
-
 //=============================================================================
 // Read data from the MCP251XFD device
 //=============================================================================
 eERRORRESULT MCP251XFD_ReadData(MCP251XFD *pComp, uint16_t address, uint8_t* data, uint16_t size)
 {
 #ifdef CHECK_NULL_PARAM
-  if (pComp == NULL) return ERR__PARAMETER_ERROR;
+  if ((pComp == NULL) || (data == NULL))  return ERR__PARAMETER_ERROR;
+  if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
 #endif
+  const bool UseCRC = ((pComp->DriverConfig & MCP251XFD_DRIVER_USE_READ_WRITE_CRC) > 0);
+  const bool InRAM  = (address >= MCP251XFD_RAM_ADDR) && (address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE)); // True if address is in the RAM region ; False if address is in Controller SFR or CAN SFR region
   if (address > MCP251XFD_END_ADDR) return ERR__PARAMETER_ERROR;
-  eERRORRESULT Error;
-
-  // Select the good function to transfer data
-  if ((pComp->DriverConfig & MCP251XFD_DRIVER_USE_READ_WRITE_CRC) == 0) // Normal read?
-  {
-    Error = __MCP251XFD_ReadDataNormal(pComp, address, data, size);     // Transfer data with Read Normal
-  }
-  else
-  {
-    Error = __MCP251XFD_ReadDataCRC(pComp, address, data, size);        // Transfer data with Read CRC
-  }
-  return Error;
-}
-
-
-
-
-
-//**********************************************************************************************************************************************************
-// [STATIC] Write data to the MCP251XFD in normal mode (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
-eERRORRESULT __MCP251XFD_WriteDataNormal(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size)
-{
-#ifdef CHECK_NULL_PARAM
-  if ((pComp == NULL) || (data == NULL))  return ERR__PARAMETER_ERROR;
-  if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
-#endif
-  eERRORRESULT Error;
   uint8_t Buffer[MCP251XFD_TRANS_BUF_SIZE];
+  eERRORRESULT Error;
 
-  // Create all clusters of data and send them
+  //--- Define the Increment value ---
+  uint16_t Increment = MCP251XFD_TRANS_BUF_SIZE - (UseCRC ? 5 : 2);          // If use CRC for read, Buffer size minus 2 for Command, minus 1 for length, minus 2 for CRC, else just 2 for command
+  if (UseCRC && InRAM)                                                       // In RAM region and use CRC for read?
+  {
+    if ((size & 0b11) != 0) return ERR__DATA_MODULO;                         // size should be a multiple of 4 in case of Write CRC or Safe Write
+    Increment &= 0xFFFC;                                                     // If in RAM region then the increment should be the nearest less than or equal value multiple by 4
+  }                                                                          // Here Increment cannot be 0 because MCP251XFD_TRANS_BUF_SIZE is compiler protected to be not less than 9
+
+  //--- Create all clusters of data and send them ---
   uint8_t* pBuf;
   size_t BufRemain = 0;
+  size_t ByteCount;
   while (size > 0)
   {
-    // Compose SPI command
+    const uint16_t Addr = MCP251XFD_SPI_16BITS_WORD((UseCRC ? MCP251XFD_SPI_INSTRUCTION_READ_CRC : MCP251XFD_SPI_INSTRUCTION_READ), address);
+    //--- Compose SPI command ---
     pBuf = &Buffer[0];
-    *pBuf = MCP251XFD_SPI_FIRST_BYTE(MCP251XFD_SPI_INSTRUCTION_WRITE, address); // Set first byte of SPI command
-    pBuf++;
-    *pBuf = MCP251XFD_SPI_SECOND_BYTE(address);                                 // Set next byte of SPI command
-    pBuf++;
+    *pBuf = ((Addr >> 8) & 0xFF);                                            // Set first byte of SPI command
+    ++pBuf;
+    *pBuf = Addr & 0xFF;                                                     // Set next byte of SPI command
+    ++pBuf;
+    ByteCount = (size > Increment ? Increment : size);                       // Define byte count to send
 
-    // Copy data to buffer
-    BufRemain = (MCP251XFD_TRANS_BUF_SIZE - 2);                                 // Set how many data that will fit the rest of the buffer
-    while ((BufRemain > 0) && (size > 0))
+    //--- If needed, set 0x00 byte while reading data on SPI interface else send garbage data ---
+    if ((pComp->DriverConfig & MCP251XFD_DRIVER_CLEAR_BUFFER_BEFORE_READ) > 0)
     {
-      *pBuf = *data;                                                            // Copy data
-      pBuf++;
-      data++;
-      BufRemain--;
-      size--;
-      address++;
+      const size_t BuffUsedSize = ByteCount + (UseCRC ? 2 + 1 - 2 : 2);      // Here 2 for Command + 1 for Length - 2 for CRC (CRC on the SPI send is not checked by the controller thus will be set to 0 too), else just 2 for command
+      for (size_t z = 2; z < BuffUsedSize; ++z) Buffer[z] = 0x00;            // Set to 0
     }
-
-    // Now send the data through SPI interface
-    Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], NULL, (MCP251XFD_TRANS_BUF_SIZE - BufRemain)); // Transfer the data in the buffer
-    if (Error != ERR_OK) return Error;                             // If there is an error while transferring data then return the error
-  }
-
-  return ERR_OK;
-}
-
-// [STATIC] Write data to the MCP251XFD with CRC (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
-eERRORRESULT __MCP251XFD_WriteDataCRC(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size)
-{
-#ifdef CHECK_NULL_PARAM
-  if ((pComp == NULL) || (data == NULL))  return ERR__PARAMETER_ERROR;
-  if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
-#endif
-  bool InRAM = (address >= MCP251XFD_RAM_ADDR) && (address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE)); // True if address is in the RAM region ; False if address is in Controller SFR or CAN SFR region
-  eERRORRESULT Error;
-  uint8_t Buffer[MCP251XFD_TRANS_BUF_SIZE];
-
-  // Define the Increment value
-  uint32_t Increment = MCP251XFD_TRANS_BUF_SIZE - 5;                             // Buffer size minus 2 for Cmd, minus 1 for length, minus 2 for CRC
-  if (InRAM)                                                                     // In RAM region?
-  {
-    if ((size & 0b11) != 0) return ERR__DATA_MODULO;                             // size should be a multiple of 4 in case of Write CRC or Safe Write
-    Increment &= 0xFFFC;                                                         // If in RAM region then the increment should be the nearest less than or equal value multiple by 4
-  }                                                                              // Here Increment cannot be 0 because MCP251XFD_TRANS_BUF_SIZE is compiler protected to be not less than 9
-
-  // Create all clusters of data and send them
-  uint8_t* pBuf;
-  size_t BufRemain = 0;
-  size_t ByteCount = 0;
-  while (size > 0)
-  {
-    // Compose SPI command
-    pBuf = &Buffer[0];
-    *pBuf = MCP251XFD_SPI_FIRST_BYTE(MCP251XFD_SPI_INSTRUCTION_WRITE_CRC, address); // Set first byte of SPI command
-    pBuf++;
-    *pBuf = MCP251XFD_SPI_SECOND_BYTE(address);                                     // Set next byte of SPI command
-    pBuf++;
 
     // Set length of data
-    ByteCount = (size > Increment ? Increment : size);                              // Define byte count to send
-#if MCP251XFD_TRANS_BUF_SIZE > (255 + 5)
-    if (InRAM)
-    {
-      ByteCount = (ByteCount > (UINT8_MAX << 2) ? (UINT8_MAX << 2) : ByteCount);    // The maximum data word (4-bytes in RAM) per transfer is 255 max (255*4 bytes)
-      *pBuf = (ByteCount >> 2) & 0xFF;                                              // Set how many data word that is requested
-    }
-    else
-    {
-      ByteCount = (ByteCount > UINT8_MAX ? UINT8_MAX : ByteCount);                  // The maximum data (byte in SFR and 4-bytes in RAM) per transfer is 255 max
-      *pBuf = ByteCount & 0xFF;                                                     // Set how many data byte that is requested
-    }
-#else
-    if (InRAM) *pBuf = (ByteCount >> 2) & 0xFF;                                     // If in RAM, set how many data word that is requested
-    else *pBuf = ByteCount & 0xFF;                                                  // Set how many data byte that is requested
-#endif
-    pBuf++;
+    uint8_t LenData = 0;
+    if (UseCRC && InRAM) LenData = (ByteCount >> 2) & 0xFF;                  // If use CRC for read and in RAM, set how many data word that is requested
+    else LenData = ByteCount & 0xFF;                                         // Set how many data byte that is requested
+    if (UseCRC) { *pBuf = LenData; ++pBuf; }                                 // Add Len in the frame if use CRC
 
-    // Copy data to buffer
-    BufRemain = Increment;                                                          // Set how many data that will fit in the buffer
+    //--- Now send the data through SPI interface ---
+    const size_t ByteToReadCount = ByteCount + (UseCRC ? (2 + 1 + 2) : 2);   // In case of use CRC for read, here are 2 bytes for Command + 1 for Length + 2 for CRC, else just 2 for command
+    Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], &Buffer[0], ByteToReadCount); // Transfer the data in the buffer
+    if (Error != ERR_OK) return Error;                                       // If there is an error while transferring data then return the error
+
+    //--- Copy buffer to data ---
+    BufRemain = ByteCount;                                                   // Set how many data that will fit in the buffer
     while ((BufRemain > 0) && (size > 0))
     {
-      *pBuf = *data;                                                                // Copy data
-      pBuf++;
-      data++;
-      BufRemain--;
-      size--;
-      address++;
+      *data = *pBuf;                                                         // Copy data
+      ++pBuf;
+      ++data;
+      --BufRemain;
+      --size;
+      ++address;
     }
 
-    // Compute CRC and add to the buffer
-#ifdef CHECK_NULL_PARAM
-    if (pComp->fnComputeCRC16 == NULL) return ERR__PARAMETER_ERROR;              // If the CRC function is not present, raise an error
-#endif
-    uint16_t CRC = pComp->fnComputeCRC16(&Buffer[0], (ByteCount + 2 + 1));       // Compute CRC on the Buffer data (2 for Command + 1 for Length)
-    *pBuf = (CRC >> 8) & 0xFF;                                                   // Put CRC MSB on the next buffer byte
-    pBuf++;
-    *pBuf = CRC & 0xFF;                                                          // Put CRC LSB on the next buffer byte
+  //--- Check CRC ---
+  if (UseCRC)
+  {
+      // Replace Head data of the Tx buffer into the Rx buffer
+      Buffer[0] = (uint8_t)((Addr >> 8) & 0xFF);
+      Buffer[1] = (uint8_t)((Addr >> 0) & 0xFF);
+      Buffer[2] = LenData;
 
-    // Now send the data through SPI interface
-    Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], NULL, (2 + 1 + 2 + ByteCount)); // Transfer the data in the buffer (2 for Command + 1 for Length + 2 for CRC)
-    if (Error != ERR_OK) return Error;                                           // If there is an error while transferring data then return the error
+      // Compute CRC and compare to the one in the buffer
+#ifdef CHECK_NULL_PARAM
+      if (pComp->fnComputeCRC16 == NULL) return ERR__PARAMETER_ERROR;        // If the CRC function is not present, raise an error
+#endif
+      uint16_t CRC = pComp->fnComputeCRC16(&Buffer[0], (ByteCount + 2 + 1)); // Compute CRC on the Buffer data (2 for Command + 1 for Length)
+      uint16_t BufCRC = *pBuf << 8;                                          // Get CRC MSB on the next buffer byte
+      ++pBuf;
+      BufCRC |= *pBuf;                                                       // Get CRC LSB on the next buffer byte
+      if (CRC != BufCRC) return ERR__CRC_ERROR;                              // If CRC mismatch, then raise an error
+    }
   }
 
   return ERR_OK;
 }
 
-// [STATIC] Safe Write data to the MCP251XFD (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
-eERRORRESULT __MCP251XFD_SafeWriteData(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size)
-{
-#ifdef CHECK_NULL_PARAM
-  if ((pComp == NULL) || (data == NULL))  return ERR__PARAMETER_ERROR;
-  if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
-#endif
-  bool InRAM = (address >= MCP251XFD_RAM_ADDR) && (address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE)); // True if address is in the RAM region ; False if address is in Controller SFR or CAN SFR region
-  eERRORRESULT Error;
-  uint8_t Buffer[2 + 4 + 2];                                            // 2 for Command + 4 max for Data + 2 for CRC
 
-  // Define the Increment value
-  uint32_t Increment = 1;                                               // By default the write data increment is 1 (byte per byte)
-  if (InRAM)                                                            // In RAM region?
-  {
-    if ((size & 0b11) != 0) return ERR__DATA_MODULO;                    // size should be a multiple of 4 in case of Write CRC or Safe Write
-    Increment = 4;                                                      // If in RAM region then the increment should be the nearest less than or equal value multiple by 4
-  }                                                                     // Here Increment cannot be 0 because MCP251XFD_TRANS_BUF_SIZE is compiler protected to be not less than 9
-
-  // Create all clusters of data and send them
-  uint8_t* pBuf;
-  size_t BufRemain = 0;
-  while (size > 0)
-  {
-    // Compose SPI command
-    pBuf = &Buffer[0];
-    *pBuf = MCP251XFD_SPI_FIRST_BYTE(MCP251XFD_SPI_INSTRUCTION_SAFE_WRITE, address); // Set first byte of SPI command
-    pBuf++;
-    *pBuf = MCP251XFD_SPI_SECOND_BYTE(address);                                      // Set next byte of SPI command
-    pBuf++;
-
-    // Copy data to buffer
-    BufRemain = Increment;                                                           // Set how many data that will fit in the buffer
-    while ((BufRemain > 0) && (size > 0))
-    {
-      *pBuf = *data;                                                                 // Copy data
-      pBuf++;
-      data++;
-      BufRemain--;
-      size--;
-      address++;
-    }
-
-    // Compute CRC and add to the buffer
-#ifdef CHECK_NULL_PARAM
-    if (pComp->fnComputeCRC16 == NULL) return ERR__PARAMETER_ERROR;     // If the CRC function is not present, raise an error
-#endif
-    uint16_t CRC = pComp->fnComputeCRC16(&Buffer[0], (Increment + 2));  // Compute CRC on the Buffer data (2 for Command)
-    *pBuf = (CRC >> 8) & 0xFF;                                          // Put CRC MSB on the next buffer byte
-    pBuf++;
-    *pBuf = CRC & 0xFF;                                                 // Put CRC LSB on the next buffer byte
-
-    // Now send the data through SPI interface
-    Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], NULL, (2 + 2 + Increment)); // Transfer the data in the buffer (2 for Command + 2 for CRC)
-    if (Error != ERR_OK) return Error;                                  // If there is an error while transferring data then return the error
-  }
-
-  return ERR_OK;
-}
 
 //=============================================================================
 // Write data to the MCP251XFD device
@@ -613,28 +348,94 @@ eERRORRESULT __MCP251XFD_SafeWriteData(MCP251XFD *pComp, uint16_t address, const
 eERRORRESULT MCP251XFD_WriteData(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size)
 {
 #ifdef CHECK_NULL_PARAM
-  if (pComp == NULL) return ERR__PARAMETER_ERROR;
+  if ((pComp == NULL) || (data == NULL))  return ERR__PARAMETER_ERROR;
+  if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
 #endif
+  const bool UseCRC  = ((pComp->DriverConfig & (MCP251XFD_DRIVER_USE_READ_WRITE_CRC | MCP251XFD_DRIVER_USE_SAFE_WRITE)) > 0);
+  const bool UseSafe = ((pComp->DriverConfig & MCP251XFD_DRIVER_USE_SAFE_WRITE) > 0);
+  const bool InRAM   = (address >= MCP251XFD_RAM_ADDR) && (address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE)); // True if address is in the RAM region ; False if address is in Controller SFR or CAN SFR region
   if (address > MCP251XFD_END_ADDR) return ERR__PARAMETER_ERROR;
+  uint8_t Buffer[MCP251XFD_TRANS_BUF_SIZE];
+  uint32_t Increment;
   eERRORRESULT Error;
 
-  // Select the good function to transfer data
-  if ((pComp->DriverConfig & (MCP251XFD_DRIVER_USE_SAFE_WRITE | MCP251XFD_DRIVER_USE_READ_WRITE_CRC)) == 0) // Normal write?
+  //--- Define the Increment value ---
+  uint32_t Instruction = (UseCRC ? MCP251XFD_SPI_INSTRUCTION_WRITE_CRC : MCP251XFD_SPI_INSTRUCTION_WRITE);
+  if (UseSafe == false)
   {
-    Error = __MCP251XFD_WriteDataNormal(pComp, address, data, size);                                        // Transfer data with Write Normal
+    Increment = MCP251XFD_TRANS_BUF_SIZE - (UseCRC ? 5 : 2);                // If use CRC for writeBuffer size minus 2 for Command, minus 1 for length, minus 2 for CRC, else just 2 for command
+    if (UseCRC && InRAM)                                                    // In RAM region and use CRC for write
+    {
+      if ((size & 0b11) != 0) return ERR__DATA_MODULO;                      // size should be a multiple of 4 in case of Write CRC or Safe Write
+      Increment &= 0xFFFC;                                                  // If in RAM region then the increment should be the nearest less than or equal value multiple by 4
+    }                                                                       // Here Increment cannot be 0 because MCP251XFD_TRANS_BUF_SIZE is compiler protected to be not less than 9
   }
   else
   {
-    if ((pComp->DriverConfig & MCP251XFD_DRIVER_USE_SAFE_WRITE) > 0)                                        // Safe Write?
+    Instruction = MCP251XFD_SPI_INSTRUCTION_SAFE_WRITE;                     // Set safe write instruction
+    if (InRAM)
     {
-      Error = __MCP251XFD_SafeWriteData(pComp, address, data, size);                                        // Transfer data with Safe Write
+      if ((size & 0b11) != 0) return ERR__DATA_MODULO;                      // size should be a multiple of 4 in case of Write CRC or Safe Write
+      Increment = 4;                                                        // If use safe write and in RAM then the increment is 4 bytes
     }
-    else // Write with CRC
-    {
-      Error = __MCP251XFD_WriteDataCRC(pComp, address, data, size);                                         // Transfer data with Write CRC
-    }
+    else Increment = 1;                                                     // If use safe write and in SFR then the increment is 1 byte
   }
-  return Error;
+
+  //--- Create all clusters of data and send them ---
+  uint8_t* pBuf;
+  size_t BufRemain = 0;
+  size_t ByteCount = 0;
+  while (size > 0)
+  {
+    const uint16_t Addr = MCP251XFD_SPI_16BITS_WORD(Instruction , address);
+    //--- Compose SPI command ---
+    pBuf = &Buffer[0];
+    *pBuf = ((Addr >> 8) & 0xFF);                                           // Set first byte of SPI command
+    ++pBuf;
+    *pBuf = Addr & 0xFF;                                                    // Set next byte of SPI command
+    ++pBuf;    
+
+    //--- Set length of data ---
+    ByteCount = (size > Increment ? Increment : size);                      // Define byte count to send
+    if (UseCRC && (UseSafe == false))                                       // Add Len in the frame if use CRC but not use safe
+    {                        
+      if (InRAM) *pBuf = (ByteCount >> 2) & 0xFF;                           // If use CRC for write and in RAM, set how many data word that is requested
+      else *pBuf = ByteCount & 0xFF;                                        // Set how many data byte that is requested
+      ++pBuf;
+    }
+
+    //--- Copy data to buffer ---
+    BufRemain = Increment;                                                  // Set how many data that will fit in the buffer
+    while ((BufRemain > 0) && (size > 0))
+    {
+      *pBuf = *data;                                                        // Copy data
+      ++pBuf;
+      ++data;
+      --BufRemain;
+      --size;
+      ++address;
+    }
+
+    //--- Compute CRC and add to the buffer ---
+    if (UseCRC)
+    {
+#ifdef CHECK_NULL_PARAM
+      if (pComp->fnComputeCRC16 == NULL) return ERR__PARAMETER_ERROR;       // If the CRC function is not present, raise an error
+#endif
+      const size_t ByteToComputeCount = ByteCount + (UseSafe ? 2 : (2 + 1));
+      uint16_t CRC = pComp->fnComputeCRC16(&Buffer[0], ByteToComputeCount); // Compute CRC on the Buffer data (2 for Command + 1 for Length for not safe)
+      *pBuf = (CRC >> 8) & 0xFF;                                            // Put CRC MSB on the next buffer byte
+      ++pBuf;
+      *pBuf = CRC & 0xFF;                                                   // Put CRC LSB on the next buffer byte
+    }
+
+    //--- Now send the data through SPI interface ---
+    const size_t ByteToWriteCount = ByteCount + (UseSafe ? (2 + 2) : (UseCRC ? (2 + 1 + 2) : 2)); // In case of use CRC for write here are 2 bytes for Command + 1 for Length for not safe + 2 for CRC, else just 2 for command
+    Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], NULL, ByteToWriteCount); // Transfer the data in the buffer (2 for Command + 1 for Length + 2 for CRC)
+    if (Error != ERR_OK) return Error;                                      // If there is an error while transferring data then return the error
+  }
+
+  return ERR_OK;
 }
 
 
