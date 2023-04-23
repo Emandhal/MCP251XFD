@@ -52,7 +52,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   if (pComp->fnGetCurrentms  == NULL) return ERR__PARAMETER_ERROR;
 #endif
   eERRORRESULT Error;
-  uint32_t Return = 0;
+  uint32_t Result = 0;
   pComp->InternalConfig = 0;
 
   //--- Check configuration ---------------------------------
@@ -80,8 +80,8 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   //--- Test SPI connection ---------------------------------
   Error = MCP251XFD_WriteRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), 0xAA55AA55);        // Write 0xAA55AA55 at address
   if (Error != ERR_OK) return Error;                                                                     // If there is an error while writing the RAM address then return the error
-  Error = MCP251XFD_ReadRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), &Return);            // Read again the data
-  if ((Error == ERR__CRC_ERROR) || (Return != 0xAA55AA55)) return ERR__NO_DEVICE_DETECTED;               // If CRC mismatch or data read is not 0xAA55AA55 then no device is detected
+  Error = MCP251XFD_ReadRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), &Result);            // Read again the data
+  if ((Error == ERR__CRC_ERROR) || (Result != 0xAA55AA55)) return ERR__NO_DEVICE_DETECTED;               // If CRC mismatch or data read is not 0xAA55AA55 then no device is detected
   if (Error != ERR_OK) return Error;                                                                     // If there is an error while reading the RAM address then return the error
 
   //--- Configure component clock ---------------------------
@@ -142,9 +142,9 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   {
     Error = MCP251XFD_WriteRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), 0xAA55AA55);      // Write 0xAA55AA55 at address
     if (Error != ERR_OK) return Error;                                                                   // If there is an error while writing the RAM address then return the error
-    Error = MCP251XFD_ReadRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), &Return);          // Read again the data
+    Error = MCP251XFD_ReadRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), &Result);          // Read again the data
     if (Error != ERR_OK) return Error;                                                                   // If there is an error while reading the RAM address then return the error
-    if (Return != 0xAA55AA55) return ERR__RAM_TEST_FAIL;                                                 // If data read is not 0xAA55AA55 then return an error
+    if (Result != 0xAA55AA55) return ERR__RAM_TEST_FAIL;                                                 // If data read is not 0xAA55AA55 then return an error
   }
 
   //--- Configure RAM ECC -----------------------------------
@@ -2233,20 +2233,20 @@ eERRORRESULT MCP251XFD_ResetDevice(MCP251XFD *pComp)
 eERRORRESULT __MCP251XFD_TestRAM(MCP251XFD *pComp)
 {
   eERRORRESULT Error;
-  uint32_t Return = 0;
+  uint32_t Result = 0;
   for (uint16_t Address = MCP251XFD_RAM_ADDR; Address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE); Address += 4)
   {
     Error = MCP251XFD_WriteRAM32(pComp, Address, 0x55555555); // Write 0x55555555 at address
     if (Error != ERR_OK) return Error;                        // If there is an error while writing the RAM address then return the error
-    Error = MCP251XFD_ReadRAM32(pComp, Address, &Return);     // Read again the data
+    Error = MCP251XFD_ReadRAM32(pComp, Address, &Result);     // Read again the data
     if (Error != ERR_OK) return Error;                        // If there is an error while reading the RAM address then return the error
-    if (Return != 0x55555555) return ERR__RAM_TEST_FAIL;      // If data read is not 0x55555555 then return an error
+    if (Result != 0x55555555) return ERR__RAM_TEST_FAIL;      // If data read is not 0x55555555 then return an error
 
     Error = MCP251XFD_WriteRAM32(pComp, Address, 0xAAAAAAAA); // Write 0xAAAAAAAA at address
     if (Error != ERR_OK) return Error;                        // If there is an error while writing the RAM address then return the error
-    Error = MCP251XFD_ReadRAM32(pComp, Address, &Return);     // Read again the data
+    Error = MCP251XFD_ReadRAM32(pComp, Address, &Result);     // Read again the data
     if (Error != ERR_OK) return Error;                        // If there is an error while reading the RAM address then return the error
-    if (Return != 0xAAAAAAAA) return ERR__RAM_TEST_FAIL;      // If data read is not 0xAAAAAAAA then return an error
+    if (Result != 0xAAAAAAAA) return ERR__RAM_TEST_FAIL;      // If data read is not 0xAAAAAAAA then return an error
   }
   return ERR_OK;
 }
