@@ -10,7 +10,7 @@
  *****************************************************************************/
  /* @page License
  *
- * Copyright (c) 2020-2022 Fabien MAILLY
+ * Copyright (c) 2020-2023 Fabien MAILLY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,15 +40,124 @@ extern "C" {
 #endif
 //-----------------------------------------------------------------------------
 
+/*! @defgroup ErrorsContexts Errors and contexts
+ * @details These defines sets contexts on errors
+ * To do this, create a file named 'Specific_Target.c' and 'Specific_Target.h' with target a revelant name for the target platform (example 'Specific_MC_STM32G4.c' and 'Specific_MC_STM32G4.h')
+ *
+ * Use in a '.c' file like this:
+ * @code {.c}
+ * #include "ErrorsDef.h"
+ * //------------------------------------------------------------------------------
+ * #define UNIT_ERR_CONTEXT  ERRCONTEXT__TIMERTICKS // Error context of this unit
+ * //------------------------------------------------------------------------------
+ *
+ * eERRORRESULT ExampleFunction(void)
+ * {
+ *   // Do stuff
+ *   if (a != b) return ERR_GENERATE(ERR__BAD_DATA); // This will combine the ERRCONTEXT__TIMERTICKS context with the ERR__BAD_DATA error
+ *   return ERR_OK;                                  // This one have an optional a context
+ * }
+ * @endcode
+ *
+ * If the error and context need to be show on, for example a console log, use this:
+ * @code {.c}
+ * //==============================================================================
+ * // Show the current error on console
+ * //==============================================================================
+ * void ShowErrorOnConsole(eERRORRESULT error)
+ * {
+ *   char* pErrStr = NULL;
+ *   char* pContextStr = NULL;
+ * 
+ *   //--- Get error ---
+ *   eERRORRESULT ErrorDef = ERR_ERROR_Get(error);
+ *   if (ErrorDef == ERR_NONE) return; // No error? Exit
+ *   if (ErrorDef < ERR__ERRORS_MAX) pErrStr = (char*)ERR_ErrorStrings[ErrorDef];
+ *   //--- Get context ---
+ *   eERRORCONTEXTS ErrorContext = ERR_ERROR_CONTEXT_Get(error);
+ *   if (ErrorContext < ERRCONTEXT__CONTEXTS_MAX) pContextStr = (char*)ERRCONTEXT_ContextStrings[ErrorContext];
+ *   //--- Show error ---
+ *   if (pErrStr != NULL)
+ *   {
+ *       if ((pContextStr != NULL) && (ErrorContext != ERRCONTEXT_NO_CONTEXT))
+ *            LOGERROR("%s: %s", pContextStr, pErrStr);
+ *       else LOGERROR("%s", pErrStr);
+ *   }
+ *   else LOGERROR("Unknown error: %u", error);
+ * }
+ * @endcode
+ *
+ * @{
+ */
+
+// Contextualize the error
+#define ERR_ERROR_CONTEXT_Pos             8
+#define ERR_ERROR_CONTEXT_Mask            (0xFF << ERR_ERROR_CONTEXT_Pos)
+#define ERR_ERROR_CONTEXT_Get(error)      (eERRORRESULT)(((uint32_t)(error) & ERR_ERROR_CONTEXT_Mask) >> ERR_ERROR_CONTEXT_Pos) //!< Get the context of the error
+#define ERR_ERROR_CONTEXT_Set(context)    (((uint32_t)(context) << ERR_ERROR_CONTEXT_Pos) & ERR_ERROR_CONTEXT_Mask)             //!< Set the context of the error
+#define ERR_ERROR_Get(error)              (eERRORRESULT)((uint32_t)(error) & ~ERR_ERROR_CONTEXT_Mask)                           //!< Get the error (ie. isolate the error from the context)
+#define ERR_ERROR_Set(error)              ((uint32_t)(error) & ~ERR_ERROR_CONTEXT_Mask)                                         //!< Set the error
+#define ERR_CONTEXTUALIZE(context,error)  ( (error) != ERR_OK ? (eERRORRESULT)(ERR_ERROR_CONTEXT_Set(context) | ERR_ERROR_Set(error)) : ERR_OK ) //!< Conbine the context and the error. Will be simplified at compile time if error is fixed
+#define ERR_GENERATE(error)               ERR_CONTEXTUALIZE(UNIT_ERR_CONTEXT,(error)) //!< UNIT_ERR_CONTEXT is set on the .c file and is specific to a .c file. It will contain an eERRORCONTEXTS
+
+//------------------------------------------------------------------------------
 
 
 
+//********************************************************************************************************************
+// Contexts definitions
+//********************************************************************************************************************
+// WARNING! Here after use the X-Macros. See on Internet how it works before modifying something
+#define CONTEXTS_TABLE                                   \
+/*  //--- No specific context ---                      */\
+    X(ERRCONTEXT_NO_CONTEXT    , =   0, "No context"   ) \
+/*  //--- Contexts list ---                            */\
+    X(ERRCONTEXT__TIMERTICKS   ,      , "TimerTicks"   ) \
+    X(ERRCONTEXT__INTERNALSTATE,      , "InternalState") \
+    X(ERRCONTEXT__EEPROM       ,      , "EEPROM"       )
 
+//------------------------------------------------------------------------------
+
+//! Function's return errors context enumerator
+typedef enum
+{
+#ifdef USE_REDUCED_ERRORS_VALUE
+#  define X(eName, val, str) eName,
+#else
+#  define X(eName, val, str) eName val, //eName = val,
+#endif
+  CONTEXTS_TABLE
+#undef X
+  ERRCONTEXT__CONTEXTS_MAX, // Keep here
+  ERRCONTEXT__ENUM_MAX_16BITS = 0xFFFF, // Here to force 16-bit enum
+} eERRORCONTEXTS;
+
+
+//------------------------------------------------------------------------------
+
+//! Errors context string table
+#ifdef USE_ERRORS_STRING
+//! Errors string table
+static const char* const ERRCONTEXT_ContextStrings[] =
+{
+#define X(eName, val, str) [eName] = str,
+  CONTEXTS_TABLE
+#undef X
+};
+#endif
+
+//------------------------------------------------------------------------------
+
+
+
+//********************************************************************************************************************
+// Errors definitions
+//********************************************************************************************************************
 // WARNING! Here after use the X-Macros. See on Internet how it works before modifying something
 #define ERRORS_TABLE                                                                              \
-/*  // --- Success ---                                                                          */\
+/*  //--- Success ---                                                                           */\
     X(ERR_OK                   , =   0, "Succeeded"                                             ) \
-/*  // --- General errors ---                                                                   */\
+/*  //--- General errors ---                                                                    */\
     X(ERR__NO_DEVICE_DETECTED  ,      , "No device detected"                                    ) \
     X(ERR__OUT_OF_RANGE        ,      , "Value out of range"                                    ) \
     X(ERR__UNKNOWN_ELEMENT     ,      , "Unknown element (type or value)"                       ) \
@@ -171,8 +280,6 @@ extern "C" {
 
 
 
-
-
 //! Function's return error enumerator
 typedef enum
 {
@@ -187,24 +294,23 @@ typedef enum
 } eERRORRESULT;
 
 
-
 #ifdef USE_ERRORS_STRING
 //! Errors string table
 static const char* const ERR_ErrorStrings[] =
 {
-#  define X(a, b, c) [a]=c,
+#define X(a, b, c) [a]=c,
   ERRORS_TABLE
-#  undef X
+#undef X
 };
 #endif
 
 
 
-
-
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//! @}
+//------------------------------------------------------------------------------
 #ifdef __cplusplus
 }
 #endif
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #endif /* ERRORSDEF_H_ */

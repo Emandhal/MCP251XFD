@@ -29,18 +29,6 @@ extern "C" {
 //=============================================================================
 // Prototypes for private functions
 //=============================================================================
-// Read data from the MCP251XFD in normal mode (DO NOT USE DIRECTLY, use MCP251XFD_ReadData() instead)
-static eERRORRESULT __MCP251XFD_ReadDataNormal(MCP251XFD *pComp, uint16_t address, uint8_t* data, uint16_t size);
-// Read data from the MCP251XFD with CRC (DO NOT USE DIRECTLY, use MCP251XFD_ReadData() instead)
-static eERRORRESULT __MCP251XFD_ReadDataCRC(MCP251XFD *pComp, uint16_t address, uint8_t* data, uint16_t size);
-
-// Write data to the MCP251XFD in normal mode (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
-static eERRORRESULT __MCP251XFD_WriteDataNormal(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size);
-// Write data to the MCP251XFD with CRC (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
-static eERRORRESULT __MCP251XFD_WriteDataCRC(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size);
-// Safe Write data to the MCP251XFD (DO NOT USE DIRECTLY, use MCP251XFD_WriteData() instead)
-static eERRORRESULT __MCP251XFD_SafeWriteData(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size);
-
 // Test all RAM address of the MCP251XFD for the driver flag DRIVER_INIT_CHECK_RAM
 static eERRORRESULT __MCP251XFD_TestRAM(MCP251XFD *pComp);
 //-----------------------------------------------------------------------------
