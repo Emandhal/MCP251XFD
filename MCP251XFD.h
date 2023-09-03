@@ -92,6 +92,8 @@
 
 
 
+
+
 //********************************************************************************************************************
 // MCP251XFD limits definitions
 //********************************************************************************************************************
@@ -171,6 +173,8 @@
 
 
 
+
+
 //********************************************************************************************************************
 // MCP251XFD's RAM definitions
 //********************************************************************************************************************
@@ -196,8 +200,6 @@ typedef union __MCP251XFD_PACKED__
 MCP251XFD_UNPACKITEM;
 MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_uint32t_Conv, 4);
 
-
-
 //! int16_t to 2-uint8_t conversion
 MCP251XFD_PACKITEM
 typedef union __MCP251XFD_PACKED__
@@ -209,6 +211,8 @@ MCP251XFD_UNPACKITEM;
 MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_uint16t_Conv, 2);
 
 //-----------------------------------------------------------------------------
+
+
 
 
 
@@ -246,10 +250,34 @@ typedef eMCP251XFD_DriverConfig setMCP251XFD_DriverConfig; //! Set of Driver con
 #define MCP251XFD_SPI_INSTRUCTION_READ_CRC    ( 0x0B ) //!< Read with CRC instruction
 #define MCP251XFD_SPI_INSTRUCTION_SAFE_WRITE  ( 0x0C ) //!< Safe Write instruction
 
-#define MCP251XFD_SPI_FIRST_BYTE(instruction,address)   ( ((instruction) << 4) | (((address) >> 8) & 0xF) )  //!< Set first byte of SPI command
-#define MCP251XFD_SPI_SECOND_BYTE(address)              ( (address) & 0xFF )                                 //!< Set next byte of SPI command
-#define MCP251XFD_SPI_16BITS_WORD(instruction,address)  ( ((instruction) << 12) | ((address) & 0xFFF) )      //!< Set first and second byte of SPI command into a 16-bit word
+#define MCP251XFD_SPI_FIRST_BYTE(instruction,address)   ( ((instruction) << 4) | (((address) >> 8) & 0xF) ) //!< Set first byte of SPI command
+#define MCP251XFD_SPI_SECOND_BYTE(address)              ( (address) & 0xFF )                                //!< Set next byte of SPI command
+#define MCP251XFD_SPI_16BITS_WORD(instruction,address)  ( ((instruction) << 12) | ((address) & 0xFFF) )     //!< Set first and second byte of SPI command into a 16-bit word
+
 //-----------------------------------------------------------------------------
+
+//! List of supported devices
+typedef enum
+{
+  MCP2517FD         = 0x0, //!< MCP2517FD supported
+  MCP2518FD         = 0x1, //!< MCP2518FD/MCP251863 supported
+  eMPC251XFD_DEVICE_COUNT, // Device count of this enum, keep last
+} eMCP251XFD_Devices;
+
+#define MCP251XFD_DEV_ID_Pos         2
+#define MCP251XFD_DEV_ID_Mask        (0x1u << MCP251XFD_DEV_ID_Pos)
+#define MCP251XFD_DEV_ID_SET(value)  (((uint8_t)(value) << MCP251XFD_DEV_ID_Pos) & MCP251XFD_DEV_ID_Mask) //!< Set Device ID
+#define MCP251XFD_DEV_ID_GET(value)  (((uint8_t)(value) & MCP251XFD_DEV_ID_Mask) >> MCP251XFD_DEV_ID_Pos) //!< Get Device ID
+
+static const char* const MCP251XFD_DevicesNames[eMPC251XFD_DEVICE_COUNT] =
+{
+  "MCP2517FD",
+  "MCP2518FD", // Same for MCP251863
+};
+
+//-----------------------------------------------------------------------------
+
+
 
 
 
@@ -633,7 +661,6 @@ typedef enum
 #define MCP251XFD_SFR_OSC_OSCRDY              ((uint32_t)(0x1u << 10)) //!< Clock Ready
 #define MCP251XFD_SFR_OSC_SCLKRDY             ((uint32_t)(0x1u << 12)) //!< Synchronized SCLKDIV
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_SFR_OSC8_PLLEN               ((uint8_t)(0x1u << 0)) //!< PLL Enable
 #define MCP251XFD_SFR_OSC8_PLLDIS              ((uint8_t)(0x0u << 0)) //!< PLL Disable
@@ -664,8 +691,6 @@ typedef enum
 } eMCP251XFD_CLKINtoSYSCLK;
 
 //-----------------------------------------------------------------------------
-
-
 
 #define MCP251XFD_GPIO0_Mask    ( 0b01 ) //!< Define the GPIO0 mask
 #define MCP251XFD_GPIO1_Mask    ( 0b10 ) //!< Define the GPIO1 mask
@@ -733,7 +758,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_IOCON_Register, 4);
 #define MCP251XFD_SFR_IOCON_SOF           ((uint32_t)(0x1u << 29)) //!< Start-Of-Frame signal
 #define MCP251XFD_SFR_IOCON_INTOD         ((uint32_t)(0x1u << 30)) //!< Interrupt pins Open Drain Mode
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_SFR_IOCON8_GPIO0_INPUT   ((uint8_t)(0x1u << 0)) //!< GPIO0 Data Input Direction
 #define MCP251XFD_SFR_IOCON8_GPIO0_OUTPUT  ((uint8_t)(0x0u << 0)) //!< GPIO0 Data Output Direction
@@ -758,7 +782,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_IOCON_Register, 4);
 #define MCP251XFD_SFR_IOCON8_SOF           ((uint8_t)(0x1u << 5)) //!< Start-Of-Frame signal
 #define MCP251XFD_SFR_IOCON8_INTOD         ((uint8_t)(0x1u << 6)) //!< Interrupt pins Open Drain Mode
 
-
 //! INT0/GPIO0/XSTBY configuration for the IOCON register
 typedef enum
 {
@@ -767,7 +790,6 @@ typedef enum
   MCP251XFD_PIN_AS_GPIO0_OUT = 0b10, //!< INT0/GPIO0/XSTBY pin as GPIO output
   MCP251XFD_PIN_AS_XSTBY     = 0b11, //!< INT0/GPIO0/XSTBY pin as Transceiver Standby output
 } eMCP251XFD_GPIO0Mode;
-
 
 //! INT1/GPIO1 configuration for the IOCON register
 typedef enum
@@ -785,8 +807,6 @@ typedef enum
 } eMCP251XFD_OutMode;
 
 //-----------------------------------------------------------------------------
-
-
 
 //! CRC Register
 MCP251XFD_PACKITEM
@@ -816,7 +836,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CRC_Register, 4);
 #define MCP251XFD_SFR_CRC_CRCERRIE      ((uint32_t)(0x1u << 24)) //!< CRC Error Interrupt Enable
 #define MCP251XFD_SFR_CRC_FERRIE        ((uint32_t)(0x1u << 25)) //!< CRC Command Format Error Interrupt Enable
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_SFR_CRC16_Pos          0
 #define MCP251XFD_SFR_CRC16_Mask         (0xFFFFu << MCP251XFD_SFR_CRC16_Pos)
@@ -827,7 +846,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CRC_Register, 4);
 #define MCP251XFD_SFR_CRC8_CRCERRID      ((uint8_t)(0x0u << 0)) //!< CRC Error Interrupt Disable
 #define MCP251XFD_SFR_CRC8_FERRIE        ((uint8_t)(0x1u << 1)) //!< CRC Command Format Error Interrupt Enable
 #define MCP251XFD_SFR_CRC8_FERRID        ((uint8_t)(0x0u << 1)) //!< CRC Command Format Error Interrupt Disable
-
 
 //! CRC Events
 typedef enum
@@ -842,8 +860,6 @@ typedef enum
 typedef eMCP251XFD_CRCEvents setMCP251XFD_CRCEvents; //! Set of CRC Events (can be OR'ed)
 
 //-----------------------------------------------------------------------------
-
-
 
 //! ECC Control Register
 MCP251XFD_PACKITEM
@@ -875,7 +891,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_ECCCON_Register, 4);
 #define MCP251XFD_SFR_ECCCON_PARITY_GET(value)  (((uint32_t)(value) & MCP251XFD_SFR_ECCCON_PARITY_Mask) >> MCP251XFD_SFR_ECCCON_PARITY_Pos) //!< Parity bits used during write to RAM when ECC is disabled
 #define MCP251XFD_SFR_ECCCON_PARITY_SET(value)  (((uint32_t)(value) << MCP251XFD_SFR_ECCCON_PARITY_Pos) & MCP251XFD_SFR_ECCCON_PARITY_Mask) //!< Get parity bits used during write to RAM when ECC is disabled
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_SFR_ECCCON8_ECCEN              ((uint8_t)(0x1u << 0)) //!< ECC Enable
 #define MCP251XFD_SFR_ECCCON8_ECCDIS             ((uint8_t)(0x0u << 0)) //!< ECC Disable
@@ -889,8 +904,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_ECCCON_Register, 4);
 #define MCP251XFD_SFR_ECCCON8_PARITY_SET(value)  (((uint8_t)(value) << MCP251XFD_SFR_ECCCON8_PARITY_Pos) & MCP251XFD_SFR_ECCCON8_PARITY_Mask) //!< Get parity bits used during write to RAM when ECC is disabled
 
 //-----------------------------------------------------------------------------
-
-
 
 //! ECC Status Register
 MCP251XFD_PACKITEM
@@ -917,14 +930,12 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_ECCSTAT_Register, 4);
 #define MCP251XFD_SFR_ECCSTAT_ERRADDR_Mask        (0xFFFu << MCP251XFD_SFR_ECCSTAT_ERRADDR_Pos)
 #define MCP251XFD_SFR_ECCSTAT_ERRADDR_GET(value)  (((uint32_t)(value) & MCP251XFD_SFR_ECCSTAT_ERRADDR_Mask) >> MCP251XFD_SFR_ECCSTAT_ERRADDR_Pos) //!< Get address where last ECC error occurred
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_SFR_ECCSTAT8_SECIF                ((uint8_t)(0x1u << 1)) //!< Single Error Correction Interrupt Flag
 #define MCP251XFD_SFR_ECCSTAT8_DEDIF                ((uint8_t)(0x1u << 2)) //!< Double Error Detection Interrupt Flag
 #define MCP251XFD_SFR_ECCSTAT16_ERRADDR_Pos         0
 #define MCP251XFD_SFR_ECCSTAT16_ERRADDR_Mask        (0xFFFu << MCP251XFD_SFR_ECCSTAT16_ERRADDR_Pos)
 #define MCP251XFD_SFR_ECCSTAT16_ERRADDR_GET(value)  (((uint16_t)(value) & MCP251XFD_SFR_ECCSTAT16_ERRADDR_Mask) >> MCP251XFD_SFR_ECCSTAT16_ERRADDR_Pos) //!< Get address where last ECC error occurred
-
 
 //! ECC Events
 typedef enum
@@ -939,8 +950,6 @@ typedef enum
 typedef eMCP251XFD_ECCEvents setMCP251XFD_ECCEvents; //! Set of ECC Events (can be OR'ed)
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Device ID Register (MCP2518FD only)
 MCP251XFD_PACKITEM
@@ -965,7 +974,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_DEVID_Register, 4);
 #define MCP251XFD_SFR_DEVID_ID_Mask         (0xFu << MCP251XFD_SFR_DEVID_ID_Pos)
 #define MCP251XFD_SFR_DEVID_ID_GET(value)   (((uint32_t)(value) & MCP251XFD_SFR_DEVID_ID_Mask) >> MCP251XFD_SFR_DEVID_ID_Pos)   //!< Get Device ID
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_SFR_DEVID8_REV_Pos         0
 #define MCP251XFD_SFR_DEVID8_REV_Mask        (0xFu << MCP251XFD_SFR_DEVID8_REV_Pos)
@@ -973,26 +981,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_DEVID_Register, 4);
 #define MCP251XFD_SFR_DEVID8_ID_Pos          4
 #define MCP251XFD_SFR_DEVID8_ID_Mask         (0xFu << MCP251XFD_SFR_DEVID8_ID_Pos)
 #define MCP251XFD_SFR_DEVID8_ID_GET(value)   (((uint32_t)(value) & MCP251XFD_SFR_DEVID8_ID_Mask) >> MCP251XFD_SFR_DEVID8_ID_Pos)   //!< Get Device ID
-
-
-//! List of supported devices
-typedef enum
-{
-  MCP2517FD         = 0x0, //!< MCP2517FD supported
-  MCP2518FD         = 0x1, //!< MCP2518FD/MCP251863 supported
-  eMPC251XFD_DEVICE_COUNT, // Device count of this enum, keep last
-} eMCP251XFD_Devices;
-
-#define MCP251XFD_DEV_ID_Pos         2
-#define MCP251XFD_DEV_ID_Mask        (0x1u << MCP251XFD_DEV_ID_Pos)
-#define MCP251XFD_DEV_ID_SET(value)  (((uint8_t)(value) << MCP251XFD_DEV_ID_Pos) & MCP251XFD_DEV_ID_Mask) //!< Set Device ID
-#define MCP251XFD_DEV_ID_GET(value)  (((uint8_t)(value) & MCP251XFD_DEV_ID_Mask) >> MCP251XFD_DEV_ID_Pos) //!< Get Device ID
-
-static const char* const MCP251XFD_DevicesNames[eMPC251XFD_DEVICE_COUNT] =
-{
-  "MCP2517FD",
-  "MCP2518FD", // Same for MCP251863
-};
 
 //-----------------------------------------------------------------------------
 
@@ -1144,7 +1132,6 @@ typedef enum
 #define MCP251XFD_CAN_CiCON_TXBWS_Mask         (0xFu << MCP251XFD_CAN_CiCON_TXBWS_Pos)
 #define MCP251XFD_CAN_CiCON_TXBWS_SET(value)   (((uint32_t)(value) << MCP251XFD_CAN_CiCON_TXBWS_Pos) & MCP251XFD_CAN_CiCON_TXBWS_Mask) //!< Set Transmit Bandwidth Sharing
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiCON8_DNCNT_Pos         0
 #define MCP251XFD_CAN_CiCON8_DNCNT_Mask        (0x1Fu << MCP251XFD_CAN_CiCON8_DNCNT_Pos)
@@ -1174,8 +1161,6 @@ typedef enum
 #define MCP251XFD_CAN_CiCON8_TXBWS_SET(value)  (((uint8_t)(value) << MCP251XFD_CAN_CiCON8_TXBWS_Pos) & MCP251XFD_CAN_CiCON8_TXBWS_Mask)                           //!< Set Transmit Bandwidth Sharing
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Nominal Bit Time Configuration Register
 MCP251XFD_PACKITEM
@@ -1211,8 +1196,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiNBTCFG_Register, 4);
 
 //-----------------------------------------------------------------------------
 
-
-
 //! Data Bit Time Configuration Register
 MCP251XFD_PACKITEM
 typedef union __MCP251XFD_PACKED__ MCP251XFD_CiDBTCFG_Register
@@ -1247,8 +1230,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiDBTCFG_Register, 4);
 #define MCP251XFD_CAN_CiDBTCFG_BRP_SET(value)    (((uint32_t)(value) << MCP251XFD_CAN_CiDBTCFG_BRP_Pos) & MCP251XFD_CAN_CiDBTCFG_BRP_Mask)     //!< Baud Rate Prescaler bits; TQ = value/Fsys
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Transmitter Delay Compensation Register
 MCP251XFD_PACKITEM
@@ -1296,7 +1277,6 @@ typedef enum
 #define MCP251XFD_CAN_CiTDC_EDGFLTEN           (0x1u << 25) //!< Enable Edge Filtering during Bus Integration state
 #define MCP251XFD_CAN_CiTDC_EDGFLTDIS          (0x0u << 25) //!< Disable Edge Filtering during Bus Integration state
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiTDC8_TDCV_Pos           0
 #define MCP251XFD_CAN_CiTDC8_TDCV_Mask          (0x3Fu << MCP251XFD_CAN_CiTDC8_TDCV_Pos)
@@ -1316,8 +1296,6 @@ typedef enum
 
 //-----------------------------------------------------------------------------
 
-
-
 //! Bit Time statistics structure for CAN speed
 typedef struct MCP251XFD_BitTimeStats
 {
@@ -1333,8 +1311,6 @@ typedef struct MCP251XFD_BitTimeStats
   uint32_t OscTolC5;         //!< Condition 5 for the maximum tolerance of the oscillator (Equation 3-16 of MCP25XXFD Family Reference Manual)
   uint32_t OscTolerance;     //!< Oscillator Tolerance, minimum of conditions 1-5 (Equation 3-11 of MCP25XXFD Family Reference Manual)
 } MCP251XFD_BitTimeStats;
-
-
 
 //! Bit Time Configuration structure for CAN speed
 typedef struct MCP251XFD_BitTimeConfig
@@ -1363,8 +1339,6 @@ typedef struct MCP251XFD_BitTimeConfig
 
 //-----------------------------------------------------------------------------
 
-
-
 //! Time Base Counter Register
 MCP251XFD_PACKITEM
 typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTBC_Register
@@ -1380,8 +1354,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTBC_Register, 4);
 #define MCP251XFD_CAN_CiTBC_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTBC_Pos) & MCP251XFD_CAN_CiTBC_Mask) //!< Time Base Counter. This is a free running timer that increments every TBCPRE clocks when TBCEN is set
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Time Stamp Control Register
 MCP251XFD_PACKITEM
@@ -1428,7 +1400,6 @@ typedef enum
 #define MCP251XFD_CAN_CiTSCON_TIMESTAMPFD_SOF    (0x0u << 18) //!< Time Stamp res (FD Frames only) at sample point of SOF
 #define MCP251XFD_CAN_CiTSCON_TIMESTAMPFD_FDF    (0x1u << 18) //!< Time Stamp res (FD Frames only) at sample point of the bit following the FDF bit
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiTSCON16_TBCPRE_Pos         0
 #define MCP251XFD_CAN_CiTSCON16_TBCPRE_Mask        (MCP251XFD_CAN_CiTSCON_TBCPRE_Bits << MCP251XFD_CAN_CiTSCON16_TBCPRE_Pos)
@@ -1444,8 +1415,6 @@ typedef enum
 #define MCP251XFD_CAN_CiTSCON8_TIMESTAMPFD_FDF     (0x1u << 2) //!< Time Stamp res (FD Frames only) at sample point of the bit following the FDF bit
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Interrupt Code Register
 MCP251XFD_PACKITEM
@@ -1529,7 +1498,6 @@ typedef enum
 #define MCP251XFD_CAN_CiVEC_RXCODE_Mask        (0x7Fu << MCP251XFD_CAN_CiVEC_RXCODE_Pos)
 #define MCP251XFD_CAN_CiVEC_RXCODE_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_CiVEC_RXCODE_Mask) >> MCP251XFD_CAN_CiVEC_RXCODE_Pos) //!< Receive Interrupt Flag Code. If multiple interrupts are pending, the interrupt with the highest number will be indicated
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiVEC8_ICODE_Pos          0
 #define MCP251XFD_CAN_CiVEC8_ICODE_Mask         (0x7Fu << MCP251XFD_CAN_CiVEC8_ICODE_Pos)
@@ -1545,8 +1513,6 @@ typedef enum
 #define MCP251XFD_CAN_CiVEC8_RXCODE_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_CiVEC8_RXCODE_Mask) >> MCP251XFD_CAN_CiVEC8_RXCODE_Pos) //!< Receive Interrupt Flag Code. If multiple interrupts are pending, the interrupt with the highest number will be indicated
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Interrupt Register
 MCP251XFD_PACKITEM
@@ -1616,7 +1582,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiINT_Register, 4);
 #define MCP251XFD_CAN_CiINT_WAKIE     (0x1u << 30) //! Bus Wake Up Interrupt Enable
 #define MCP251XFD_CAN_CiINT_IVMIE     (0x1u << 31) //! Invalid Message Interrupt Enable
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiINT8_TXIF      (0x1u << 0) //! Transmit FIFO Interrupt Flag
 #define MCP251XFD_CAN_CiINT8_RXIF      (0x1u << 1) //! Receive FIFO Interrupt Flag
@@ -1644,7 +1609,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiINT_Register, 4);
 #define MCP251XFD_CAN_CiINT8_CERRIE    (0x1u << 5) //! CAN Bus Error Interrupt Enable
 #define MCP251XFD_CAN_CiINT8_WAKIE     (0x1u << 6) //! Bus Wake Up Interrupt Enable
 #define MCP251XFD_CAN_CiINT8_IVMIE     (0x1u << 7) //! Invalid Message Interrupt Enable
-
 
 //*** 2-Byte version access to Registers ***
 #define MCP251XFD_CAN_CiINT16_TXIF      (0x1u <<  0) //! Transmit FIFO Interrupt Flag
@@ -1707,8 +1671,6 @@ typedef enum
 typedef eMCP251XFD_InterruptEvents setMCP251XFD_InterruptEvents; //! Set of Interrupt Events (can be OR'ed)
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Receive Interrupt Status Register
 MCP251XFD_PACKITEM
@@ -1789,8 +1751,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiRXIF_Register, 4);
 
 //-----------------------------------------------------------------------------
 
-
-
 //! Receive Overflow Interrupt Status Register
 MCP251XFD_PACKITEM
 typedef union __MCP251XFD_PACKED__ MCP251XFD_CiRXOVIF_Register
@@ -1869,8 +1829,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiRXOVIF_Register, 4);
 #define MCP251XFD_CAN_CiRXOVIF_RFOVIF31  (0x1u << 31) //!< Receive FIFO 31 Overflow Interrupt Pending
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Transmit Interrupt Status Register
 MCP251XFD_PACKITEM
@@ -1952,8 +1910,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXIF_Register, 4);
 
 //-----------------------------------------------------------------------------
 
-
-
 //! Transmit Attempt Interrupt Status Register
 MCP251XFD_PACKITEM
 typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTXATIF_Register
@@ -2034,8 +1990,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXATIF_Register, 4);
 
 //-----------------------------------------------------------------------------
 
-
-
 //! Receive Interrupt Status for the CiRXIF, CiRXOVIF, CiTXIF and CiTXATIF registers. Can be or'ed
 typedef enum
 {
@@ -2076,8 +2030,6 @@ typedef enum
 typedef eMCP251XFD_InterruptOnFIFO setMCP251XFD_InterruptOnFIFO; //! Set of Receive Interrupt Status (can be OR'ed)
 
 //-----------------------------------------------------------------------------
-
-
 
 /*! Transmit Request Register
  * Bits can NOT be used for aborting a transmission
@@ -2161,8 +2113,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXREQ_Register, 4);
 
 //-----------------------------------------------------------------------------
 
-
-
 //! Transmit/Receive error count Register
 MCP251XFD_PACKITEM
 typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTREC_Register
@@ -2198,7 +2148,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTREC_Register, 4);
 #define MCP251XFD_CAN_CiTREC_TXBP            (0x1u << 20) //!< Transmitter in Error Passive State (TEC > 127)
 #define MCP251XFD_CAN_CiTREC_TXBO            (0x1u << 21) //!< Transmitter in Bus Off State (TEC > 255). In Configuration mode, TXBO is set, since the module is not on the bus
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiTREC8_EWARN          (0x1u << 0) //!< Transmitter or Receiver is in Error Warning State
 #define MCP251XFD_CAN_CiTREC8_RXWARN         (0x1u << 1) //!< Receiver in Error Warning State (128 > REC > 95)
@@ -2206,7 +2155,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTREC_Register, 4);
 #define MCP251XFD_CAN_CiTREC8_RXBP           (0x1u << 3) //!< Receiver in Error Passive State (REC > 127)
 #define MCP251XFD_CAN_CiTREC8_TXBP           (0x1u << 4) //!< Transmitter in Error Passive State (TEC > 127)
 #define MCP251XFD_CAN_CiTREC8_TXBO           (0x1u << 5) //!< Transmitter in Bus Off State (TEC > 255). In Configuration mode, TXBO is set, since the module is not on the bus
-
 
 #define MCP251XFD_CAN_CiTREC8_TX_ERROR   ( MCP251XFD_CAN_CiTREC8_EWARN | MCP251XFD_CAN_CiTREC8_TXWARN | MCP251XFD_CAN_CiTREC8_TXBP | MCP251XFD_CAN_CiTREC8_TXBO )
 #define MCP251XFD_CAN_CiTREC8_RX_ERROR   ( MCP251XFD_CAN_CiTREC8_EWARN | MCP251XFD_CAN_CiTREC8_RXWARN | MCP251XFD_CAN_CiTREC8_RXBP )
@@ -2233,8 +2181,6 @@ typedef enum
 } eMCP251XFD_TXRXErrorStatus;
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Bus Diagnostic Register 0
 MCP251XFD_PACKITEM
@@ -2275,8 +2221,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiBDIAG0_Register, 4);
 
 //-----------------------------------------------------------------------------
 
-
-
 //! Transmit and Receive Error status
 MCP251XFD_PACKENUM(eMCP251XFD_DiagStatus, uint16_t)
 {
@@ -2302,8 +2246,6 @@ MCP251XFD_PACKENUM(eMCP251XFD_DiagStatus, uint16_t)
 MCP251XFD_CONTROL_ITEM_SIZE(eMCP251XFD_DiagStatus, 2);
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Bus Diagnostics Register 1
 MCP251XFD_PACKITEM
@@ -2359,7 +2301,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiBDIAG1_Register, 4);
 #define MCP251XFD_CAN_CiBDIAG1_ESI                  (0x1u << 30) //!< ESI flag of a received CAN FD message was set
 #define MCP251XFD_CAN_CiBDIAG1_DLCMM                (0x1u << 31) //!< DLC Mismatch bit. During a transmission or reception, the specified DLC is larger than the PLSIZE of the FIFO element
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiBDIAG18_NBIT0ERR  (0x1u << 0) //!< Normal Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ‘0’), but the monitored bus value was recessive
 #define MCP251XFD_CAN_CiBDIAG18_NBIT1ERR  (0x1u << 1) //!< Normal Bitrate: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value '1'), but the monitored bus value was dominant
@@ -2377,10 +2318,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiBDIAG1_Register, 4);
 #define MCP251XFD_CAN_CiBDIAG18_DLCMM     (0x1u << 7) //!< DLC Mismatch bit. During a transmission or reception, the specified DLC is larger than the PLSIZE of the FIFO element
 
 //-----------------------------------------------------------------------------
-
-
-
-
 
 //! Available FIFO list
 typedef enum
@@ -2423,10 +2360,6 @@ typedef enum
 } eMCP251XFD_FIFO;
 
 //-----------------------------------------------------------------------------
-
-
-
-
 
 //! Transmit Event FIFO Control Register
 MCP251XFD_PACKITEM
@@ -2503,7 +2436,6 @@ typedef enum
 #define MCP251XFD_CAN_CiTEFCON_FSIZE_Mask        (0x1Fu << MCP251XFD_CAN_CiTEFCON_FSIZE_Pos)
 #define MCP251XFD_CAN_CiTEFCON_FSIZE_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTEFCON_FSIZE_Pos) & MCP251XFD_CAN_CiTEFCON_FSIZE_Mask) //!< FIFO Size
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiTEFCON8_TEFNEIE           (0x1u << 0) //!< Transmit Event FIFO Not Empty Interrupt Enable
 #define MCP251XFD_CAN_CiTEFCON8_TEFHIE            (0x1u << 1) //!< Transmit Event FIFO Half Full Interrupt Enable
@@ -2517,8 +2449,6 @@ typedef enum
 #define MCP251XFD_CAN_CiTEFCON8_FSIZE_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTEFCON8_FSIZE_Pos) & MCP251XFD_CAN_CiTEFCON8_FSIZE_Mask) //!< FIFO Size
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Transmit Event FIFO Status Register
 MCP251XFD_PACKITEM
@@ -2543,13 +2473,11 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTEFSTA_Register, 4);
 #define MCP251XFD_CAN_CiTEFSTA_TEFFIF   (0x1u << 2) //!< Transmit Event FIFO Full Interrupt Flag
 #define MCP251XFD_CAN_CiTEFSTA_TEFOVIF  (0x1u << 3) //!< Transmit Event FIFO Overflow Interrupt Flag
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiTEFSTA8_TEFNEIF  (0x1u << 0) //!< Transmit Event FIFO Not Empty Interrupt Flag
 #define MCP251XFD_CAN_CiTEFSTA8_TEFHIF   (0x1u << 1) //!< Transmit Event FIFO Half Full Interrupt Flag
 #define MCP251XFD_CAN_CiTEFSTA8_TEFFIF   (0x1u << 2) //!< Transmit Event FIFO Full Interrupt Flag
 #define MCP251XFD_CAN_CiTEFSTA8_TEFOVIF  (0x1u << 3) //!< Transmit Event FIFO Overflow Interrupt Flag
-
 
 #define MCP251XFD_CAN_CiTEFSTA8_ALL_EVENTS  ( MCP251XFD_CAN_CiTEFSTA8_TEFNEIF | MCP251XFD_CAN_CiTEFSTA8_TEFHIF | MCP251XFD_CAN_CiTEFSTA8_TEFFIF | MCP251XFD_CAN_CiTEFSTA8_TEFOVIF )
 
@@ -2567,8 +2495,6 @@ typedef enum
 typedef eMCP251XFD_TEFstatus setMCP251XFD_TEFstatus; //! Set of Transmit Event FIFO status (can be OR'ed)
 
 //-----------------------------------------------------------------------------
-
-
 
 /*! Time Base Counter Register
  * This register is not guaranteed to read correctly in Configuration mode and should only be accessed when the module is not in Configuration mode
@@ -2588,11 +2514,7 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTEFUA_Register, 4);
 
 //-----------------------------------------------------------------------------
 
-
-
-
-
-//!  Register
+//! Transmit Queue Control Register
 MCP251XFD_PACKITEM
 typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTXQCON_Register
 {
@@ -2703,7 +2625,6 @@ typedef enum
 #define MCP251XFD_CAN_CiTXQCON_PLSIZE_Mask        (0x7u << MCP251XFD_CAN_CiTXQCON_PLSIZE_Pos)
 #define MCP251XFD_CAN_CiTXQCON_PLSIZE_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTXQCON_PLSIZE_Pos) & MCP251XFD_CAN_CiTXQCON_PLSIZE_Mask) //!< Payload Size
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiTXQCON8_TXQNIE             (0x1u << 0) //!< Transmit Queue Not Full Interrupt Enable
 #define MCP251XFD_CAN_CiTXQCON8_TXQEIE             (0x1u << 2) //!< Transmit Queue Empty Interrupt Enable
@@ -2726,8 +2647,6 @@ typedef enum
 #define MCP251XFD_CAN_CiTXQCON8_PLSIZE_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTXQCON8_PLSIZE_Pos) & MCP251XFD_CAN_CiTXQCON8_PLSIZE_Mask) //!< Payload Size
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Transmit Queue Status Register
 MCP251XFD_PACKITEM
@@ -2762,7 +2681,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXQSTA_Register, 4);
 #define MCP251XFD_CAN_CiTXQSTA_TXQCI_Mask        (0x1Fu << MCP251XFD_CAN_CiTXQSTA_TXQCI_Pos)
 #define MCP251XFD_CAN_CiTXQSTA_TXQCI_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTXQSTA_TXQCI_Pos) & MCP251XFD_CAN_CiTXQSTA_TXQCI_Mask) //!< Transmit Queue Message Index
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiTXQSTA8_TXQNIF            (0x1u << 0) //!< Transmit Queue Not Full Interrupt Flag
 #define MCP251XFD_CAN_CiTXQSTA8_TXQEIF            (0x1u << 2) //!< Transmit Queue Empty Interrupt Flag
@@ -2773,7 +2691,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXQSTA_Register, 4);
 #define MCP251XFD_CAN_CiTXQSTA8_TXQCI_Pos         0
 #define MCP251XFD_CAN_CiTXQSTA8_TXQCI_Mask        (0x1Fu << MCP251XFD_CAN_CiTXQSTA8_TXQCI_Pos)
 #define MCP251XFD_CAN_CiTXQSTA8_TXQCI_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTXQSTA8_TXQCI_Pos) & MCP251XFD_CAN_CiTXQSTA8_TXQCI_Mask) //!< Transmit Queue Message Index
-
 
 #define MCP251XFD_CAN_CiTXQSTA8_ALL_EVENTS  ( MCP251XFD_CAN_CiTXQSTA8_TXQNIF | MCP251XFD_CAN_CiTXQSTA8_TXQEIF | MCP251XFD_CAN_CiTXQSTA8_TXATIF \
                                             | MCP251XFD_CAN_CiTXQSTA8_TXERR | MCP251XFD_CAN_CiTXQSTA8_TXLARB | MCP251XFD_CAN_CiTXQSTA8_TXABT )
@@ -2795,8 +2712,6 @@ typedef eMCP251XFD_TXQstatus setMCP251XFD_TXQstatus; //! Set of Transmit Queue s
 
 //-----------------------------------------------------------------------------
 
-
-
 /*! Transmit Queue User Address Register
  * This register is not guaranteed to read correctly in Configuration mode and should only be accessed when the module is not in Configuration mode
  */
@@ -2814,10 +2729,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTXQUA_Register, 4);
 #define MCP251XFD_CAN_CiTXQUA_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTXQUA_Pos) & MCP251XFD_CAN_CiTXQUA_Mask) //!< Transmit Event FIFO User Address
 
 //-----------------------------------------------------------------------------
-
-
-
-
 
 //! FIFO Control Register m, (m = 1 to 31)
 MCP251XFD_PACKITEM
@@ -2881,7 +2792,6 @@ typedef enum
 #define MCP251XFD_CAN_CiFIFOCONm_PLSIZE_Mask        (0x7u << MCP251XFD_CAN_CiFIFOCONm_PLSIZE_Pos)
 #define MCP251XFD_CAN_CiFIFOCONm_PLSIZE_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiFIFOCONm_PLSIZE_Pos) & MCP251XFD_CAN_CiFIFOCONm_PLSIZE_Mask) //!< Payload Size
 
-
 //*** Byte version access to Registers ***
 #define MCP251XFD_CAN_CiFIFOCONm8_TFNRFNIE           (0x1u << 0) //!< Transmit/Receive FIFO Not Full/Not Empty Interrupt Enable
 #define MCP251XFD_CAN_CiFIFOCONm8_TFHRFHIE           (0x1u << 1) //!< Transmit/Receive FIFO Half Empty/Half Full Interrupt Enable
@@ -2908,8 +2818,6 @@ typedef enum
 #define MCP251XFD_CAN_CiFIFOCONm8_PLSIZE_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiFIFOCONm8_PLSIZE_Pos) & MCP251XFD_CAN_CiFIFOCONm8_PLSIZE_Mask) //!< Payload Size
 
 //-----------------------------------------------------------------------------
-
-
 
 //! FIFO Status Register m, (m = 1 to 31)
 MCP251XFD_PACKITEM
@@ -2995,8 +2903,6 @@ typedef eMCP251XFD_FIFOstatus setMCP251XFD_FIFOstatus; //! Set of Transmit and R
 
 //-----------------------------------------------------------------------------
 
-
-
 /*! FIFO User Address Register m, (m = 1 to 31)
  * This register is not guaranteed to read correctly in Configuration mode and should only be accessed when the module is not in Configuration mode
  */
@@ -3022,6 +2928,10 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFIFOUAm_Register, 4);
 
 
 
+
+//********************************************************************************************************************
+// MCP251XFD CAN Filters Objects
+//********************************************************************************************************************
 
 //! Available Filter list
 typedef enum
@@ -3063,10 +2973,6 @@ typedef enum
 
 //-----------------------------------------------------------------------------
 
-
-
-
-
 //! Filter Control Register m, (m = 0 to 31)
 MCP251XFD_PACKITEM
 typedef union __MCP251XFD_PACKED__ MCP251XFD_CiFLTCONm_Register
@@ -3097,8 +3003,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFLTCONm_Register, 1);
 #define MCP251XFD_CAN_CiFLTCONm8_DISABLE         (0x0u << 7) //!< Disable Filter to Accept Messages
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Filter Object Register m, (m = 0 to 31)
 MCP251XFD_PACKITEM
@@ -3133,8 +3037,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFLTOBJm_Register, 4);
 #define MCP251XFD_EID_Mask  ((1 << MCP251XFD_EID_Size) - 1)
 
 //-----------------------------------------------------------------------------
-
-
 
 //! Mask Register m, (m = 0 to 31)
 MCP251XFD_PACKITEM
@@ -3191,8 +3093,9 @@ typedef enum
   MCP251XFD_TRANSMIT_ERROR_PASSIVE      = 0x10, //!< Error Status Indicator: In CAN to CAN gateway mode (CiCON.ESIGM=1), the transmitted ESI flag is a "logical OR" of T1.ESI and error passive state of the CAN controller; In normal mode ESI indicates the error status
 } eMCP251XFD_MessageCtrlFlags;
 
-typedef eMCP251XFD_MessageCtrlFlags setMCP251XFD_MessageCtrlFlags; //! Set of  Control flags of CAN message (can be OR'ed)
+typedef eMCP251XFD_MessageCtrlFlags setMCP251XFD_MessageCtrlFlags; //! Set of Control flags of CAN message (can be OR'ed)
 
+//-----------------------------------------------------------------------------
 
 //! Data Length Size for the CAN message
 typedef enum
@@ -3218,6 +3121,7 @@ typedef enum
   MCP251XFD_PAYLOAD_MAX = 64,
 } eMCP251XFD_DataLength;
 
+//-----------------------------------------------------------------------------
 
 //! MCP251XFD CAN message configuration structure
 typedef struct MCP251XFD_CANMessage
@@ -3230,8 +3134,6 @@ typedef struct MCP251XFD_CANMessage
 } MCP251XFD_CANMessage;
 
 //-----------------------------------------------------------------------------
-
-
 
 //! CAN Transmit Message Identifier (T0)
 MCP251XFD_PACKITEM
@@ -3259,8 +3161,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_TX_Message_Identifier, 4);
 #define MCP251XFD_CAN_MSGT0_SID11           (0x1u << 29) //!< In FD mode the standard ID can be extended to 12 bit using r1
 
 //-----------------------------------------------------------------------------
-
-
 
 //! CAN Transmit Message Control Field (T1)
 MCP251XFD_PACKITEM
@@ -3301,8 +3201,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_TX_Message_Control, 4);
 
 //-----------------------------------------------------------------------------
 
-
-
 #define MCP251XFD_CAN_MSG_T0  0
 #define MCP251XFD_CAN_MSG_T1  1
 
@@ -3326,8 +3224,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_TX_Message, 8);
 #define MCP251XFD_CAN_TX_MESSAGE_SIZE_MAX  ( sizeof(MCP251XFD_CAN_TX_Message) + MCP251XFD_PAYLOAD_MAX )
 
 //-----------------------------------------------------------------------------
-
-
 
 #define MCP251XFD_CAN_MSG_TE0  0
 #define MCP251XFD_CAN_MSG_TE1  1
@@ -3353,8 +3249,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_TX_EventObject, 12);
 #define MCP251XFD_CAN_TX_EVENTOBJECT_SIZE  ( sizeof(MCP251XFD_CAN_TX_Message_Identifier)+sizeof(MCP251XFD_CAN_TX_Message_Control) )
 
 //-----------------------------------------------------------------------------
-
-
 
 //! CAN Receive Message Identifier (R0)
 MCP251XFD_PACKITEM
@@ -3382,8 +3276,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_RX_Message_Identifier, 4);
 #define MCP251XFD_CAN_MSGR0_SID11           (0x1u << 29) //!< In FD mode the standard ID can be extended to 12 bit using r1
 
 //-----------------------------------------------------------------------------
-
-
 
 //! CAN Receive Message Control Field (R1)
 MCP251XFD_PACKITEM
@@ -3420,8 +3312,6 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_RX_Message_Control, 4);
 #define MCP251XFD_CAN_MSGR1_FILTHIT_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_MSGR1_FILTHIT_Mask) >> MCP251XFD_CAN_MSGR1_FILTHIT_Pos) //!< Get Filter Hit, number of filter that matched
 
 //-----------------------------------------------------------------------------
-
-
 
 #define MCP251XFD_CAN_MSG_R0  0
 #define MCP251XFD_CAN_MSG_R1  1
@@ -3476,12 +3366,10 @@ typedef enum
 
 //-----------------------------------------------------------------------------
 
-
-
 typedef struct MCP251XFD MCP251XFD;       //! Typedef of MCP251XFD device object structure
 typedef uint8_t TMCP251XFDDriverInternal; //! Alias for Driver Internal data flags
 
-
+//-----------------------------------------------------------------------------
 
 /*! @brief Function for interface driver initialization of the MCP251XFD
  *
@@ -3506,14 +3394,12 @@ typedef eERRORRESULT (*MCP251XFD_SPIInit_Func)(void *pIntDev, uint8_t chipSelect
  */
 typedef eERRORRESULT (*MCP251XFD_SPITransfer_Func)(void *pIntDev, uint8_t chipSelect, uint8_t *txData, uint8_t *rxData, size_t size);
 
-
 /*! @brief Function that gives the current millisecond of the system to the driver
  *
  * This function will be called when the driver needs to get current millisecond
  * @return Returns the current millisecond of the system
  */
 typedef uint32_t (*GetCurrentms_Func)(void);
-
 
 /*! @brief Function that compute CRC16-CMS for the driver
  *
@@ -3524,7 +3410,7 @@ typedef uint32_t (*GetCurrentms_Func)(void);
  */
 typedef uint16_t (*ComputeCRC16_Func)(const uint8_t* data, size_t size);
 
-
+//-----------------------------------------------------------------------------
 
 //! MCP251XFD device object structure
 struct MCP251XFD
@@ -3554,8 +3440,6 @@ struct MCP251XFD
 
 //-----------------------------------------------------------------------------
 
-
-
 #define MCP251XFD_NO_CANFD       (    0 ) //!< This value specify that the driver will not calculate CAN-FD bitrate
 #define MCP251XFD_CANFD_ENABLED  ( 0x80 ) //!< This value is used inside the driver (MCP251XFD.InternalConfig) to indicate if the CANFD is configured
 
@@ -3579,10 +3463,6 @@ typedef enum
 } eMCP251XFD_CANCtrlFlags;
 
 typedef eMCP251XFD_CANCtrlFlags setMCP251XFD_CANCtrlFlags; //! Set of CAN control configuration flags (can be OR'ed)
-
-
-
-
 
 //! MCP251XFD Controller and CAN configuration structure
 typedef struct MCP251XFD_Config
@@ -3613,8 +3493,6 @@ typedef struct MCP251XFD_Config
 
 //-----------------------------------------------------------------------------
 
-
-
 //! MCP251XFD FIFO configuration flags
 typedef enum
 {
@@ -3643,8 +3521,6 @@ typedef enum
   MCP251XFD_FIFO_EVENT_FIFO_NOT_EMPTY_INT     = 0x01, //!< Transmit Event FIFO Not Empty Interrupt Enable
 } eMCP251XFD_FIFOIntFlags;
 
-
-
 //! MCP251XFD FIFO configuration structure
 typedef struct MCP251XFD_FIFO
 {
@@ -3667,8 +3543,6 @@ typedef struct MCP251XFD_FIFO
 
 //-----------------------------------------------------------------------------
 
-
-
 //! Filter match type
 typedef enum
 {
@@ -3677,9 +3551,7 @@ typedef enum
   MCP251XFD_MATCH_SID_EID  = 0x2, //!< Match both standard and extended message frames
 } eMCP251XFD_FilterMatch;
 
-
 #define MCP251XFD_ACCEPT_ALL_MESSAGES  ( 0x00000000u ) //!< Indicate that the filter will accept all messages
-
 
 //! MCP251XFD Filter configuration structure
 typedef struct MCP251XFD_Filter
@@ -3699,7 +3571,6 @@ typedef struct MCP251XFD_Filter
 //********************************************************************************************************************
 
 
-
 /*! @brief MCP251XFD device initialization
  *
  * This function initializes the MCP251XFD driver and call the initialization of the interface driver (SPI). It checks parameters and perform a RESET
@@ -3711,8 +3582,6 @@ typedef struct MCP251XFD_Filter
  */
 eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf);
 
-
-
 /*! @brief RAM initialization of the MCP251XFD
  *
  * This function initialize all the RAM addresses with 0x00000000
@@ -3722,7 +3591,6 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf);
 eERRORRESULT MCP251XFD_InitRAM(MCP251XFD *pComp);
 
 //********************************************************************************************************************
-
 
 
 /*! @brief Get actual device of the MCP251XFD
@@ -3738,7 +3606,6 @@ eERRORRESULT MCP251XFD_GetDeviceID(MCP251XFD *pComp, eMCP251XFD_Devices* device,
 //********************************************************************************************************************
 
 
-
 /*! @brief Read data from the MCP251XFD
  *
  * Read data from the MCP251XFD. In case of data reading data from the RAM, the size should be modulo 4
@@ -3749,8 +3616,6 @@ eERRORRESULT MCP251XFD_GetDeviceID(MCP251XFD *pComp, eMCP251XFD_Devices* device,
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ReadData(MCP251XFD *pComp, uint16_t address, uint8_t* data, uint16_t size);
-
-
 
 /*! @brief Read a byte data from an SFR register of the MCP251XFD
  *
@@ -3763,8 +3628,6 @@ inline eERRORRESULT MCP251XFD_ReadSFR8(MCP251XFD *pComp, uint16_t address, uint8
 {
   return MCP251XFD_ReadData(pComp, address, data, 1);
 }
-
-
 
 /*! @brief Read a 2-bytes data from an SFR address of the MCP251XFD
  *
@@ -3782,8 +3645,6 @@ inline eERRORRESULT MCP251XFD_ReadSFR16(MCP251XFD *pComp, uint16_t address, uint
   return Error;
 }
 
-
-
 /*! @brief Read a word data (4 bytes) from an SFR address of the MCP251XFD
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
@@ -3799,8 +3660,6 @@ inline eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint
   *data = Tmp.Uint32;
   return Error;
 }
-
-
 
 /*! @brief Read a word data (4 bytes) from a RAM address of the MCP251XFD
  *
@@ -3818,8 +3677,6 @@ inline eERRORRESULT MCP251XFD_ReadRAM32(MCP251XFD *pComp, uint16_t address, uint
   return Error;
 }
 
-
-
 /*! @brief Write data to the MCP251XFD
  *
  * Write data to the MCP251XFD. In case of data writing data to the RAM, the size should be modulo 4
@@ -3830,8 +3687,6 @@ inline eERRORRESULT MCP251XFD_ReadRAM32(MCP251XFD *pComp, uint16_t address, uint
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_WriteData(MCP251XFD *pComp, uint16_t address, const uint8_t* data, uint16_t size);
-
-
 
 /*! @brief Write a byte data to an SFR register of the MCP251XFD
  *
@@ -3844,8 +3699,6 @@ inline eERRORRESULT MCP251XFD_WriteSFR8(MCP251XFD *pComp, uint16_t address, cons
 {
   return MCP251XFD_WriteData(pComp, address, &data, 1);
 }
-
-
 
 /*! @brief Write a 2-bytes data to an SFR register of the MCP251XFD
  *
@@ -3862,8 +3715,6 @@ inline eERRORRESULT MCP251XFD_WriteSFR16(MCP251XFD *pComp, uint16_t address, con
   return Error;
 }
 
-
-
 /*! @brief Write a word data (4 bytes) to an SFR register of the MCP251XFD
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
@@ -3878,8 +3729,6 @@ inline eERRORRESULT MCP251XFD_WriteSFR32(MCP251XFD *pComp, uint16_t address, con
   eERRORRESULT Error = MCP251XFD_WriteData(pComp, address, &Tmp.Bytes[0], 4);
   return Error;
 }
-
-
 
 /*! @brief Write a word data (4 bytes) to a RAM register of the MCP251XFD
  *
@@ -3899,7 +3748,6 @@ inline eERRORRESULT MCP251XFD_WriteRAM32(MCP251XFD *pComp, uint16_t address, uin
 //********************************************************************************************************************
 
 
-
 /*! @brief Transmit a message object (with data) to a FIFO of the MCP251XFD
  *
  * Transmit the message to the specified FIFO. This function uses the specific format of the component (T0, T1, Ti).
@@ -3913,8 +3761,6 @@ inline eERRORRESULT MCP251XFD_WriteRAM32(MCP251XFD *pComp, uint16_t address, uin
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_TransmitMessageObjectToFIFO(MCP251XFD *pComp, uint8_t* messageObjectToSend, uint8_t objectSize, eMCP251XFD_FIFO toFIFO, bool andFlush);
-
-
 
 /*! @brief Transmit a message object (with data) to the TXQ of the MCP251XFD
  *
@@ -3932,8 +3778,6 @@ inline eERRORRESULT MCP251XFD_TransmitMessageObjectToTXQ(MCP251XFD *pComp, uint8
   return MCP251XFD_TransmitMessageObjectToFIFO(pComp, messageObjectToSend, objectSize, MCP251XFD_TXQ, andFlush);
 }
 
-
-
 /*! @brief Transmit a message to a FIFO of the MCP251XFD
  *
  * Transmit the message to the specified FIFO
@@ -3946,8 +3790,6 @@ inline eERRORRESULT MCP251XFD_TransmitMessageObjectToTXQ(MCP251XFD *pComp, uint8
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_TransmitMessageToFIFO(MCP251XFD *pComp, MCP251XFD_CANMessage* messageToSend, eMCP251XFD_FIFO toFIFO, bool andFlush);
-
-
 
 /*! @brief Transmit a message to the TXQ of the MCP251XFD
  *
@@ -3964,8 +3806,6 @@ inline eERRORRESULT MCP251XFD_TransmitMessageToTXQ(MCP251XFD *pComp, MCP251XFD_C
   return MCP251XFD_TransmitMessageToFIFO(pComp, messageToSend, MCP251XFD_TXQ, andFlush);
 }
 
-
-
 /*! @brief Receive a message object (with data) to the FIFO of the MCP251XFD
  *
  * Receive the message from the specified FIFO. This function uses the specific format of the component (R0, R1, (R2,) Ri).
@@ -3978,8 +3818,6 @@ inline eERRORRESULT MCP251XFD_TransmitMessageToTXQ(MCP251XFD *pComp, MCP251XFD_C
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ReceiveMessageObjectFromFIFO(MCP251XFD *pComp, uint8_t* messageObjectGet, uint8_t objectSize, eMCP251XFD_FIFO fromFIFO);
-
-
 
 /*! @brief Receive a message object (with data) to the TEF of the MCP251XFD
  *
@@ -3996,8 +3834,6 @@ inline eERRORRESULT MCP251XFD_ReceiveMessageObjectFromTEF(MCP251XFD *pComp, uint
   return MCP251XFD_ReceiveMessageObjectFromFIFO(pComp, messageObjectGet, objectSize, MCP251XFD_TEF);
 }
 
-
-
 /*! @brief Receive a message from a FIFO of the MCP251XFD
  *
  * Receive a message from the specified FIFO
@@ -4011,8 +3847,6 @@ inline eERRORRESULT MCP251XFD_ReceiveMessageObjectFromTEF(MCP251XFD *pComp, uint
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMessage* messageGet, eMCP251XFD_PayloadSize payloadSize, uint32_t* timeStamp, eMCP251XFD_FIFO fromFIFO);
-
-
 
 /*! @brief Receive a message from the TEF of the MCP251XFD
  *
@@ -4032,7 +3866,6 @@ inline eERRORRESULT MCP251XFD_ReceiveMessageFromTEF(MCP251XFD *pComp, MCP251XFD_
 //********************************************************************************************************************
 
 
-
 /*! @brief CRC Configuration of the MCP251XFD
  *
  * At initialization if the driver has the flag DRIVER_USE_READ_WRITE_CRC then all CRC interrupts are enabled.
@@ -4042,8 +3875,6 @@ inline eERRORRESULT MCP251XFD_ReceiveMessageFromTEF(MCP251XFD *pComp, MCP251XFD_
  */
 eERRORRESULT MCP251XFD_ConfigureCRC(MCP251XFD *pComp, setMCP251XFD_CRCEvents interrupts);
 
-
-
 /*! @brief Get CRC Status of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device where the CRC status will be obtained
@@ -4052,8 +3883,6 @@ eERRORRESULT MCP251XFD_ConfigureCRC(MCP251XFD *pComp, setMCP251XFD_CRCEvents int
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetCRCEvents(MCP251XFD *pComp, setMCP251XFD_CRCEvents* events, uint16_t* lastCRCMismatch);
-
-
 
 /*! @brief Clear CRC Status Flags of the MCP251XFD device
  *
@@ -4068,7 +3897,6 @@ inline eERRORRESULT MCP251XFD_ClearCRCEvents(MCP251XFD *pComp)
 //********************************************************************************************************************
 
 
-
 /*! @brief ECC Configuration of the MCP251XFD device
  *
  * At initialization if the driver has the flag DRIVER_ENABLE_ECC then ECC is enable and all ECC interrupts are enable.
@@ -4081,8 +3909,6 @@ inline eERRORRESULT MCP251XFD_ClearCRCEvents(MCP251XFD *pComp)
  */
 eERRORRESULT MCP251XFD_ConfigureECC(MCP251XFD *pComp, bool enableECC, setMCP251XFD_ECCEvents interrupts, uint8_t fixedParityValue);
 
-
-
 /*! @brief Get ECC Status Flags of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device where the ECC status will be obtained
@@ -4091,8 +3917,6 @@ eERRORRESULT MCP251XFD_ConfigureECC(MCP251XFD *pComp, bool enableECC, setMCP251X
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetECCEvents(MCP251XFD *pComp, setMCP251XFD_ECCEvents* events, uint16_t* lastErrorAddress);
-
-
 
 /*! @brief Clear ECC Status Flags of the MCP251XFD device
  *
@@ -4107,7 +3931,6 @@ inline eERRORRESULT MCP251XFD_ClearECCEvents(MCP251XFD *pComp)
 //********************************************************************************************************************
 
 
-
 /*! @brief Configure pins of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be configured
@@ -4120,8 +3943,6 @@ inline eERRORRESULT MCP251XFD_ClearECCEvents(MCP251XFD *pComp)
  */
 eERRORRESULT MCP251XFD_ConfigurePins(MCP251XFD *pComp, eMCP251XFD_GPIO0Mode GPIO0PinMode, eMCP251XFD_GPIO1Mode GPIO1PinMode, eMCP251XFD_OutMode INTOutMode, eMCP251XFD_OutMode TXCANOutMode, bool CLKOasSOF);
 
-
-
 /*! @brief Set GPIO pins direction of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be configured
@@ -4131,8 +3952,6 @@ eERRORRESULT MCP251XFD_ConfigurePins(MCP251XFD *pComp, eMCP251XFD_GPIO0Mode GPIO
  */
 eERRORRESULT MCP251XFD_SetGPIOPinsDirection(MCP251XFD *pComp, uint8_t pinsDirection, uint8_t pinsChangeMask);
 
-
-
 /*! @brief Get GPIO pins input level of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be configured
@@ -4140,8 +3959,6 @@ eERRORRESULT MCP251XFD_SetGPIOPinsDirection(MCP251XFD *pComp, uint8_t pinsDirect
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetGPIOPinsInputLevel(MCP251XFD *pComp, uint8_t *pinsState);
-
-
 
 /*! @brief Set GPIO pins output level of the MCP251XFD device
  *
@@ -4152,7 +3969,7 @@ eERRORRESULT MCP251XFD_GetGPIOPinsInputLevel(MCP251XFD *pComp, uint8_t *pinsStat
  */
 eERRORRESULT MCP251XFD_SetGPIOPinsOutputLevel(MCP251XFD *pComp, uint8_t pinsLevel, uint8_t pinsChangeMask);
 
-//********************************************************************************************************************
+//-----------------------------------------------------------------------------
 
 
 
@@ -4195,15 +4012,12 @@ eERRORRESULT MCP251XFD_SetBitTimeConfiguration(MCP251XFD *pComp, MCP251XFD_BitTi
 //********************************************************************************************************************
 
 
-
 /*! @brief Abort all pending transmissions of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_AbortAllTransmissions(MCP251XFD *pComp);
-
-
 
 /*! @brief Get actual operation mode of the MCP251XFD device
  *
@@ -4212,8 +4026,6 @@ eERRORRESULT MCP251XFD_AbortAllTransmissions(MCP251XFD *pComp);
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetActualOperationMode(MCP251XFD *pComp, eMCP251XFD_OperationMode* actualMode);
-
-
 
 /*! @brief Request operation mode change of the MCP251XFD device
  *
@@ -4225,8 +4037,6 @@ eERRORRESULT MCP251XFD_GetActualOperationMode(MCP251XFD *pComp, eMCP251XFD_Opera
  */
 eERRORRESULT MCP251XFD_RequestOperationMode(MCP251XFD *pComp, eMCP251XFD_OperationMode newMode, bool waitOperationChange);
 
-
-
 /*! @brief Wait for operation mode change of the MCP251XFD device
  *
  * The function can wait up to 7ms. After this time, if the device doesn't change its operation mode, the function returns an ERR_DEVICETIMEOUT error
@@ -4235,8 +4045,6 @@ eERRORRESULT MCP251XFD_RequestOperationMode(MCP251XFD *pComp, eMCP251XFD_Operati
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_WaitOperationModeChange(MCP251XFD *pComp, eMCP251XFD_OperationMode askedMode);
-
-
 
 /*! @brief Start the MCP251XFD device in CAN2.0 mode
  *
@@ -4249,8 +4057,6 @@ inline eERRORRESULT MCP251XFD_StartCAN20(MCP251XFD *pComp)
   return MCP251XFD_RequestOperationMode(pComp, MCP251XFD_NORMAL_CAN20_MODE, false);
 }
 
-
-
 /*! @brief Start the MCP251XFD device in CAN-FD mode
  *
  * This function asks for a mode change to CAN-FD but do not wait for its actual change because normally the device is in configuration mode and the change to CAN-FD mode will be instantaneous
@@ -4261,8 +4067,6 @@ inline eERRORRESULT MCP251XFD_StartCANFD(MCP251XFD *pComp)
 {
   return MCP251XFD_RequestOperationMode(pComp, MCP251XFD_NORMAL_CANFD_MODE, false);
 }
-
-
 
 /*! @brief Start the MCP251XFD device in CAN Listen-Only mode
  *
@@ -4275,8 +4079,6 @@ inline eERRORRESULT MCP251XFD_StartCANListenOnly(MCP251XFD *pComp)
   return MCP251XFD_RequestOperationMode(pComp, MCP251XFD_LISTEN_ONLY_MODE, false);
 }
 
-
-
 /*! @brief Configure CAN Controller of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
@@ -4287,7 +4089,6 @@ inline eERRORRESULT MCP251XFD_StartCANListenOnly(MCP251XFD *pComp)
 eERRORRESULT MCP251XFD_ConfigureCANController(MCP251XFD *pComp, setMCP251XFD_CANCtrlFlags flags, eMCP251XFD_Bandwidth bandwidth);
 
 //********************************************************************************************************************
-
 
 
 /*! @brief Sleep mode configuration of the MCP251XFD device
@@ -4303,8 +4104,6 @@ eERRORRESULT MCP251XFD_ConfigureCANController(MCP251XFD *pComp, setMCP251XFD_CAN
  */
 eERRORRESULT MCP251XFD_ConfigureSleepMode(MCP251XFD *pComp, bool useLowPowerMode, eMCP251XFD_WakeUpFilter wakeUpFilter, bool interruptBusWakeUp);
 
-
-
 /*! @brief Enter the MCP251XFD device in sleep mode
  *
  * This function puts the device in sleep mode
@@ -4312,8 +4111,6 @@ eERRORRESULT MCP251XFD_ConfigureSleepMode(MCP251XFD *pComp, bool useLowPowerMode
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_EnterSleepMode(MCP251XFD *pComp);
-
-
 
 /*! @brief Verify if the MCP251XFD device is in sleep mode
  *
@@ -4325,8 +4122,6 @@ eERRORRESULT MCP251XFD_EnterSleepMode(MCP251XFD *pComp);
  */
 eERRORRESULT MCP251XFD_IsDeviceInSleepMode(MCP251XFD *pComp, bool* isInSleepMode);
 
-
-
 /*! @brief Manually wake up the MCP251XFD device
  *
  * After a wake-up from sleep, the device will be in configuration mode. After a wake-up from low power sleep, the device is at the same state as a Power On Reset, the device must be reconfigured
@@ -4335,8 +4130,6 @@ eERRORRESULT MCP251XFD_IsDeviceInSleepMode(MCP251XFD *pComp, bool* isInSleepMode
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_WakeUp(MCP251XFD *pComp, eMCP251XFD_PowerStates *fromState);
-
-
 
 /*! @brief Retrieve from which state mode the MCP251XFD device get a bus wake up from
  *
@@ -4351,7 +4144,6 @@ eMCP251XFD_PowerStates MCP251XFD_BusWakeUpFromState(MCP251XFD *pComp);
 //********************************************************************************************************************
 
 
-
 /*! @brief Configure the Time Stamp of frames in the MCP251XFD device
  *
  * This function configures the 32-bit free-running counter of the Time Stamp
@@ -4364,8 +4156,6 @@ eMCP251XFD_PowerStates MCP251XFD_BusWakeUpFromState(MCP251XFD *pComp);
  */
 eERRORRESULT MCP251XFD_ConfigureTimeStamp(MCP251XFD *pComp, bool enableTS, eMCP251XFD_SamplePoint samplePoint, uint16_t prescaler, bool interruptBaseCounter);
 
-
-
 /*! @brief Set the Time Stamp counter the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
@@ -4373,8 +4163,6 @@ eERRORRESULT MCP251XFD_ConfigureTimeStamp(MCP251XFD *pComp, bool enableTS, eMCP2
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_SetTimeStamp(MCP251XFD *pComp, uint32_t value);
-
-
 
 /*! @brief Get the Time Stamp counter the MCP251XFD device
  *
@@ -4387,7 +4175,6 @@ eERRORRESULT MCP251XFD_GetTimeStamp(MCP251XFD *pComp, uint32_t* value);
 //********************************************************************************************************************
 
 
-
 /*! @brief Configure TEF of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
@@ -4396,8 +4183,6 @@ eERRORRESULT MCP251XFD_GetTimeStamp(MCP251XFD *pComp, uint32_t* value);
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ConfigureTEF(MCP251XFD *pComp, bool enableTEF, MCP251XFD_FIFO *confTEF);
-
-
 
 /*! @brief Configure TXQ of the MCP251XFD device
  *
@@ -4408,8 +4193,6 @@ eERRORRESULT MCP251XFD_ConfigureTEF(MCP251XFD *pComp, bool enableTEF, MCP251XFD_
  */
 eERRORRESULT MCP251XFD_ConfigureTXQ(MCP251XFD *pComp, bool enableTXQ, MCP251XFD_FIFO *confTXQ);
 
-
-
 /*! @brief Configure a FIFO of the MCP251XFD device
  *
  * FIFO are enabled by configuring the FIFO and, in case of receive FIFO, a filter point to the FIFO
@@ -4418,8 +4201,6 @@ eERRORRESULT MCP251XFD_ConfigureTXQ(MCP251XFD *pComp, bool enableTXQ, MCP251XFD_
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ConfigureFIFO(MCP251XFD *pComp, MCP251XFD_FIFO *confFIFO);
-
-
 
 /*! @brief Configure a FIFO list of the MCP251XFD device
  *
@@ -4431,8 +4212,6 @@ eERRORRESULT MCP251XFD_ConfigureFIFO(MCP251XFD *pComp, MCP251XFD_FIFO *confFIFO)
  */
 eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listFIFO, size_t count);
 
-
-
 /*! @brief Reset a FIFO of the MCP251XFD device
  *
  * FIFO will be reset. The function will wait until the reset is effective. In Configuration Mode, the FIFO is automatically reset
@@ -4441,8 +4220,6 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ResetFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name);
-
-
 
 /*! @brief Reset the TEF of the MCP251XFD device
  *
@@ -4455,8 +4232,6 @@ inline eERRORRESULT MCP251XFD_ResetTEF(MCP251XFD *pComp)
   return MCP251XFD_ResetFIFO(pComp, MCP251XFD_TEF);
 }
 
-
-
 /*! @brief Reset the TXQ of the MCP251XFD device
  *
  * TXQ will be reset. The function will wait until the reset is effective. In Configuration Mode, the TXQ is automatically reset
@@ -4468,8 +4243,6 @@ inline eERRORRESULT MCP251XFD_ResetTXQ(MCP251XFD *pComp)
   return MCP251XFD_ResetFIFO(pComp, MCP251XFD_TXQ);
 }
 
-
-
 /*! @brief Update (and flush) a FIFO of the MCP251XFD device
  *
  * Increment the Head/Tail of the FIFO. If flush too, a message send request is ask
@@ -4479,8 +4252,6 @@ inline eERRORRESULT MCP251XFD_ResetTXQ(MCP251XFD *pComp)
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_UpdateFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name, bool andFlush);
-
-
 
 /*! @brief Update the TEF of the MCP251XFD device
  *
@@ -4492,8 +4263,6 @@ inline eERRORRESULT MCP251XFD_UpdateTEF(MCP251XFD *pComp)
 {
   return MCP251XFD_UpdateFIFO(pComp, MCP251XFD_TEF, false);
 }
-
-
 
 /*! @brief Update (and flush) the TXQ of the MCP251XFD device
  *
@@ -4507,8 +4276,6 @@ inline eERRORRESULT MCP251XFD_UpdateTXQ(MCP251XFD *pComp, bool andFlush)
   return MCP251XFD_UpdateFIFO(pComp, MCP251XFD_TXQ, andFlush);
 }
 
-
-
 /*! @brief Flush a FIFO of the MCP251XFD device
  *
  * A message send request is ask to the FIFO
@@ -4517,8 +4284,6 @@ inline eERRORRESULT MCP251XFD_UpdateTXQ(MCP251XFD *pComp, bool andFlush)
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_FlushFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name);
-
-
 
 /*! @brief Flush a TXQ of the MCP251XFD device
  *
@@ -4531,8 +4296,6 @@ inline eERRORRESULT MCP251XFD_FlushTXQ(MCP251XFD *pComp)
   return MCP251XFD_FlushFIFO(pComp, MCP251XFD_TXQ);
 }
 
-
-
 /*! @brief Flush all FIFOs (+TXQ) of the MCP251XFD device
  *
  * Flush all TXQ and all transmit FIFOs
@@ -4544,8 +4307,6 @@ inline eERRORRESULT MCP251XFD_FlushAllFIFO(MCP251XFD *pComp)
   return MCP251XFD_WriteSFR32(pComp, RegMCP251XFD_CiTXREQ, 0xFFFFFFFF);
 }
 
-
-
 /*! @brief Get status of a FIFO of the MCP251XFD device
  *
  * Get messages status and some interrupt flags related to this FIFO (First byte of CiFIFOSTAm)
@@ -4555,8 +4316,6 @@ inline eERRORRESULT MCP251XFD_FlushAllFIFO(MCP251XFD *pComp)
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetFIFOStatus(MCP251XFD *pComp, eMCP251XFD_FIFO name, setMCP251XFD_FIFOstatus *statusFlags);
-
-
 
 /*! @brief Get status of a TEF of the MCP251XFD device
  *
@@ -4572,8 +4331,6 @@ inline eERRORRESULT MCP251XFD_GetTEFStatus(MCP251XFD *pComp, setMCP251XFD_TEFsta
   return Error;
 }
 
-
-
 /*! @brief Get status of a TXQ of the MCP251XFD device
  *
  * Get messages status and some interrupt flags related to this TXQ (First byte of CiTXQSTA)
@@ -4588,8 +4345,6 @@ inline eERRORRESULT MCP251XFD_GetTXQStatus(MCP251XFD *pComp, setMCP251XFD_TXQsta
   return Error;
 }
 
-
-
 /*! @brief Get next message address and/or index of a FIFO of the MCP251XFD device
  *
  * If it's a transmit FIFO then a read of this will return the address and/or index where the next message is to be written (FIFO head)
@@ -4603,8 +4358,6 @@ inline eERRORRESULT MCP251XFD_GetTXQStatus(MCP251XFD *pComp, setMCP251XFD_TXQsta
  */
 eERRORRESULT MCP251XFD_GetNextMessageAddressFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name, uint32_t *nextAddress, uint8_t *nextIndex);
 
-
-
 /*! @brief Get next message address of a TEF of the MCP251XFD device
  *
  * A read of this register will return the address where the next object is to be read (FIFO tail)
@@ -4617,8 +4370,6 @@ inline eERRORRESULT MCP251XFD_GetNextMessageAddressTEF(MCP251XFD *pComp, uint32_
 {
   return MCP251XFD_GetNextMessageAddressFIFO(pComp, MCP251XFD_TEF, nextAddress, NULL);
 }
-
-
 
 /*! @brief Get next message address and/or index of a TXQ of the MCP251XFD device
  *
@@ -4634,8 +4385,6 @@ inline eERRORRESULT MCP251XFD_GetNextMessageAddressTXQ(MCP251XFD *pComp, uint32_
   return MCP251XFD_GetNextMessageAddressFIFO(pComp, MCP251XFD_TXQ, nextAddress, nextIndex);
 }
 
-
-
 /*! @brief Clear the FIFO configuration of the MCP251XFD device
  *
  * Clearing FIFO configuration do not disable totally it, all filter that point to it must be disabled too.
@@ -4649,7 +4398,6 @@ eERRORRESULT MCP251XFD_ClearFIFOConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFO 
 //********************************************************************************************************************
 
 
-
 /*! @brief Configure interrupt of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
@@ -4657,8 +4405,6 @@ eERRORRESULT MCP251XFD_ClearFIFOConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFO 
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ConfigureInterrupt(MCP251XFD *pComp, setMCP251XFD_InterruptEvents interruptsFlags);
-
-
 
 /*! @brief Get interrupt events of the MCP251XFD device
  *
@@ -4668,8 +4414,6 @@ eERRORRESULT MCP251XFD_ConfigureInterrupt(MCP251XFD *pComp, setMCP251XFD_Interru
  */
 eERRORRESULT MCP251XFD_GetInterruptEvents(MCP251XFD *pComp, setMCP251XFD_InterruptEvents* interruptsFlags);
 
-
-
 /*! @brief Get the current interrupt event of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
@@ -4678,8 +4422,6 @@ eERRORRESULT MCP251XFD_GetInterruptEvents(MCP251XFD *pComp, setMCP251XFD_Interru
  */
 eERRORRESULT MCP251XFD_GetCurrentInterruptEvent(MCP251XFD *pComp, eMCP251XFD_InterruptFlagCode* currentEvent);
 
-
-
 /*! @brief Clear interrupt events of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
@@ -4687,8 +4429,6 @@ eERRORRESULT MCP251XFD_GetCurrentInterruptEvent(MCP251XFD *pComp, eMCP251XFD_Int
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ClearInterruptEvents(MCP251XFD *pComp, setMCP251XFD_InterruptEvents interruptsFlags);
-
-
 
 /*! @brief Get current receive FIFO name and status that generate an interrupt (if any)
  *
@@ -4701,8 +4441,6 @@ eERRORRESULT MCP251XFD_ClearInterruptEvents(MCP251XFD *pComp, setMCP251XFD_Inter
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, setMCP251XFD_FIFOstatus *flags);
-
-
 
 /*! @brief Get current receive FIFO name that generate an interrupt (if any)
  *
@@ -4718,8 +4456,6 @@ inline eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameInterrupt(MCP251XFD *pCom
   return MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(pComp, name, NULL);
 }
 
-
-
 /*! @brief Get current transmit FIFO name and status that generate an interrupt (if any)
  *
  * This function can be called to check if there is a transmit interrupt. It gives the name and the status of the FIFO.
@@ -4731,8 +4467,6 @@ inline eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameInterrupt(MCP251XFD *pCom
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name, setMCP251XFD_FIFOstatus *flags);
-
-
 
 /*! @brief Get current transmit FIFO name that generate an interrupt (if any)
  *
@@ -4748,8 +4482,6 @@ inline eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameInterrupt(MCP251XFD *pCo
   return MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(pComp, name, NULL);
 }
 
-
-
 /*! @brief Clear selected FIFO events of the MCP251XFD device
  *
  * Clear the events in parameter to the FIFO selected
@@ -4759,8 +4491,6 @@ inline eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameInterrupt(MCP251XFD *pCo
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ClearFIFOEvents(MCP251XFD *pComp, eMCP251XFD_FIFO name, uint8_t events);
-
-
 
 /*! @brief Clear TEF overflow event of the MCP251XFD device
  *
@@ -4772,8 +4502,6 @@ inline eERRORRESULT MCP251XFD_ClearTEFOverflowEvent(MCP251XFD *pComp)
 {
   return MCP251XFD_ClearFIFOEvents(pComp, MCP251XFD_TEF, MCP251XFD_TEF_FIFO_OVERFLOW);
 }
-
-
 
 /*! @brief Clear FIFO overflow event of the MCP251XFD device
  *
@@ -4788,8 +4516,6 @@ inline eERRORRESULT MCP251XFD_ClearFIFOOverflowEvent(MCP251XFD *pComp, eMCP251XF
   return MCP251XFD_ClearFIFOEvents(pComp, name, MCP251XFD_RX_FIFO_OVERFLOW);
 }
 
-
-
 /*! @brief Clear FIFO attempts event of the MCP251XFD device
  *
  * Clear the attempt event of the FIFO selected
@@ -4803,8 +4529,6 @@ inline eERRORRESULT MCP251XFD_ClearFIFOAttemptsEvent(MCP251XFD *pComp, eMCP251XF
   return MCP251XFD_ClearFIFOEvents(pComp, name, MCP251XFD_TX_FIFO_ATTEMPTS_EXHAUSTED);
 }
 
-
-
 /*! @brief Clear TXQ attempts event of the MCP251XFD device
  *
  * Clear the attempt event of the TXQ selected
@@ -4816,8 +4540,6 @@ inline eERRORRESULT MCP251XFD_ClearTXQAttemptsEvent(MCP251XFD *pComp)
   return MCP251XFD_ClearFIFOEvents(pComp, MCP251XFD_TXQ, MCP251XFD_TXQ_ATTEMPTS_EXHAUSTED);
 }
 
-
-
 /*! @brief Get the receive interrupt pending status of all FIFO
  *
  * Get the status of receive pending interrupt and overflow pending interrupt of all FIFOs at once, OR'ed in one variable
@@ -4827,8 +4549,6 @@ inline eERRORRESULT MCP251XFD_ClearTXQAttemptsEvent(MCP251XFD *pComp)
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* interruptPending, setMCP251XFD_InterruptOnFIFO* overflowStatus);
-
-
 
 /*! @brief Get the receive interrupt pending status of all FIFO
  *
@@ -4843,8 +4563,6 @@ inline eERRORRESULT MCP251XFD_GetReceivePendingInterruptStatusOfAllFIFO(MCP251XF
   return MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(pComp, interruptPending, NULL);
 }
 
-
-
 /*! @brief Get the receive overflow interrupt pending status of all FIFO
  *
  * Get the status of overflow pending interrupt of all FIFOs at once, OR'ed in one variable
@@ -4858,8 +4576,6 @@ inline eERRORRESULT MCP251XFD_GetReceiveOverflowInterruptStatusOfAllFIFO(MCP251X
   return MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(pComp, NULL, overflowStatus);
 }
 
-
-
 /*! @brief Get the transmit interrupt pending status of all FIFO
  *
  * Get the status of transmit pending interrupt and attempt exhaust pending interrupt of all FIFOs at once, OR'ed in one variable
@@ -4869,8 +4585,6 @@ inline eERRORRESULT MCP251XFD_GetReceiveOverflowInterruptStatusOfAllFIFO(MCP251X
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetTransmitInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* interruptPending, setMCP251XFD_InterruptOnFIFO* attemptStatus);
-
-
 
 /*! @brief Get the transmit interrupt pending status of all FIFO
  *
@@ -4884,8 +4598,6 @@ inline eERRORRESULT MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO(MCP251X
   if (interruptPending == NULL) return ERR__PARAMETER_ERROR;
   return MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(pComp, interruptPending, NULL);
 }
-
-
 
 /*! @brief Get the transmit attempt exhaust interrupt pending status of all FIFO
  *
@@ -4903,7 +4615,6 @@ inline eERRORRESULT MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO(MCP251X
 //********************************************************************************************************************
 
 
-
 /*! @brief Configure the Device NET filter of the MCP251XFD device
  *
  * When a standard frame is received and the filter is configured for extended frames, the EID part of the Filter and Mask Object can be selected to filter on data bytes
@@ -4913,8 +4624,6 @@ inline eERRORRESULT MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO(MCP251X
  */
 eERRORRESULT MCP251XFD_ConfigureDeviceNetFilter(MCP251XFD *pComp, eMCP251XFD_DNETFilter filter);
 
-
-
 /*! @brief Configure a filter of the MCP251XFD device
  *
  * @warning This function does not check if the pointed FIFO is a receive FIFO
@@ -4923,8 +4632,6 @@ eERRORRESULT MCP251XFD_ConfigureDeviceNetFilter(MCP251XFD *pComp, eMCP251XFD_DNE
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ConfigureFilter(MCP251XFD *pComp, MCP251XFD_Filter *confFilter);
-
-
 
 /*! @brief Configure a filter list and the DNCNT of the MCP251XFD device
  *
@@ -4937,8 +4644,6 @@ eERRORRESULT MCP251XFD_ConfigureFilter(MCP251XFD *pComp, MCP251XFD_Filter *confF
  */
 eERRORRESULT MCP251XFD_ConfigureFilterList(MCP251XFD *pComp, eMCP251XFD_DNETFilter filter, MCP251XFD_Filter *listFilter, size_t count);
 
-
-
 /*! @brief Disable a Filter of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
@@ -4950,7 +4655,6 @@ eERRORRESULT MCP251XFD_DisableFilter(MCP251XFD *pComp, eMCP251XFD_Filter name);
 //********************************************************************************************************************
 
 
-
 /*! @brief Get transmit/receive error count and status of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device use
@@ -4960,8 +4664,6 @@ eERRORRESULT MCP251XFD_DisableFilter(MCP251XFD *pComp, eMCP251XFD_Filter name);
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetTransmitReceiveErrorCountAndStatus(MCP251XFD *pComp, uint8_t* transmitErrorCount, uint8_t* receiveErrorCount, eMCP251XFD_TXRXErrorStatus* status);
-
-
 
 /*! @brief Get transmit error count of the MCP251XFD device
  *
@@ -4975,8 +4677,6 @@ inline eERRORRESULT MCP251XFD_GetTransmitErrorCount(MCP251XFD *pComp, uint8_t* t
   return MCP251XFD_GetTransmitReceiveErrorCountAndStatus(pComp, transmitErrorCount, NULL, NULL);
 }
 
-
-
 /*! @brief Get receive error count of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device use
@@ -4988,8 +4688,6 @@ inline eERRORRESULT MCP251XFD_GetReceiveErrorCount(MCP251XFD *pComp, uint8_t* re
   if (receiveErrorCount == NULL) return ERR__PARAMETER_ERROR;
   return MCP251XFD_GetTransmitReceiveErrorCountAndStatus(pComp, NULL, receiveErrorCount, NULL);
 }
-
-
 
 /*! @brief Get transmit/receive error status of the MCP251XFD device
  *
@@ -5003,8 +4701,6 @@ inline eERRORRESULT MCP251XFD_GetTransmitReceiveErrorStatus(MCP251XFD *pComp, eM
   return MCP251XFD_GetTransmitReceiveErrorCountAndStatus(pComp, NULL, NULL, status);
 }
 
-
-
 /*! @brief Get Bus diagnostic of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device use
@@ -5013,8 +4709,6 @@ inline eERRORRESULT MCP251XFD_GetTransmitReceiveErrorStatus(MCP251XFD *pComp, eM
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_GetBusDiagnostic(MCP251XFD *pComp, MCP251XFD_CiBDIAG0_Register* busDiagnostic0, MCP251XFD_CiBDIAG1_Register* busDiagnostic1);
-
-
 
 /*! @brief Clear Bus diagnostic of the MCP251XFD device
  *
@@ -5028,7 +4722,6 @@ eERRORRESULT MCP251XFD_ClearBusDiagnostic(MCP251XFD *pComp, bool clearBusDiagnos
 //********************************************************************************************************************
 
 
-
 /*! @brief Reset the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be reset
@@ -5039,7 +4732,6 @@ eERRORRESULT MCP251XFD_ResetDevice(MCP251XFD *pComp);
 //********************************************************************************************************************
 
 
-
 /*! @brief Message ID to Object Message Identifier
  *
  * @param[in] messageID Is the message ID to convert
@@ -5048,8 +4740,6 @@ eERRORRESULT MCP251XFD_ResetDevice(MCP251XFD *pComp);
  * @return Returns the Message ID
  */
 uint32_t MCP251XFD_MessageIDtoObjectMessageIdentifier(uint32_t messageID, bool extended, bool UseSID11);
-
-
 
 /*! @brief Object Message Identifier to Message ID
  *
@@ -5063,15 +4753,12 @@ uint32_t MCP251XFD_ObjectMessageIdentifierToMessageID(uint32_t objectMessageID, 
 //********************************************************************************************************************
 
 
-
 /*! @brief Payload to Byte Count
  *
  * @param[in] payload Is the enum of Message Payload Size (8, 12, 16, 20, 24, 32, 48 or 64 bytes)
  * @return Returns the byte count
  */
 uint8_t MCP251XFD_PayloadToByte(eMCP251XFD_PayloadSize payload);
-
-
 
 /*! @brief Data Length Content to Byte Count
  *

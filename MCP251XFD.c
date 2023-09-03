@@ -52,7 +52,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   if (pComp->fnGetCurrentms  == NULL) return ERR__PARAMETER_ERROR;
 #endif
   eERRORRESULT Error;
-  uint32_t Result = 0;
+  uint32_t Result;
   pComp->InternalConfig = 0;
 
   //--- Check configuration ---------------------------------
@@ -74,15 +74,15 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
 
   //--- Reset -----------------------------------------------
   Error = MCP251XFD_ResetDevice(pComp);                                                                  // Reset the device
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_ResetDevice() then return the error
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while calling MCP251XFD_ResetDevice() then return the error
   pComp->InternalConfig = MCP251XFD_DEV_PS_SET(MCP251XFD_DEVICE_SLEEP_NOT_CONFIGURED);                   // Device is in normal power state, sleep is not yet configured
 
   //--- Test SPI connection ---------------------------------
   Error = MCP251XFD_WriteRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), 0xAA55AA55);        // Write 0xAA55AA55 at address
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while writing the RAM address then return the error
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while writing the RAM address then return the error
   Error = MCP251XFD_ReadRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), &Result);            // Read again the data
   if ((Error == ERR__CRC_ERROR) || (Result != 0xAA55AA55)) return ERR__NO_DEVICE_DETECTED;               // If CRC mismatch or data read is not 0xAA55AA55 then no device is detected
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while reading the RAM address then return the error
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while reading the RAM address then return the error
 
   //--- Configure component clock ---------------------------
   uint8_t Config = MCP251XFD_SFR_OSC_WAKEUP | MCP251XFD_SFR_OSC8_SCLKDIV_SET(MCP251XFD_SCLK_DivBy1) | MCP251XFD_SFR_OSC8_PLLDIS;
@@ -96,7 +96,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   if (pConf->ClkoPinConfig != MCP251XFD_CLKO_SOF) Config |= MCP251XFD_SFR_OSC8_CLKODIV_SET(pConf->ClkoPinConfig); // Configure the CLKO pin (CLKIN+PLL div by 1, 2, 4, 10 or Start Of Frame)
   Config |= MCP251XFD_SFR_OSC8_LPMEN;                                                                    // Set now the Low Power Mode for further check of which module MCP251XFD it is
   Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_OSC_CONFIG, Config);                                   // Write the Oscillator Register configuration
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   //--- Check clocks stabilization --------------------------
   uint8_t CheckVal = ((uint8_t)(Config) & MCP251XFD_SFR_OSC8_CHECKFLAGS) | MCP251XFD_SFR_OSC8_OSCRDY;    // Check if PLL Locked (if enabled), OSC clock is running and stable, and SCLKDIV is synchronized (if divided by 2)
@@ -104,7 +104,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   while (true)
   {
     Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_OSC_CHECK, &Config);                                  // Read current OSC register mode with
-    if (Error != ERR_OK) return Error;                                                                   // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+    if (Error != ERR_NONE) return Error;                                                                 // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
     if ((Config & MCP251XFD_SFR_OSC8_CHECKFLAGS) == CheckVal) break;                                     // Check if the controller's clocks are ready
     if (MCP251XFD_TIME_DIFF(StartTime, pComp->fnGetCurrentms()) > 4) return ERR__DEVICE_TIMEOUT;         // Wait at least 3ms (see TOSCSTAB in Table 7-3 from datasheet Electrical Specifications) + 1ms because GetCurrentms can be 1 cycle before the new ms. If timeout then return the error
   }
@@ -121,29 +121,29 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   if ((pComp->DriverConfig & MCP251XFD_DRIVER_USE_READ_WRITE_CRC) > 0)                                   // If there is a DRIVER_USE_READ_WRITE_CRC flag then
   {
     Error = MCP251XFD_ConfigureCRC(pComp, MCP251XFD_CRC_ALL_EVENTS);                                     // Configure the CRC and all interrupts related to CRC
-    if (Error != ERR_OK) return Error;                                                                   // If there is an error while calling MCP251XFD_ConfigureCRC() then return the error
+    if (Error != ERR_NONE) return Error;                                                                 // If there is an error while calling MCP251XFD_ConfigureCRC() then return the error
   }
 
   //--- Check which MCP251XFD it is -------------------------                                            // Since the DEVID register return the same value for MCP2517FD and MCP2518FD, this driver use the OSC.LPMEN to check which one it is
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_OSC_CONFIG, &Config);                                   // Read current OSC config mode
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   pComp->InternalConfig |= MCP251XFD_DEV_ID_SET((Config & MCP251XFD_SFR_OSC8_LPMEN) > 0 ? MCP2518FD : MCP2517FD); // Set which one it is to the internal config of the driver
   Config &= ~MCP251XFD_SFR_OSC8_LPMEN;
   Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_OSC_CONFIG, Config);                                   // Write the OSC config mode with the LPM bit cleared
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   //--- Test SPI connection and RAM Test --------------------
   if ((pComp->DriverConfig & MCP251XFD_DRIVER_INIT_CHECK_RAM) > 0)                                       // If there is a DRIVER_INIT_CHECK_RAM flag then
   {
     Error = __MCP251XFD_TestRAM(pComp);                                                                  // Check the all the RAM only of the device
-    if (Error != ERR_OK) return Error;                                                                   // If there is an error while calling __MCP251XFD_TestRAM() then return the error
+    if (Error != ERR_NONE) return Error;                                                                 // If there is an error while calling __MCP251XFD_TestRAM() then return the error
   }
   else                                                                                                   // Else check only SPI interface
   {
     Error = MCP251XFD_WriteRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), 0xAA55AA55);      // Write 0xAA55AA55 at address
-    if (Error != ERR_OK) return Error;                                                                   // If there is an error while writing the RAM address then return the error
+    if (Error != ERR_NONE) return Error;                                                                 // If there is an error while writing the RAM address then return the error
     Error = MCP251XFD_ReadRAM32(pComp, (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE - 4), &Result);          // Read again the data
-    if (Error != ERR_OK) return Error;                                                                   // If there is an error while reading the RAM address then return the error
+    if (Error != ERR_NONE) return Error;                                                                 // If there is an error while reading the RAM address then return the error
     if (Result != 0xAA55AA55) return ERR__RAM_TEST_FAIL;                                                 // If data read is not 0xAA55AA55 then return an error
   }
 
@@ -151,21 +151,22 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   if ((pComp->DriverConfig & MCP251XFD_DRIVER_ENABLE_ECC) > 0)                                           // If there is a DRIVER_ENABLE_ECC flag then
   {
     Error = MCP251XFD_ConfigureECC(pComp, true, MCP251XFD_ECC_ALL_EVENTS, 0x55);                         // Configure the ECC and enable all interrupts related to ECC
-    if (Error != ERR_OK) return Error;                                                                   // If there is an error while calling MCP251XFD_ConfigureECC() then return the error
+    if (Error != ERR_NONE) return Error;                                                                 // If there is an error while calling MCP251XFD_ConfigureECC() then return the error
   }
 
   //--- Initialize RAM if configured ------------------------
   if ((pComp->DriverConfig & MCP251XFD_DRIVER_INIT_SET_RAM_AT_0) > 0)                                    // If there is a DRIVER_INIT_SET_RAM_AT_0 flag then
   {
     Error = MCP251XFD_InitRAM(pComp);                                                                    // Initialize all RAM addresses with 0x00000000
-    if (Error != ERR_OK) return Error;                                                                   // If there is an error while calling MCP251XFD_InitRAM() then return the error
+    if (Error != ERR_NONE) return Error;                                                                 // If there is an error while calling MCP251XFD_InitRAM() then return the error
   }
 
   //--- Initialize Int pins or GPIOs ------------------------
   Error = MCP251XFD_SetGPIOPinsOutputLevel(pComp, pComp->GPIOsOutState, MCP251XFD_GPIO0_Mask | MCP251XFD_GPIO1_Mask); // Set GPIO pins output level before change to mode GPIO. This is to get directly the good output level when (if) pins will be in output mode
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_ConfigurePins() then return the error
+  pComp->GPIOsOutLevel = pConf->GPIOsOutLevel;                                                           // [C++] Transfer GPIOs output level at startup configuration, because the of the class
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while calling MCP251XFD_ConfigurePins() then return the error
   Error = MCP251XFD_ConfigurePins(pComp, pConf->GPIO0PinMode, pConf->GPIO1PinMode, pConf->INTsOutMode, pConf->TXCANOutMode, (pConf->ClkoPinConfig == MCP251XFD_CLKO_SOF)); // Configure pins
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_ConfigurePins() then return the error
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while calling MCP251XFD_ConfigurePins() then return the error
 
   //--- Set Nominal and Data bitrate ------------------------
   MCP251XFD_BitTimeConfig ConfBitTime;
@@ -177,9 +178,9 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
 
   //--- CAN configuration -----------------------------------
   Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiCON+2, 0x00);                                        // Disable TEF and TXQ configuration in the RegMCP251XFD_CiCON register (Third byte only)
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
   Error = MCP251XFD_ConfigureCANController(pComp, pConf->ControlFlags, pConf->Bandwidth);                // Configure the CAN control
-  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_ConfigureCANControl() then return the error
+  if (Error != ERR_NONE) return Error;                                                                   // If there is an error while calling MCP251XFD_ConfigureCANControl() then return the error
 
   //--- System interrupt enable -----------------------------
   Error = MCP251XFD_ConfigureInterrupt(pComp, (setMCP251XFD_InterruptEvents)pConf->SysInterruptFlags);   // Configure interrupts to enable
@@ -200,9 +201,9 @@ eERRORRESULT MCP251XFD_InitRAM(MCP251XFD *pComp)
   for (uint16_t Address = MCP251XFD_RAM_ADDR; Address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE); Address += 4)
   {
     Error = MCP251XFD_WriteRAM32(pComp, Address, 0x00000000); // Write 0x00000000 at address
-    if (Error != ERR_OK) return Error;                        // If there is an error while writing the RAM address then return the error
+    if (Error != ERR_NONE) return Error;                      // If there is an error while writing the RAM address then return the error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -225,11 +226,11 @@ eERRORRESULT MCP251XFD_GetDeviceID(MCP251XFD *pComp, eMCP251XFD_Devices* device,
   {
     uint8_t Value;
     Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_DEVID, &Value);           // Read value of the DEVID register (First byte only)
-    if (Error != ERR_OK) return Error;                                       // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+    if (Error != ERR_NONE) return Error;                                     // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
     if (deviceId  != NULL) *deviceId  = MCP251XFD_SFR_DEVID8_ID_GET(Value);  // Get Device ID
     if (deviceRev != NULL) *deviceRev = MCP251XFD_SFR_DEVID8_REV_GET(Value); // Get Device Revision
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -291,7 +292,8 @@ eERRORRESULT MCP251XFD_ReadData(MCP251XFD *pComp, uint16_t address, uint8_t* dat
     //--- Now send the data through SPI interface ---
     const size_t ByteToReadCount = ByteCount + (UseCRC ? (2 + 1 + 2) : 2);   // In case of use CRC for read, here are 2 bytes for Command + 1 for Length + 2 for CRC, else just 2 for command
     Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], &Buffer[0], ByteToReadCount); // Transfer the data in the buffer
-    if (Error != ERR_OK) return Error;                                       // If there is an error while transferring data then return the error
+    SPIInterface_Packet PacketDesc = SPI_INTERFACE_RX_DATA_DESC(&Buffer[0], ByteToReadCount, true);
+    if (Error != ERR_NONE) return Error;                                     // If there is an error while transferring data then return the error
 
     //--- Copy buffer to data ---
     BufRemain = ByteCount;                                                   // Set how many data that will fit in the buffer
@@ -325,7 +327,7 @@ eERRORRESULT MCP251XFD_ReadData(MCP251XFD *pComp, uint16_t address, uint8_t* dat
     }
   }
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -411,19 +413,20 @@ eERRORRESULT MCP251XFD_WriteData(MCP251XFD *pComp, uint16_t address, const uint8
       if (pComp->fnComputeCRC16 == NULL) return ERR__PARAMETER_ERROR;       // If the CRC function is not present, raise an error
 #endif
       const size_t ByteToComputeCount = ByteCount + (UseSafe ? 2 : (2 + 1));
-      uint16_t CRC = pComp->fnComputeCRC16(&Buffer[0], ByteToComputeCount); // Compute CRC on the Buffer data (2 for Command + 1 for Length for not safe)
-      *pBuf = (CRC >> 8) & 0xFF;                                            // Put CRC MSB on the next buffer byte
+      uint16_t FrameCRC = pComp->fnComputeCRC16(&Buffer[0], ByteToComputeCount); // Compute CRC on the Buffer data (2 for Command + 1 for Length for not safe)
+      *pBuf = (FrameCRC >> 8) & 0xFF;                                       // Put CRC MSB on the next buffer byte
       ++pBuf;
-      *pBuf = CRC & 0xFF;                                                   // Put CRC LSB on the next buffer byte
+      *pBuf = FrameCRC & 0xFF;                                              // Put CRC LSB on the next buffer byte
     }
 
     //--- Now send the data through SPI interface ---
     const size_t ByteToWriteCount = ByteCount + (UseSafe ? (2 + 2) : (UseCRC ? (2 + 1 + 2) : 2)); // In case of use CRC for write here are 2 bytes for Command + 1 for Length for not safe + 2 for CRC, else just 2 for command
     Error = pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], NULL, ByteToWriteCount); // Transfer the data in the buffer (2 for Command + 1 for Length + 2 for CRC)
-    if (Error != ERR_OK) return Error;                                      // If there is an error while transferring data then return the error
+    SPIInterface_Packet PacketDesc = SPI_INTERFACE_TX_DATA_DESC(&Buffer[0], ByteToWriteCount, true);
+    if (Error != ERR_NONE) return Error;                                    // If there is an error while transferring data then return the error
   }
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -446,12 +449,12 @@ eERRORRESULT MCP251XFD_TransmitMessageObjectToFIFO(MCP251XFD *pComp, uint8_t* me
   //--- Get address where to write the frame ---
   uint32_t NextAddress = 0;
   Error = MCP251XFD_GetNextMessageAddressFIFO(pComp, toFIFO, &NextAddress, NULL);        // Get next message address
-  if (Error != ERR_OK) return Error;                                                     // If there is an error while calling MCP251XFD_GetNextMessageAddressFIFO() then return the error
+  if (Error != ERR_NONE) return Error;                                                   // If there is an error while calling MCP251XFD_GetNextMessageAddressFIFO() then return the error
   NextAddress += MCP251XFD_RAM_ADDR;
 
   //--- Write data to RAM ---
   Error =  MCP251XFD_WriteData(pComp, NextAddress, &messageObjectToSend[0], objectSize); // Write data to RAM address
-  if (Error != ERR_OK) return Error;                                                     // If there is an error while calling MCP251XFD_WriteData() then return the error
+  if (Error != ERR_NONE) return Error;                                                   // If there is an error while calling MCP251XFD_WriteData() then return the error
 
   //--- Update FIFO and flush if asked ---
   return MCP251XFD_UpdateFIFO(pComp, toFIFO, andFlush);
@@ -524,12 +527,12 @@ eERRORRESULT MCP251XFD_ReceiveMessageObjectFromFIFO(MCP251XFD *pComp, uint8_t* m
   //--- Get address where to write the frame ---
   uint32_t NextAddress = 0;
   Error = MCP251XFD_GetNextMessageAddressFIFO(pComp, fromFIFO, &NextAddress, NULL);  // Get next message address
-  if (Error != ERR_OK) return Error;                                                 // If there is an error while calling MCP251XFD_GetNextMessageAddressFIFO() then return the error
+  if (Error != ERR_NONE) return Error;                                               // If there is an error while calling MCP251XFD_GetNextMessageAddressFIFO() then return the error
   NextAddress += MCP251XFD_RAM_ADDR;                                                 // Add RAM offset address
 
-  //--- Write data to RAM ---
+  //--- Read data from RAM ---
   Error =  MCP251XFD_ReadData(pComp, NextAddress, &messageObjectGet[0], objectSize); // Read data to RAM address
-  if (Error != ERR_OK) return Error;                                                 // If there is an error while calling MCP251XFD_ReadData() then return the error
+  if (Error != ERR_NONE) return Error;                                               // If there is an error while calling MCP251XFD_ReadData() then return the error
 
   //--- Update FIFO ---
   return MCP251XFD_UpdateFIFO(pComp, fromFIFO, false);                               // Can't flush a receive FIFO
@@ -557,7 +560,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
   if (timeStamp == NULL) BytesToGet -= sizeof(uint32_t);                                   // Time Stamp not needed = 4 bytes less
   if ((BytesToGet & 0x3) != 0) BytesToGet = (BytesToGet & 0xFC) + 4;                       // Adjust to the upper modulo 4 bytes (mandatory for RAM access)
   Error = MCP251XFD_ReceiveMessageObjectFromFIFO(pComp, &Buffer[0], BytesToGet, fromFIFO); // Read bytes from RAM
-  if (Error != ERR_OK) return Error;                                                       // If there is an error while calling MCP251XFD_ReceiveMessageObjectFromFIFO() then return the error
+  if (Error != ERR_NONE) return Error;                                                     // If there is an error while calling MCP251XFD_ReceiveMessageObjectFromFIFO() then return the error
 
   //--- Extract message ID (R0) ---
   bool Extended   = (Message->R1.IDE == 1);
@@ -596,7 +599,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
     }
   }
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -627,7 +630,7 @@ eERRORRESULT MCP251XFD_GetCRCEvents(MCP251XFD *pComp, setMCP251XFD_CRCEvents* ev
   eERRORRESULT Error;
 
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CRC_FLAGS, (uint8_t*)events); // Read status of the CRC register (third byte only)
-  if (Error != ERR_OK) return Error;                                           // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                         // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   *events = (setMCP251XFD_CRCEvents)(*events & MCP251XFD_CRC_EVENTS_MASK);     // Get CRC error interrupt flag status and CRC command format error interrupt flag status
   if (lastCRCMismatch != NULL)
   {
@@ -668,7 +671,7 @@ eERRORRESULT MCP251XFD_GetECCEvents(MCP251XFD *pComp, setMCP251XFD_ECCEvents* ev
   eERRORRESULT Error;
 
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_ECCSTAT_FLAGS, (uint8_t*)events);      // Read status of the ECC register (first bytes only)
-  if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                  // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   if (lastErrorAddress != NULL)
   {
     Error = MCP251XFD_ReadSFR16(pComp, RegMCP251XFD_ECCSTAT_ERRADDR, lastErrorAddress); // Read Address where last ECC error occurred (last 2 bytes only)
@@ -695,7 +698,7 @@ eERRORRESULT MCP251XFD_ConfigurePins(MCP251XFD *pComp, eMCP251XFD_GPIO0Mode GPIO
   if ( CLKOasSOF                                                                            ) Config |= MCP251XFD_SFR_IOCON8_SOF;        // If the pin CLKO/SOF is in SOF mode then set SOF signal on CLKO pin
   if ( INTOutMode   == MCP251XFD_PINS_OPENDRAIN_OUT                                         ) Config |= MCP251XFD_SFR_IOCON8_INTOD;      // If all interrupt pins mode are open drain mode then set open drain output
   Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_IOCON_PINMODE, Config);                                                                // Write configuration to the IOCON register (last byte only)
-  if (Error != ERR_OK) return Error;                                                                                                     // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                                                   // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   Config = MCP251XFD_SFR_IOCON8_XSTBYDIS | MCP251XFD_SFR_IOCON8_GPIO0_OUTPUT | MCP251XFD_SFR_IOCON8_GPIO1_OUTPUT; // By default, disable all controls
   if (GPIO0PinMode == MCP251XFD_PIN_AS_XSTBY   ) Config |= MCP251XFD_SFR_IOCON8_XSTBYEN;                          // If the pin INT0/GPIO0/XSTBY is in XSTBY mode then enable XSTBY mode
@@ -723,9 +726,6 @@ eERRORRESULT MCP251XFD_SetGPIOPinsDirection(MCP251XFD *pComp, uint8_t pinsDirect
 }
 
 
-
-
-
 //=============================================================================
 // Get GPIO pins input level of the MCP251XFD device
 //=============================================================================
@@ -733,9 +733,6 @@ eERRORRESULT MCP251XFD_GetGPIOPinsInputLevel(MCP251XFD *pComp, uint8_t *pinsStat
 {
   return MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_IOCON_INLEVEL, pinsState); // Read actual state of the input pins in the IOCON register (third byte only)
 }
-
-
-
 
 
 //=============================================================================
@@ -759,7 +756,7 @@ eERRORRESULT MCP251XFD_SetGPIOPinsOutputLevel(MCP251XFD *pComp, uint8_t pinsLeve
 
 //**********************************************************************************************************************************************************
 //=============================================================================
-// Calculate Bit Time for CAN2.0 or CAN-FD Configuration for the MCP251XFD device
+// Calculate Bit Time for CAN2.0 or CAN-FD configuration for the MCP251XFD device
 //=============================================================================
 eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, const uint32_t desiredNominalBitrate, const uint32_t desiredDataBitrate, MCP251XFD_BitTimeConfig *pConf)
 {
@@ -973,7 +970,7 @@ eERRORRESULT MCP251XFD_CalculateBitrateStatistics(const uint32_t fsysclk, MCP251
     pConf->Stats->OscTolC5   = ((((pConf->DSJW+1) * 10000) - MaxBRP) / (2 * (((2 * NTQbits - (pConf->NTSEG2+1)) * NBRP) / DBRP + (pConf->DTSEG2+1) + 4 * DTQbits))); // Condition 5 for the maximum tolerance of the oscillator with 2 digits after the decimal point (Equation 3-16 of MCP25XXFD Family Reference Manual) [WARNING: An error seems to be present in the original formula]
     pConf->Stats->OscTolerance = (pConf->Stats->OscTolC5 < pConf->Stats->OscTolerance ? pConf->Stats->OscTolC5 : pConf->Stats->OscTolerance);                        // Oscillator Tolerance, minimum of conditions 1-5 (Equation 3-11 of MCP25XXFD Family Reference Manual)
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -993,7 +990,7 @@ eERRORRESULT MCP251XFD_SetBitTimeConfiguration(MCP251XFD *pComp, MCP251XFD_BitTi
   NConfig.CiNBTCFG = MCP251XFD_CAN_CiNBTCFG_BRP_SET(pConf->NBRP) | MCP251XFD_CAN_CiNBTCFG_TSEG1_SET(pConf->NTSEG1)     // Set Nominal Bit Time configuration
                    | MCP251XFD_CAN_CiNBTCFG_TSEG2_SET(pConf->NTSEG2) | MCP251XFD_CAN_CiNBTCFG_SJW_SET(pConf->NSJW);
   Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiNBTCFG, &NConfig.Bytes[0], sizeof(MCP251XFD_CiNBTCFG_Register));   // Write configuration to the CiNBTCFG register
-  if (Error != ERR_OK) return Error;                                                                                   // If there is an error while calling MCP251XFD_WriteData() then return the error
+  if (Error != ERR_NONE) return Error;                                                                                 // If there is an error while calling MCP251XFD_WriteData() then return the error
 
   if (!can20only)
   {
@@ -1002,7 +999,7 @@ eERRORRESULT MCP251XFD_SetBitTimeConfiguration(MCP251XFD *pComp, MCP251XFD_BitTi
     DConfig.CiDBTCFG = MCP251XFD_CAN_CiDBTCFG_BRP_SET(pConf->DBRP) | MCP251XFD_CAN_CiDBTCFG_TSEG1_SET(pConf->DTSEG1)   // Set Data Bit Time configuration
                      | MCP251XFD_CAN_CiDBTCFG_TSEG2_SET(pConf->DTSEG2) | MCP251XFD_CAN_CiDBTCFG_SJW_SET(pConf->DSJW);
     Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiDBTCFG, &DConfig.Bytes[0], sizeof(MCP251XFD_CiDBTCFG_Register)); // Write configuration to the CiDBTCFG register
-    if (Error != ERR_OK) return Error;                                                                                 // If there is an error while calling MCP251XFD_WriteData() then return the error
+    if (Error != ERR_NONE) return Error;                                                                               // If there is an error while calling MCP251XFD_WriteData() then return the error
 
     //--- Write Data Bit Time configuration -----------------
     MCP251XFD_CiTDC_Register TConfig;
@@ -1010,12 +1007,12 @@ eERRORRESULT MCP251XFD_SetBitTimeConfiguration(MCP251XFD *pComp, MCP251XFD_BitTi
                   | MCP251XFD_CAN_CiTDC_TDCMOD_SET(pConf->TDCMOD) | MCP251XFD_CAN_CiTDC_EDGFLTDIS;
     if (pConf->EDGE_FILTER) TConfig.CiTDC |= MCP251XFD_CAN_CiTDC_EDGFLTEN;                                             // Enable Edge Filter if asked
     Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiTDC, &TConfig.Bytes[0], sizeof(MCP251XFD_CiTDC_Register));       // Write configuration to the CiDBTCFG register
-    if (Error != ERR_OK) return Error;                                                                                 // If there is an error while calling MCP251XFD_WriteData()
+    if (Error != ERR_NONE) return Error;                                                                               // If there is an error while calling MCP251XFD_WriteData()
     pComp->InternalConfig |= MCP251XFD_CANFD_ENABLED;                                                                  // CAN-FD is enable if Data Bitrate is set
   }
   else pComp->InternalConfig &= ~MCP251XFD_CANFD_ENABLED;                                                              // Set no CAN-FD
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1032,7 +1029,7 @@ eERRORRESULT MCP251XFD_AbortAllTransmissions(MCP251XFD *pComp)
   uint8_t Config;
 
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+3, &Config); // Read actual configuration of the CiCON register (Last byte only)
-  if (Error != ERR_OK) return Error;                                // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                              // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   Config |= MCP251XFD_CAN_CiCON8_ABAT;                              // Add ABAT flag
   return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiCON+3, Config);  // Write the new configuration to the CiCON register (Last byte only)
 }
@@ -1048,9 +1045,9 @@ eERRORRESULT MCP251XFD_GetActualOperationMode(MCP251XFD *pComp, eMCP251XFD_Opera
   uint8_t Config;
 
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+2, &Config); // Read actual configuration of the CiCON register (Third byte only)
-  if (Error != ERR_OK) return Error;                                // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                              // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   *actualMode = MCP251XFD_CAN_CiCON8_OPMOD_GET(Config);             // Get actual mode
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1069,23 +1066,23 @@ eERRORRESULT MCP251XFD_RequestOperationMode(MCP251XFD *pComp, eMCP251XFD_Operati
   if (((pComp->InternalConfig & MCP251XFD_CANFD_ENABLED) == 0)
    && (newMode == MCP251XFD_NORMAL_CANFD_MODE)) return ERR__CONFIGURATION;  // Can't change to CAN-FD mode if the bitrate is not configured for
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+3, &Config);         // Read actual configuration of the CiCON register (Last byte only)
-  if (Error != ERR_OK) return Error;                                        // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                      // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   Config &= ~MCP251XFD_CAN_CiCON8_REQOP_Mask;                               // Clear request mode bits
   Config |= MCP251XFD_CAN_CiCON8_REQOP_SET(newMode);                        // Set request operation mode bits
   Config |= MCP251XFD_CAN_CiCON8_ABAT;                                      // Need to stop all transmissions before changing configuration
   Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiCON+3, Config);         // Write the new configuration to the CiCON register (Last byte only)
-  if (Error != ERR_OK) return Error;                                        // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                      // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   if (waitOperationChange)
   {
     Error = MCP251XFD_WaitOperationModeChange(pComp, newMode);              // Wait for operation mode change
-    if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_WaitOperationModeChange() then return the error
+    if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_WaitOperationModeChange() then return the error
     Error = MCP251XFD_ClearInterruptEvents(pComp, MCP251XFD_INT_OPERATION_MODE_CHANGE_EVENT); // Automatically clear the Operation Mode Change Flag
-    if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_ClearInterruptEvents() then return the error
+    if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_ClearInterruptEvents() then return the error
   }
   pComp->InternalConfig &= ~MCP251XFD_DEV_PS_Mask;
   pComp->InternalConfig |= MCP251XFD_DEV_PS_SET(MCP251XFD_DEVICE_NORMAL_POWER_STATE); // Set normal power state even if the operation mode is sleep, this value will be changed to the good value by the function MCP251XFD_EnterSleepMode()
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1105,12 +1102,12 @@ eERRORRESULT MCP251XFD_WaitOperationModeChange(MCP251XFD *pComp, eMCP251XFD_Oper
   while (true)
   {
     Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+2, &Config); // Read current configuration mode with the current driver configuration
-    if (Error != ERR_OK) return Error;                                // If there is an error while reading the register then return the error
+    if (Error != ERR_NONE) return Error;                              // If there is an error while reading the register then return the error
     if (MCP251XFD_CAN_CiCON8_OPMOD_GET(Config) == askedMode) break;   // Check if the controller is in configuration mode
-    if (MCP251XFD_TIME_DIFF(StartTime, pComp->fnGetCurrentms()) > 7)  // Wait at least 7ms because the longest message is 731 bit long and the minimum bitrate is 125kbit/s that mean 5,8ms + 2x 6bytes @ 1Mbit/s over SPI that mean 96�s = ~6ms + 1ms because GetCurrentms can be 1 cycle before the new ms
+    if (MCP251XFD_TIME_DIFF(StartTime, pComp->fnGetCurrentms()) > 7)  // Wait at least 7ms because the longest message is 731 bit long and the minimum bitrate is 125kbit/s that mean 5,8ms + 2x 6bytes @ 1Mbit/s over SPI that mean 96µs = ~6ms + 1ms because GetCurrentms can be 1 cycle before the new ms
       return ERR__DEVICE_TIMEOUT;                                     // Timeout? return the error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1124,7 +1121,7 @@ eERRORRESULT MCP251XFD_ConfigureCANController(MCP251XFD *pComp, setMCP251XFD_CAN
   uint32_t Config;
 
   Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiCON, &Config);                                         // Read actual configuration of the CiTDC register (Last byte only)
-  if (Error != ERR_OK) return Error;                                                                       // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
+  if (Error != ERR_NONE) return Error;                                                                     // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
   if (MCP251XFD_CAN_CiCON_OPMOD_GET(Config) != MCP251XFD_CONFIGURATION_MODE) return ERR__NEED_CONFIG_MODE; // Device must be in Configuration Mode to perform the configuration
 
   Config &= ~(MCP251XFD_CAN_CiCON_TXBWS_Mask | MCP251XFD_CAN_CiCON_REQOP_Mask | MCP251XFD_CAN_CiCON_ABAT   // Clear by default all flags that can be changed
@@ -1140,11 +1137,11 @@ eERRORRESULT MCP251XFD_ConfigureCANController(MCP251XFD *pComp, setMCP251XFD_CAN
   if ((flags & MCP251XFD_CAN_PROTOCOL_EXCEPT_AS_FORM_ERROR) > 0) Config |= MCP251XFD_CAN_CiCON_PXEDIS;     // Set Protocol Exception is treated as a Form Error. A recessive "res bit" following a recessive FDF bit is called a Protocol Exception
   if ((flags & MCP251XFD_CANFD_USE_ISO_CRC                ) > 0) Config |= MCP251XFD_CAN_CiCON_ISOCRCEN;   // Set Include Stuff Bit Count in CRC Field and use Non-Zero CRC Initialization Vector according to ISO 11898-1:2015
   Error = MCP251XFD_WriteSFR32(pComp, RegMCP251XFD_CiCON, Config);                                         // Write new configuration to the CiTDC register (Last byte only)
-  if (Error != ERR_OK) return Error;                                                                       // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                     // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   uint8_t TConfig;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiTDC_CONFIG, &TConfig); // Read actual configuration of the CiTDC register (Last byte only)
-  if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   TConfig &= ~MCP251XFD_CAN_CiTDC8_SID11EN;                               // Clear the flag
   if ((flags & MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11) > 0)                 // Use SID11?
   {
@@ -1173,7 +1170,7 @@ eERRORRESULT MCP251XFD_ConfigureSleepMode(MCP251XFD *pComp, bool useLowPowerMode
 
   uint8_t Config;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_OSC_CONFIG, &Config);                  // Read the Oscillator Register configuration
-  if (Error != ERR_OK) return Error;                                                    // If there is an error while reading the SFR then return the error
+  if (Error != ERR_NONE) return Error;                                                  // If there is an error while reading the SFR then return the error
   if (useLowPowerMode)                                                                  // If the device support the Low Power Mode
   {
     Config |= MCP251XFD_SFR_OSC8_LPMEN;                                                 // Set OSC.LPMEN bit
@@ -1185,18 +1182,18 @@ eERRORRESULT MCP251XFD_ConfigureSleepMode(MCP251XFD *pComp, bool useLowPowerMode
     pComp->InternalConfig &= ~MCP251XFD_SFR_OSC8_LPMEN;                                 // Clear the LPM in the internal config
   }
   Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_OSC_CONFIG, Config);                  // Write the Oscillator Register configuration
-  if (Error != ERR_OK) return Error;                                                    // If there is an error while writing the SFR then return the error
+  if (Error != ERR_NONE) return Error;                                                  // If there is an error while writing the SFR then return the error
 
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+1, &Config);                     // Read actual flags configuration of the RegMCP251XFD_CiCON register (Second byte only)
-  if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                  // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   Config &= ~(MCP251XFD_CAN_CiCON8_WFT_Mask | MCP251XFD_CAN_CiCON8_WAKFIL);             // Clear actual filter configuration
   if (wakeUpFilter != MCP251XFD_NO_FILTER)
     Config |= MCP251XFD_CAN_CiCON8_WFT_SET(wakeUpFilter) | MCP251XFD_CAN_CiCON8_WAKFIL; // Enable wake-up filter
   Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiCON+1, Config);                     // Write new flags configuration of the RegMCP251XFD_CiCON register (Second byte only)
-  if (Error != ERR_OK) return Error;                                                    // If there is an error while writing the SFR then return the error
+  if (Error != ERR_NONE) return Error;                                                  // If there is an error while writing the SFR then return the error
 
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiINT_CONFIG+1, &Config);              // Read actual flags configuration of the RegMCP251XFD_CiINT register (Last byte only)
-  if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                  // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   if (interruptBusWakeUp) Config |= MCP251XFD_CAN_CiINT8_WAKIE;                         // Enable the Bus Wake Up Interrupt
   else Config &= ~MCP251XFD_CAN_CiINT8_WAKIE;                                           // Disable the Bus Wake Up Interrupt
   return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiINT_CONFIG+1, Config);               // Write new flags configuration of the RegMCP251XFD_CiINT register (Last byte only)
@@ -1218,12 +1215,12 @@ eERRORRESULT MCP251XFD_EnterSleepMode(MCP251XFD *pComp)
   if (LastPS == MCP251XFD_DEVICE_SLEEP_NOT_CONFIGURED) return ERR__CONFIGURATION;            // No configuration available to enter sleep mode
   if (LastPS != MCP251XFD_DEVICE_NORMAL_POWER_STATE)   return ERR__ALREADY_IN_SLEEP;         // Device already in sleep mode
   Error = MCP251XFD_RequestOperationMode(pComp, MCP251XFD_SLEEP_MODE, false);                // Set Sleep mode
-  if (Error != ERR_OK) return Error;                                                         // If there is an error while calling MCP251XFD_RequestOperationMode() then return the error
+  if (Error != ERR_NONE) return Error;                                                       // If there is an error while calling MCP251XFD_RequestOperationMode() then return the error
   pComp->InternalConfig &= ~MCP251XFD_DEV_PS_Mask;
   if ((pComp->InternalConfig & MCP251XFD_SFR_OSC8_LPMEN) > 0)
        pComp->InternalConfig |= MCP251XFD_DEV_PS_SET(MCP251XFD_DEVICE_LOWPOWER_SLEEP_STATE); // If Low Power Mode then the device will be in low power mode
   else pComp->InternalConfig |= MCP251XFD_DEV_PS_SET(MCP251XFD_DEVICE_SLEEP_STATE);          // Else the device will be in sleep mode
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1244,14 +1241,14 @@ eERRORRESULT MCP251XFD_IsDeviceInSleepMode(MCP251XFD *pComp, bool* isInSleepMode
   if (LastPS == MCP251XFD_DEVICE_LOWPOWER_SLEEP_STATE) return ERR__NOT_SUPPORTED;       // Here if the device is in DEVICE_LOWPOWER_SLEEP_STATE, a simple assert of SPI CS exit the LPM then this function is not supported
   uint8_t Config;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_OSC_CONFIG, &Config);                  // Read the Oscillator Register configuration
-  if (Error != ERR_OK) return Error;                                                    // If there is an error while reading the SFR then return the error
+  if (Error != ERR_NONE) return Error;                                                  // If there is an error while reading the SFR then return the error
   *isInSleepMode = ((Config & MCP251XFD_SFR_OSC8_OSCDIS) > 0);                          // Return the actual state of the sleep mode
   if (*isInSleepMode == false)
   {
     pComp->InternalConfig &= ~MCP251XFD_DEV_PS_Mask;
     pComp->InternalConfig |= MCP251XFD_DEV_PS_SET(MCP251XFD_DEVICE_NORMAL_POWER_STATE); // If the function return is not in sleep mode then refresh the internal state of the device
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1271,18 +1268,18 @@ eERRORRESULT MCP251XFD_WakeUp(MCP251XFD *pComp, eMCP251XFD_PowerStates *fromStat
 
   uint8_t Config;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_OSC_CONFIG, &Config);                // Read the Oscillator Register configuration (Here if the device is in DEVICE_LOWPOWER_SLEEP_STATE, the reset already happened because a simple assert of SPI CS exit the LPM)
-  if (Error != ERR_OK) return Error;                                                  // If there is an error while reading the SFR then return the error
+  if (Error != ERR_NONE) return Error;                                                // If there is an error while reading the SFR then return the error
 
   if (LastPS != MCP251XFD_DEVICE_LOWPOWER_SLEEP_STATE)                                // In Sleep mode or a false normal state, there is more to do
   {
     Config &= ~MCP251XFD_SFR_OSC8_OSCDIS;                                             // Clear OSC.OSCDIS bit
     Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_OSC_CONFIG, Config);              // Write the Oscillator Register configuration
-    if (Error != ERR_OK) return Error;                                                // If there is an error while writing the SFR then return the error
+    if (Error != ERR_NONE) return Error;                                              // If there is an error while writing the SFR then return the error
   }
   if (fromState != NULL) *fromState = LastPS;                                         // Return the previous sleep mode
   pComp->InternalConfig &= ~MCP251XFD_DEV_PS_Mask;
   pComp->InternalConfig |= MCP251XFD_DEV_PS_SET(MCP251XFD_DEVICE_NORMAL_POWER_STATE); // Set normal power state
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1322,14 +1319,14 @@ eERRORRESULT MCP251XFD_ConfigureTimeStamp(MCP251XFD *pComp, bool enableTS, eMCP2
   {
     Config.CiTSCON |= MCP251XFD_CAN_CiTSCON_TBCEN;                               // Add Enable TS flag
     Config.CiTSCON |= MCP251XFD_CAN_CiTSCON_TSSP_SET(samplePoint);               // Set sample point position
-    Config.CiTSCON |= MCP251XFD_CAN_CiTSCON_TBCPRE_SET(prescaler - 1);           // Set prescaler (time in �s is: 1/SYSCLK/TBCPRE)
+    Config.CiTSCON |= MCP251XFD_CAN_CiTSCON_TBCPRE_SET(prescaler - 1);           // Set prescaler (time in µs is: 1/SYSCLK/TBCPRE)
   }
   Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiTSCON, &Config.Bytes[0], 3); // Write new configuration to the CiTDC register (First 3-bytes only)
-  if (Error != ERR_OK) return Error;                                             // If there is an error while calling MCP251XFD_WriteData() then return the error
+  if (Error != ERR_NONE) return Error;                                           // If there is an error while calling MCP251XFD_WriteData() then return the error
 
   uint8_t Flags;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiINT_CONFIG, &Flags);          // Read actual flags configuration of the CiINT register (Third byte only)
-  if (Error != ERR_OK) return Error;                                             // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                           // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   if (interruptBaseCounter) Flags |= MCP251XFD_CAN_CiINT8_TBCIE;                 // Add Time Base Counter Interrupt Enable flag
   else Flags &= ~MCP251XFD_CAN_CiINT8_TBCIE;                                     // Else clear the interrupt flag
   return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiINT_CONFIG, Flags);           // Write the new flags configuration to the CiINT register (Third byte only)
@@ -1370,12 +1367,12 @@ eERRORRESULT MCP251XFD_ConfigureTEF(MCP251XFD *pComp, bool enableTEF, MCP251XFD_
   //--- Enable/Disable TEF ---
   uint8_t CiCONflags;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+2, &CiCONflags);                                         // Read actual flags configuration of the RegMCP251XFD_CiCON register (Third byte only)
-  if (Error != ERR_OK) return Error;                                                                            // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                          // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   if (MCP251XFD_CAN_CiCON8_OPMOD_GET(CiCONflags) != MCP251XFD_CONFIGURATION_MODE) return ERR__NEED_CONFIG_MODE; // Device must be in Configuration Mode to perform the configuration
   if (enableTEF) CiCONflags |= MCP251XFD_CAN_CiCON8_STEF;                                                       // Add Enable Transmit Event FIFO flag
   else CiCONflags &= ~MCP251XFD_CAN_CiCON8_STEF;                                                                // Else Disable Transmit Event FIFO flag
   Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiCON+2, CiCONflags);                                         // Write the new flags configuration to the RegMCP251XFD_CiCON register (Third byte only)
-  if (Error != ERR_OK) return Error;                                                                            // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                          // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   //--- Configure TEF --
   if (enableTEF)
@@ -1395,7 +1392,7 @@ eERRORRESULT MCP251XFD_ConfigureTEF(MCP251XFD *pComp, bool enableTEF, MCP251XFD_
     if ((confTEF->InterruptFlags & MCP251XFD_FIFO_EVENT_FIFO_NOT_EMPTY_INT) > 0) Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFNEIE; // Add Transmit Event FIFO Not Empty Interrupt Enable
 
     Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiTEFCON, &Reg.Bytes[0], sizeof(MCP251XFD_CiTEFCON_Register)); // Write TEF configuration
-    if (Error != ERR_OK) return Error;                                                                             // If there is an error while calling MCP251XFD_WriteData() then return the error
+    if (Error != ERR_NONE) return Error;                                                                           // If there is an error while calling MCP251XFD_WriteData() then return the error
 
     if (confTEF->RAMInfos != NULL)
     {
@@ -1405,7 +1402,7 @@ eERRORRESULT MCP251XFD_ConfigureTEF(MCP251XFD *pComp, bool enableTEF, MCP251XFD_
     }
   }
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1420,12 +1417,12 @@ eERRORRESULT MCP251XFD_ConfigureTXQ(MCP251XFD *pComp, bool enableTXQ, MCP251XFD_
   //--- Enable/Disable TXQ ---
   uint8_t CiCONflags;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON+2, &CiCONflags);                                         // Read actual flags configuration of the RegMCP251XFD_CiCON register (Third byte only)
-  if (Error != ERR_OK) return Error;                                                                            // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                          // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   if (MCP251XFD_CAN_CiCON8_OPMOD_GET(CiCONflags) != MCP251XFD_CONFIGURATION_MODE) return ERR__NEED_CONFIG_MODE; // Device must be in Configuration Mode to perform the configuration
   if (enableTXQ) CiCONflags |= MCP251XFD_CAN_CiCON8_TXQEN;                                                      // Add Enable Transmit Queue flag
   else CiCONflags &= ~MCP251XFD_CAN_CiCON8_TXQEN;                                                               // Else Disable Transmit Queue flag
   Error = MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiCON+2, CiCONflags);                                         // Write the new flags configuration to the RegMCP251XFD_CiCON register (Third byte only)
-  if (Error != ERR_OK) return Error;                                                                            // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                          // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   //--- Configure TXQ --
   if (enableTXQ)
@@ -1446,7 +1443,7 @@ eERRORRESULT MCP251XFD_ConfigureTXQ(MCP251XFD *pComp, bool enableTXQ, MCP251XFD_
     if ((confTXQ->InterruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_NOT_FULL_INT) > 0) Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_TXQNIE; // Add Transmit FIFO Not Full Interrupt Enable
 
     Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiTXQCON, &Reg.Bytes[0], sizeof(MCP251XFD_CiTXQCON_Register)); // Write TXQ configuration
-    if (Error != ERR_OK) return Error;                                                                             // If there is an error while calling MCP251XFD_WriteData() then return the error
+    if (Error != ERR_NONE) return Error;                                                                           // If there is an error while calling MCP251XFD_WriteData() then return the error
 
     if (confTXQ->RAMInfos != NULL)
     {
@@ -1457,7 +1454,7 @@ eERRORRESULT MCP251XFD_ConfigureTXQ(MCP251XFD *pComp, bool enableTXQ, MCP251XFD_
     if ((Size * ((uint8_t)confTXQ->Size + 1u)) > MCP251XFD_RAM_SIZE) return ERR__OUT_OF_MEMORY;
   }
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1476,7 +1473,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFO(MCP251XFD *pComp, MCP251XFD_FIFO *confFIFO)
   //--- Device in Configuration Mode ---
   eMCP251XFD_OperationMode OpMode;
   Error = MCP251XFD_GetActualOperationMode(pComp, &OpMode);                 // Get actual Operational Mode
-  if (Error != ERR_OK) return Error;                                        // If there is an error while calling MCP251XFD_GetActualOperationMode() then return the error
+  if (Error != ERR_NONE) return Error;                                      // If there is an error while calling MCP251XFD_GetActualOperationMode() then return the error
   if (OpMode != MCP251XFD_CONFIGURATION_MODE) return ERR__NEED_CONFIG_MODE; // Device must be in Configuration Mode to perform the configuration
 
   //--- Configure FIFO --
@@ -1508,7 +1505,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFO(MCP251XFD *pComp, MCP251XFD_FIFO *confFIFO)
 
   uint16_t Address = RegMCP251XFD_CiFIFOCONm + (MCP251XFD_FIFO_REG_SIZE * ((uint16_t)confFIFO->Name - 1u)); // Select the address of the FIFO
   Error = MCP251XFD_WriteData(pComp, Address, &Reg.Bytes[0], sizeof(MCP251XFD_CiFIFOCONm_Register));        // Write FIFO configuration
-  if (Error != ERR_OK) return Error;                                                                        // If there is an error while calling MCP251XFD_WriteData() then return the error
+  if (Error != ERR_NONE) return Error;                                                                      // If there is an error while calling MCP251XFD_WriteData() then return the error
 
   if (confFIFO->RAMInfos != NULL)
   {
@@ -1518,7 +1515,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFO(MCP251XFD *pComp, MCP251XFD_FIFO *confFIFO)
   }
   if ((Size * ((uint8_t)confFIFO->Size + 1u)) > MCP251XFD_RAM_SIZE) return ERR__OUT_OF_MEMORY;
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1531,7 +1528,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
 #ifdef CHECK_NULL_PARAM
   if (listFIFO == NULL) return ERR__PARAMETER_ERROR;
 #endif
-  if (count == 0) return ERR_OK;
+  if (count == 0) return ERR_NONE;
   if (count > MCP251XFD_FIFO_CONF_MAX) return ERR__OUT_OF_RANGE;
   eERRORRESULT Error;
   uint16_t TotalSize = 0;
@@ -1551,7 +1548,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
       UseTmpRAMInfos = (listFIFO[zTEF].RAMInfos == NULL);           // Is there a RAMInfos structure attached to the configuration?
       if (UseTmpRAMInfos) listFIFO[zTEF].RAMInfos = &TmpRAMInfos;   // If not RAMInfos structure attached, then set a temporary one
       Error = MCP251XFD_ConfigureTEF(pComp, true, &listFIFO[zTEF]); // Configure the TEF
-      if (Error != ERR_OK) return Error;                            // If there is an error while calling MCP251XFD_ConfigureTEF() then return the error
+      if (Error != ERR_NONE) return Error;                          // If there is an error while calling MCP251XFD_ConfigureTEF() then return the error
       TotalSize += listFIFO[zTEF].RAMInfos->ByteInFIFO;             // Add TEF size to the total
       if (UseTmpRAMInfos) listFIFO[zTEF].RAMInfos = NULL;           // If not RAMInfos structure attached, then unset the temporary one
     }
@@ -1559,7 +1556,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
   if (TEFcount == 0)
   {
     Error = MCP251XFD_ConfigureTEF(pComp, false, NULL);             // Deactivate the TEF
-    if (Error != ERR_OK) return Error;                              // If there is an error while calling MCP251XFD_ConfigureTEF() then return the error
+    if (Error != ERR_NONE) return Error;                            // If there is an error while calling MCP251XFD_ConfigureTEF() then return the error
   }
 
   //--- Second: Configure TXQ if any ---
@@ -1575,7 +1572,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
       UseTmpRAMInfos = (listFIFO[zTXQ].RAMInfos == NULL);                        // Is there a RAMInfos structure attached to the configuration?
       if (UseTmpRAMInfos) listFIFO[zTXQ].RAMInfos = &TmpRAMInfos;                // If not RAMInfos structure attached, then set a temporary one
       Error = MCP251XFD_ConfigureTXQ(pComp, true, &listFIFO[zTXQ]);              // Configure the TXQ
-      if (Error != ERR_OK) return Error;                                         // If there is an error while calling MCP251XFD_ConfigureTXQ() then return the error
+      if (Error != ERR_NONE) return Error;                                       // If there is an error while calling MCP251XFD_ConfigureTXQ() then return the error
       listFIFO[zTXQ].RAMInfos->RAMStartAddress = MCP251XFD_RAM_ADDR + TotalSize; // Set start address
       TotalSize += listFIFO[zTXQ].RAMInfos->ByteInFIFO;                          // Add TXQ size to the total
       if (UseTmpRAMInfos) listFIFO[zTXQ].RAMInfos = NULL;                        // If not RAMInfos structure attached, then unset the temporary one
@@ -1584,7 +1581,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
   if (TXQcount == 0)
   {
     Error = MCP251XFD_ConfigureTXQ(pComp, false, NULL);                          // Deactivate the TxQ
-    if (Error != ERR_OK) return Error;                                           // If there is an error while calling MCP251XFD_ConfigureTEF() then return the error
+    if (Error != ERR_NONE) return Error;                                         // If there is an error while calling MCP251XFD_ConfigureTEF() then return the error
   }
 
   //--- Third: Configure FIFOs if any ---
@@ -1598,7 +1595,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
         for (int32_t clearFIFO = LastFIFO + 1; clearFIFO < zFIFO; clearFIFO++)     // For each FIFO not listed between 2 FIFO
         {
           Error = MCP251XFD_ClearFIFOConfiguration(pComp, (eMCP251XFD_FIFO)zFIFO); // Clear FIFO configuration
-          if (Error != ERR_OK) return Error;                                       // If there is an error while calling MCP251XFD_ClearFIFOConfiguration() then return the error
+          if (Error != ERR_NONE) return Error;                                     // If there is an error while calling MCP251XFD_ClearFIFOConfiguration() then return the error
           TotalSize += MCP251XFD_FIFO_MIN_SIZE;                                    // Add min FIFO size. A FIFO cannot be completely disable so, it takes the minimum possible size
         }
         LastFIFO = zFIFO;
@@ -1606,7 +1603,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
         UseTmpRAMInfos = (listFIFO[z].RAMInfos == NULL);                        // Is there a RAMInfos structure attached to the configuration?
         if (UseTmpRAMInfos) listFIFO[z].RAMInfos = &TmpRAMInfos;                // If not RAMInfos structure attached, then set a temporary one
         Error = MCP251XFD_ConfigureFIFO(pComp, &listFIFO[z]);                   // Configure the FIFO
-        if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_ConfigureFIFO() then return the error
+        if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_ConfigureFIFO() then return the error
         listFIFO[z].RAMInfos->RAMStartAddress = MCP251XFD_RAM_ADDR + TotalSize; // Set start address
         TotalSize += listFIFO[z].RAMInfos->ByteInFIFO;                          // Add FIFO size to the total
         if (UseTmpRAMInfos) listFIFO[z].RAMInfos = NULL;                        // If not RAMInfos structure attached, then unset the temporary one
@@ -1617,7 +1614,7 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
   //--- Check RAM used ---
   if (TotalSize > MCP251XFD_RAM_SIZE) return ERR__OUT_OF_MEMORY;
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1633,15 +1630,15 @@ eERRORRESULT MCP251XFD_ResetFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name)
   //--- Device in Configuration Mode ---
   eMCP251XFD_OperationMode OpMode;
   Error = MCP251XFD_GetActualOperationMode(pComp, &OpMode);                                               // Get actual Operational Mode
-  if (Error != ERR_OK) return Error;                                                                      // If there is an error while calling MCP251XFD_GetActualOperationMode() then return the error
-  if (OpMode == MCP251XFD_CONFIGURATION_MODE) return ERR_OK;                                              // Device in Configuration Mode automatically reset the FIFO
+  if (Error != ERR_NONE) return Error;                                                                    // If there is an error while calling MCP251XFD_GetActualOperationMode() then return the error
+  if (OpMode == MCP251XFD_CONFIGURATION_MODE) return ERR_NONE;                                            // Device in Configuration Mode automatically reset the FIFO
 
   //--- Set Reset of the FIFO ---
   uint16_t Address = RegMCP251XFD_CiFIFOCONm_CONTROL + (MCP251XFD_FIFO_REG_SIZE * ((uint16_t)name - 1u)); // Select the address of the FIFO
   if (name == MCP251XFD_TEF) Address = RegMCP251XFD_CiTEFCON_CONTROL;                                     // If it's the TEF then select its address
   if (name == MCP251XFD_TXQ) Address = RegMCP251XFD_CiTXQCON_CONTROL;                                     // If it's the TXQ then select its address
   Error = MCP251XFD_WriteSFR8(pComp, Address, MCP251XFD_CAN_CiFIFOCONm8_FRESET);                          // Write FIFO configuration (Second byte only)
-  if (Error != ERR_OK) return Error;                                                                      // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                    // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   //--- Now wait the reset to be effective ---
   uint8_t Config = 0;
@@ -1649,11 +1646,11 @@ eERRORRESULT MCP251XFD_ResetFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name)
   while (true)
   {
     Error = MCP251XFD_ReadSFR8(pComp, Address, &Config);                                                  // Read current FIFO configuration (Second byte only)
-    if (Error != ERR_OK) return Error;                                                                    // If there is an error while reading the register then return the error
+    if (Error != ERR_NONE) return Error;                                                                  // If there is an error while reading the register then return the error
     if ((Config & MCP251XFD_CAN_CiFIFOCONm8_FRESET) == 0) break;                                          // Check if the FIFO was reset
     if (MCP251XFD_TIME_DIFF(StartTime, pComp->fnGetCurrentms()) > 3) return ERR__DEVICE_TIMEOUT;          // Wait at least 3ms. If timeout then return the error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1732,7 +1729,7 @@ eERRORRESULT MCP251XFD_GetNextMessageAddressFIFO(MCP251XFD *pComp, eMCP251XFD_FI
     if (name == MCP251XFD_TXQ) Address = RegMCP251XFD_CiTXQUA;                            // If it's the TXQ then select its address
     //--- Get FIFO status ---
     Error = MCP251XFD_ReadSFR32(pComp, Address, nextAddress);                             // Read FIFO user address
-    if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
+    if (Error != ERR_NONE) return Error;                                                  // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
   }
 
   //--- Get next message index ---
@@ -1745,10 +1742,10 @@ eERRORRESULT MCP251XFD_GetNextMessageAddressFIFO(MCP251XFD *pComp, eMCP251XFD_FI
 
     //--- Get FIFO status ---
     Error = MCP251XFD_ReadSFR8(pComp, Address, nextIndex);                                        // Read FIFO status (Second byte only)
-    if (Error != ERR_OK) return Error;                                                            // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+    if (Error != ERR_NONE) return Error;                                                          // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
     *nextIndex &= MCP251XFD_CAN_CiFIFOSTAm8_FIFOCI_Mask;
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1759,7 +1756,7 @@ eERRORRESULT MCP251XFD_GetNextMessageAddressFIFO(MCP251XFD *pComp, eMCP251XFD_FI
 eERRORRESULT MCP251XFD_ClearFIFOConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFO name)
 {
   eERRORRESULT Error = MCP251XFD_ResetFIFO(pComp, name); // Reset the FIFO
-  if (Error != ERR_OK) return Error;                     // If there is an error while calling MCP251XFD_ResetFIFO() then return the error
+  if (Error != ERR_NONE) return Error;                   // If there is an error while calling MCP251XFD_ResetFIFO() then return the error
 #ifndef __cplusplus
   MCP251XFD_FIFO ClearConf = { .Name = name, .Size = MCP251XFD_FIFO_1_MESSAGE_DEEP, .Payload = MCP251XFD_PAYLOAD_8BYTE, .Direction = MCP251XFD_RECEIVE_FIFO, .Attempts = MCP251XFD_UNLIMITED_ATTEMPTS, .Priority = MCP251XFD_MESSAGE_TX_PRIORITY1, .ControlFlags = MCP251XFD_FIFO_NO_CONTROL_FLAGS, .InterruptFlags = MCP251XFD_FIFO_NO_INTERRUPT_FLAGS, .RAMInfos = NULL, };
 #else
@@ -1783,7 +1780,7 @@ eERRORRESULT MCP251XFD_ConfigureDeviceNetFilter(MCP251XFD *pComp, eMCP251XFD_DNE
   //--- Enable/Disable DNCNT ---
   uint8_t CiCONflags;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiCON, &CiCONflags); // Read actual flags configuration of the RegMCP251XFD_CiCON register (First byte only)
-  if (Error != ERR_OK) return Error;                                  // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   CiCONflags &= ~MCP251XFD_CAN_CiCON8_DNCNT_Mask;                     // Clear DNCNT config
   CiCONflags |=  MCP251XFD_CAN_CiCON8_DNCNT_SET(filter);              // Set new filter configuration
   return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CiCON, CiCONflags);  // Write the new flags configuration to the RegMCP251XFD_CiCON register (First byte only)
@@ -1806,12 +1803,12 @@ eERRORRESULT MCP251XFD_ConfigureFilter(MCP251XFD *pComp, MCP251XFD_Filter *confF
   MCP251XFD_CiFLTCONm_Register FilterConf;
   uint16_t AddrFLTCON = RegMCP251XFD_CiFLTCONm + confFilter->Filter;      // Select the address of the FLTCON
   Error = MCP251XFD_ReadSFR8(pComp, AddrFLTCON, &FilterConf.CiFLTCONm);   // Read actual flags configuration of the RegMCP251XFD_CiFLTCONm register
-  if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   if ((FilterConf.CiFLTCONm & MCP251XFD_CAN_CiFLTCONm_ENABLE) > 0)
   {
     FilterConf.CiFLTCONm = MCP251XFD_CAN_CiFLTCONm8_DISABLE;              // Disable the filter
     Error = MCP251XFD_WriteSFR8(pComp, AddrFLTCON, FilterConf.CiFLTCONm); // Write the new flags configuration to the RegMCP251XFD_CiFLTCONm register
-    if (Error != ERR_OK) return Error;                                    // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+    if (Error != ERR_NONE) return Error;                                  // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
   }
 
   if (confFilter->EnableFilter)
@@ -1840,7 +1837,7 @@ eERRORRESULT MCP251XFD_ConfigureFilter(MCP251XFD *pComp, MCP251XFD_Filter *confF
     //--- Send the filter object config ---
     uint16_t AddrFLTObj = RegMCP251XFD_CiFLTOBJm + ((uint16_t)confFilter->Filter * MCP251XFD_FILTER_REG_SIZE); // Select the address of the CiFLTOBJ
     Error = MCP251XFD_WriteSFR32(pComp, AddrFLTObj, FltObj.CiFLTOBJm);                                         // Write the new flags configuration to the RegMCP251XFD_CiFLTOBJm register
-    if (Error != ERR_OK) return Error;                                                                         // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
+    if (Error != ERR_NONE) return Error;                                                                       // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
 
 
     //=== Fill Filter Mask register ===
@@ -1850,15 +1847,15 @@ eERRORRESULT MCP251XFD_ConfigureFilter(MCP251XFD *pComp, MCP251XFD_Filter *confF
     //--- Send the filter mask config ---
     uint16_t AddrMask = RegMCP251XFD_CiMASKm + ((uint16_t)confFilter->Filter * MCP251XFD_FILTER_REG_SIZE);     // Select the address of the CiMASK
     Error = MCP251XFD_WriteSFR32(pComp, AddrMask, FltMask.CiMASKm);                                            // Write the new flags configuration to the RegMCP251XFD_CiMASKm register
-    if (Error != ERR_OK) return Error;                                                                         // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
+    if (Error != ERR_NONE) return Error;                                                                       // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
 
     //=== Configure Filter control ===
     FilterConf.CiFLTCONm |= MCP251XFD_CAN_CiFLTCONm8_ENABLE;                                                   // Enable filter
     FilterConf.CiFLTCONm |= MCP251XFD_CAN_CiFLTCONm8_FBP_SET(confFilter->PointTo);                             // Set the Filter pointer to FIFO
     Error = MCP251XFD_WriteSFR8(pComp, AddrFLTCON, FilterConf.CiFLTCONm);                                      // Write the new flags configuration to the RegMCP251XFD_CiFLTCONm register
-    if (Error != ERR_OK) return Error;                                                                         // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+    if (Error != ERR_NONE) return Error;                                                                       // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1871,13 +1868,13 @@ eERRORRESULT MCP251XFD_ConfigureFilterList(MCP251XFD *pComp, eMCP251XFD_DNETFilt
 #ifdef CHECK_NULL_PARAM
   if (listFilter == NULL) return ERR__PARAMETER_ERROR;
 #endif
-  if (count == 0) return ERR_OK;
+  if (count == 0) return ERR_NONE;
   if (count > MCP251XFD_FILTER_COUNT) return ERR__OUT_OF_RANGE;
   eERRORRESULT Error;
 
   //--- Configure the Device NET Filter ---
   Error = MCP251XFD_ConfigureDeviceNetFilter(pComp, filter); // Configure the DNCNT
-  if (Error != ERR_OK) return Error;                         // If there is an error while calling MCP251XFD_ConfigureDeviceNetFilter() then return the error
+  if (Error != ERR_NONE) return Error;                       // If there is an error while calling MCP251XFD_ConfigureDeviceNetFilter() then return the error
 
   //--- Configure filters ---
   bool Modified = false;
@@ -1889,18 +1886,18 @@ eERRORRESULT MCP251XFD_ConfigureFilterList(MCP251XFD *pComp, eMCP251XFD_DNETFilt
       {
         Modified = true;
         Error = MCP251XFD_ConfigureFilter(pComp, &listFilter[z]);         // Configure the filter
-        if (Error != ERR_OK) return Error;                                // If there is an error while calling MCP251XFD_ConfigureFilter() then return the error
+        if (Error != ERR_NONE) return Error;                              // If there is an error while calling MCP251XFD_ConfigureFilter() then return the error
       }
     }
     if (Modified == false)                                                // Filter not listed
     {
       Error = MCP251XFD_DisableFilter(pComp, (eMCP251XFD_Filter)zFilter); // Disable the Filter configuration
-      if (Error != ERR_OK) return Error;                                  // If there is an error while calling MCP251XFD_DisableFilter() then return the error
+      if (Error != ERR_NONE) return Error;                                // If there is an error while calling MCP251XFD_DisableFilter() then return the error
     }
     Modified = false;
   }
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1916,14 +1913,14 @@ eERRORRESULT MCP251XFD_DisableFilter(MCP251XFD *pComp, eMCP251XFD_Filter name)
 
   uint16_t AddrFLTCON = RegMCP251XFD_CiFLTCONm + name;                    // Select the address of the FLTCON
   Error = MCP251XFD_ReadSFR8(pComp, AddrFLTCON, &FilterConf.CiFLTCONm);   // Read actual flags configuration of the RegMCP251XFD_CiFLTCONm register
-  if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   if ((FilterConf.CiFLTCONm & MCP251XFD_CAN_CiFLTCONm_ENABLE) > 0)
   {
     FilterConf.CiFLTCONm &= ~MCP251XFD_CAN_CiFLTCONm8_ENABLE;             // Disable the filter
     Error = MCP251XFD_WriteSFR8(pComp, AddrFLTCON, FilterConf.CiFLTCONm); // Write the new flags configuration to the RegMCP251XFD_CiFLTCONm register
-    if (Error != ERR_OK) return Error;                                    // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+    if (Error != ERR_NONE) return Error;                                  // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -1938,7 +1935,7 @@ eERRORRESULT MCP251XFD_ConfigureInterrupt(MCP251XFD *pComp, setMCP251XFD_Interru
 {
   eERRORRESULT Error;
   Error = MCP251XFD_ClearInterruptEvents(pComp, MCP251XFD_INT_CLEARABLE_FLAGS_MASK); // Clear all clearable interrupts
-  if (Error != ERR_OK) return Error;                                                 // If there is an error while calling MCP251XFD_ReadSFR16() then return the error
+  if (Error != ERR_NONE) return Error;                                               // If there is an error while calling MCP251XFD_ReadSFR16() then return the error
   return MCP251XFD_WriteSFR16(pComp, RegMCP251XFD_CiINT_CONFIG, interruptsFlags);    // Write new interrupt configuration (The 2 MSB bytes)
 }
 
@@ -1969,10 +1966,10 @@ eERRORRESULT MCP251XFD_GetCurrentInterruptEvent(MCP251XFD *pComp, eMCP251XFD_Int
 //=============================================================================
 eERRORRESULT MCP251XFD_ClearInterruptEvents(MCP251XFD *pComp, setMCP251XFD_InterruptEvents interruptsFlags)
 {
-  if ((interruptsFlags & MCP251XFD_INT_CLEARABLE_FLAGS_MASK) == 0) return ERR_OK;
+  if ((interruptsFlags & MCP251XFD_INT_CLEARABLE_FLAGS_MASK) == 0) return ERR_NONE;
   uint16_t Interrupts = 0;
   eERRORRESULT Error = MCP251XFD_ReadSFR16(pComp, RegMCP251XFD_CiINT_FLAG, &Interrupts); // Read interrupt flags (The 2 LSB bytes)
-  if (Error != ERR_OK) return Error;                                                     // If there is an error while calling MCP251XFD_ReadSFR16() then return the error
+  if (Error != ERR_NONE) return Error;                                                   // If there is an error while calling MCP251XFD_ReadSFR16() then return the error
   Interrupts &= ~((uint16_t)interruptsFlags);                                            // Clear selected flags
   return MCP251XFD_WriteSFR16(pComp, RegMCP251XFD_CiINT_FLAG, Interrupts);               // Write flags cleared (The 2 LSB bytes)
 }
@@ -1993,17 +1990,17 @@ eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pC
   *name = MCP251XFD_NO_FIFO;
   uint8_t RxCode = 0;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiVEC_RXCODE, &RxCode);                              // Read Interrupt code register (Last byte only)
-  if (Error != ERR_OK) return Error;                                                                  // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   RxCode = MCP251XFD_CAN_CiVEC8_RXCODE_GET(RxCode);                                                   // Extract RXCODE
   if ( RxCode < MCP251XFD_FIFO1 ) return ERR__UNKNOWN_ELEMENT;                                        // FIFO0 is reserved so not possible
   if ((RxCode > MCP251XFD_FIFO31) && (RxCode != MCP251XFD_NO_INTERRUPT)) return ERR__UNKNOWN_ELEMENT; // Only FIFO1 to 31 and no Interrupt code possible so the rest is not possible
-  if (RxCode == MCP251XFD_NO_INTERRUPT) return ERR_OK;                                                // No interrupt? Good
+  if (RxCode == MCP251XFD_NO_INTERRUPT) return ERR_NONE;                                              // No interrupt? Good
   *name = (eMCP251XFD_FIFO)RxCode;                                                                    // Save the current FIFO name interrupt
 
   //--- Get status flags of the FIFO ---
   if ((*name != MCP251XFD_NO_FIFO) && (flags != NULL))
     return MCP251XFD_GetFIFOStatus(pComp, *name, flags);                                              // Get status flags of the FIFO
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -2022,16 +2019,16 @@ eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(MCP251XFD *p
   *name = MCP251XFD_NO_FIFO;
   uint8_t TxCode = 0;
   Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiVEC_TXCODE, &TxCode);                              // Read Interrupt code register (Third byte only)
-  if (Error != ERR_OK) return Error;                                                                  // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   TxCode = MCP251XFD_CAN_CiVEC8_TXCODE_GET(TxCode);                                                   // Extract TXCODE
   if ((TxCode > MCP251XFD_FIFO31) && (TxCode != MCP251XFD_NO_INTERRUPT)) return ERR__UNKNOWN_ELEMENT; // Only FIFO0 (TXQ) to 31 and no Interrupt code possible so the rest is not possible
-  if (TxCode == MCP251XFD_NO_INTERRUPT) return ERR_OK;                                                // No interrupt? Good
+  if (TxCode == MCP251XFD_NO_INTERRUPT) return ERR_NONE;                                              // No interrupt? Good
   *name = (eMCP251XFD_FIFO)TxCode;                                                                    // Save the current FIFO name interrupt
 
   //--- Get status flags of the FIFO ---
   if ((*name != MCP251XFD_NO_FIFO) && (flags != NULL))
     return MCP251XFD_GetFIFOStatus(pComp, *name, flags);                                              // Get status flags of the FIFO
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -2042,7 +2039,7 @@ eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(MCP251XFD *p
 eERRORRESULT MCP251XFD_ClearFIFOEvents(MCP251XFD *pComp, eMCP251XFD_FIFO name, uint8_t events)
 {
   if (name >= MCP251XFD_FIFO_COUNT) return ERR__PARAMETER_ERROR;
-  if ((events & MCP251XFD_FIFO_CLEARABLE_STATUS_FLAGS) == 0) return ERR_OK;                               // Threat only the clearable ones
+  if ((events & MCP251XFD_FIFO_CLEARABLE_STATUS_FLAGS) == 0) return ERR_NONE;                             // Threat only the clearable ones
   eERRORRESULT Error;
 
   uint16_t Address = RegMCP251XFD_CiFIFOSTAm_FLAGS + (MCP251XFD_FIFO_REG_SIZE * ((uint16_t)name - 1u));   // Select the address of the FIFO
@@ -2052,7 +2049,7 @@ eERRORRESULT MCP251XFD_ClearFIFOEvents(MCP251XFD *pComp, eMCP251XFD_FIFO name, u
   //--- Get FIFO status ---
   uint8_t Status;
   Error = MCP251XFD_ReadSFR8(pComp, Address, &Status);                                                    // Read FIFO status flags
-  if (Error != ERR_OK) return Error;                                                                      // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  if (Error != ERR_NONE) return Error;                                                                    // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
 
   //--- Clear selected flags ---
   if (((events & MCP251XFD_TEF_FIFO_OVERFLOW         ) > 0)
@@ -2079,14 +2076,14 @@ eERRORRESULT MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(MCP251XFD *pComp, setM
   if (interruptPending != NULL)
   {
     Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiRXIF, (uint32_t*)interruptPending); // Read the Receive interrupt status register
-    if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
+    if (Error != ERR_NONE) return Error;                                                  // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
   }
   if (overflowStatus != NULL)
   {
     Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiRXOVIF, (uint32_t*)overflowStatus); // Read the Receive overflow interrupt status register
-    if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
+    if (Error != ERR_NONE) return Error;                                                  // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -2100,14 +2097,14 @@ eERRORRESULT MCP251XFD_GetTransmitInterruptStatusOfAllFIFO(MCP251XFD *pComp, set
   if (interruptPending != NULL)
   {
     Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiTXIF, (uint32_t*)interruptPending); // Read the Receive interrupt status register
-    if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
+    if (Error != ERR_NONE) return Error;                                                  // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
   }
   if (attemptStatus != NULL)
   {
     Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiTXATIF, (uint32_t*)attemptStatus);  // Read the Receive overflow interrupt status register
-    if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
+    if (Error != ERR_NONE) return Error;                                                  // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -2124,20 +2121,20 @@ eERRORRESULT MCP251XFD_GetTransmitReceiveErrorCountAndStatus(MCP251XFD *pComp, u
   if (transmitErrorCount != NULL)
   {
     Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiTREC_TEC, transmitErrorCount);  // Read the transmit error counter
-    if (Error != ERR_OK) return Error;                                               // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+    if (Error != ERR_NONE) return Error;                                             // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   }
   if (receiveErrorCount != NULL)
   {
     Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiTREC_REC, receiveErrorCount);   // Read the receive error counter
-    if (Error != ERR_OK) return Error;                                               // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+    if (Error != ERR_NONE) return Error;                                             // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   }
   if (status != NULL)
   {
     Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiTREC_STATUS, (uint8_t*)status); // Read the transmit/receive error status
-    if (Error != ERR_OK) return Error;                                               // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+    if (Error != ERR_NONE) return Error;                                             // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
   }
 
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -2148,17 +2145,20 @@ eERRORRESULT MCP251XFD_GetTransmitReceiveErrorCountAndStatus(MCP251XFD *pComp, u
 eERRORRESULT MCP251XFD_GetBusDiagnostic(MCP251XFD *pComp, MCP251XFD_CiBDIAG0_Register* busDiagnostic0, MCP251XFD_CiBDIAG1_Register* busDiagnostic1)
 {
   eERRORRESULT Error;
+  uint32_t Data;
   if (busDiagnostic0 != NULL)
   {
-    Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiBDIAG0, &busDiagnostic0->CiBDIAG0); // Read the transmit error counter
-    if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
+    Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiBDIAG0, &Data); // Read the transmit error counter
+    busDiagnostic0->CiBDIAG0 = Data;
+    if (Error != ERR_NONE) return Error;                              // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
   }
   if (busDiagnostic1 != NULL)
   {
-    Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiBDIAG1, &busDiagnostic1->CiBDIAG1); // Read the receive error counter
-    if (Error != ERR_OK) return Error;                                                    // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
+    Error = MCP251XFD_ReadSFR32(pComp, RegMCP251XFD_CiBDIAG1, &Data); // Read the receive error counter
+    busDiagnostic1->CiBDIAG1 = Data;
+    if (Error != ERR_NONE) return Error;                              // If there is an error while calling MCP251XFD_ReadSFR32() then return the error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -2172,14 +2172,14 @@ eERRORRESULT MCP251XFD_ClearBusDiagnostic(MCP251XFD *pComp, bool clearBusDiagnos
   if (clearBusDiagnostic0)
   {
     Error = MCP251XFD_WriteSFR32(pComp, RegMCP251XFD_CiBDIAG0, 0x00000000); // Read the transmit error counter
-    if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
+    if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
   }
   if (clearBusDiagnostic1)
   {
     Error = MCP251XFD_WriteSFR32(pComp, RegMCP251XFD_CiBDIAG1, 0x00000000); // Read the receive error counter
-    if (Error != ERR_OK) return Error;                                      // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
+    if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_WriteSFR32() then return the error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -2197,7 +2197,7 @@ eERRORRESULT MCP251XFD_ResetDevice(MCP251XFD *pComp)
   if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
 #endif
   eERRORRESULT Error;
-  uint8_t Buffer[2];
+  uint8_t Buffer[2] = { (MCP251XFD_SPI_INSTRUCTION_RESET << 4), 0 };
 
   //--- Do DRIVER_SAFE_RESET flag implementation before reset ---------------
   if ((pComp->DriverConfig & MCP251XFD_DRIVER_SAFE_RESET) > 0)
@@ -2218,8 +2218,8 @@ eERRORRESULT MCP251XFD_ResetDevice(MCP251XFD *pComp)
 
 
   //-- Perform Reset --------------------------------------------------------
-  Buffer[0] = (MCP251XFD_SPI_INSTRUCTION_RESET << 4);
-  Buffer[1] = 0;
+#ifdef USE_ADVANCED_INTERFACE
+  SPIInterface_Packet PacketDesc = SPI_INTERFACE_TX_DATA_DESC(&Buffer[0], sizeof(Buffer), true);
   return pComp->fnSPI_Transfer(pComp->InterfaceDevice, pComp->SPI_ChipSelect, &Buffer[0], NULL, 2/*bytes only*/); // Perform reset
 }
 
@@ -2237,18 +2237,18 @@ eERRORRESULT __MCP251XFD_TestRAM(MCP251XFD *pComp)
   for (uint16_t Address = MCP251XFD_RAM_ADDR; Address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE); Address += 4)
   {
     Error = MCP251XFD_WriteRAM32(pComp, Address, 0x55555555); // Write 0x55555555 at address
-    if (Error != ERR_OK) return Error;                        // If there is an error while writing the RAM address then return the error
+    if (Error != ERR_NONE) return Error;                      // If there is an error while writing the RAM address then return the error
     Error = MCP251XFD_ReadRAM32(pComp, Address, &Result);     // Read again the data
-    if (Error != ERR_OK) return Error;                        // If there is an error while reading the RAM address then return the error
+    if (Error != ERR_NONE) return Error;                      // If there is an error while reading the RAM address then return the error
     if (Result != 0x55555555) return ERR__RAM_TEST_FAIL;      // If data read is not 0x55555555 then return an error
 
     Error = MCP251XFD_WriteRAM32(pComp, Address, 0xAAAAAAAA); // Write 0xAAAAAAAA at address
-    if (Error != ERR_OK) return Error;                        // If there is an error while writing the RAM address then return the error
+    if (Error != ERR_NONE) return Error;                      // If there is an error while writing the RAM address then return the error
     Error = MCP251XFD_ReadRAM32(pComp, Address, &Result);     // Read again the data
-    if (Error != ERR_OK) return Error;                        // If there is an error while reading the RAM address then return the error
+    if (Error != ERR_NONE) return Error;                      // If there is an error while reading the RAM address then return the error
     if (Result != 0xAAAAAAAA) return ERR__RAM_TEST_FAIL;      // If data read is not 0xAAAAAAAA then return an error
   }
-  return ERR_OK;
+  return ERR_NONE;
 }
 
 
@@ -2337,10 +2337,10 @@ uint8_t MCP251XFD_DLCToByte(eMCP251XFD_DataLength dlc, bool isCANFD)
 {
   const uint8_t CAN20_DLC_TO_VALUE[MCP251XFD_DLC_COUNT] = {0, 1, 2, 3, 4, 5, 6, 7, 8,  8,  8,  8,  8,  8,  8,  8};
   const uint8_t CANFD_DLC_TO_VALUE[MCP251XFD_DLC_COUNT] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64};
-  if (dlc >= MCP251XFD_DLC_COUNT) return 0;
-  if (isCANFD) return CANFD_DLC_TO_VALUE[dlc];
-  return CAN20_DLC_TO_VALUE[dlc];
-}
+  if ((dlc >= MCP251XFD_DLC_COUNT) || (dlc < (eMCP251XFD_DataLength)0)) return 0;
+  if (isCANFD) return CANFD_DLC_TO_VALUE[dlc & 0xF];
+  return CAN20_DLC_TO_VALUE[dlc & 0xF];
+  }
 
 
 
