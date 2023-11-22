@@ -87,7 +87,7 @@ MCP251XFD MCP251XFD_Ext1 =
                   | MCP251XFD_DRIVER_INIT_SET_RAM_AT_0
                   | MCP251XFD_DRIVER_CLEAR_BUFFER_BEFORE_READ,
   //--- IO configuration ---
-  .GPIOsOutState   = MCP251XFD_GPIO0_LOW | MCP251XFD_GPIO1_HIGH,
+  .GPIOsOutLevel   = MCP251XFD_GPIO0_LOW | MCP251XFD_GPIO1_HIGH,
   //--- Interface driver call functions ---
   .SPI_ChipSelect  = SPI_CS_EXT1,
   .InterfaceDevice = SPI0,
@@ -407,7 +407,7 @@ MCP251XFD MCP251XFD_Ext2 =
   .DriverConfig    = MCP251XFD_DRIVER_NORMAL_USE
                    | MCP251XFD_DRIVER_SAFE_RESET,
   //--- IO configuration ---
-  .GPIOsOutState   = MCP251XFD_GPIO0_LOW | MCP251XFD_GPIO1_LOW,
+  .GPIOsOutLevel   = MCP251XFD_GPIO0_LOW | MCP251XFD_GPIO1_LOW,
   //--- Interface driver call functions ---
   .SPI_ChipSelect  = SPI_CS_EXT2,
   .InterfaceDevice = SPI0,
