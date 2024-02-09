@@ -3652,8 +3652,8 @@ inline eERRORRESULT MCP251XFD_ReadSFR16(MCP251XFD *pComp, uint16_t address, uint
  * @param[out] *data Is where the data will be stored
  * @return Returns an #eERRORRESULT value enum
  */
-//inline eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint32_t* data);
-/*inline eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint32_t* data)
+eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint32_t* data);
+/*eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint32_t* data)
 {
   if (data == NULL) return ERR__PARAMETER_ERROR;
   MCP251XFD_uint32t_Conv Tmp;
