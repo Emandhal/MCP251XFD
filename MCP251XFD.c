@@ -38,6 +38,14 @@ static eERRORRESULT __MCP251XFD_TestRAM(MCP251XFD *pComp);
 
 
 
+inline eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint32_t* data)
+{
+  if (data == NULL) return ERR__PARAMETER_ERROR;
+  MCP251XFD_uint32t_Conv Tmp;
+  eERRORRESULT Error = MCP251XFD_ReadData(pComp, address, &Tmp.Bytes[0], 4);
+  *data = Tmp.Uint32;
+  return Error;
+}
 
 
 //**********************************************************************************************************************************************************
