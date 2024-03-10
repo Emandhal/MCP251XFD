@@ -36,6 +36,8 @@
  *****************************************************************************/
 
 /* Revision history:
+ * 1.0.7    Add MCP251XFD_SetFIFOinterruptConfiguration(), MCP251XFD_SetTEFinterruptConfiguration() and MCP251XFD_SetTXQinterruptConfiguration()
+ *          These are to change interrupt configuration of a FIFO/TEF/TXQ at runtime [Thanks to xmurx]
  * 1.0.6    Reduce code size by merging all Data Reads and all Data Writes
  * 1.0.5    Do a safer timeout for functions
  *          Mark RegMCP251XFD_IOCON as deprecated following MCP2517FD: DS80000792C (§6), MCP2518FD: DS80000789C (§5), MCP251863: DS80000984A (§5)
@@ -2817,6 +2819,9 @@ typedef enum
 #define MCP251XFD_CAN_CiFIFOCONm8_PLSIZE_Mask        (0x7u << MCP251XFD_CAN_CiFIFOCONm8_PLSIZE_Pos)
 #define MCP251XFD_CAN_CiFIFOCONm8_PLSIZE_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiFIFOCONm8_PLSIZE_Pos) & MCP251XFD_CAN_CiFIFOCONm8_PLSIZE_Mask) //!< Payload Size
 
+#define MCP251XFD_CAN_CiFIFOCONm8_INT_Mask           ( MCP251XFD_CAN_CiFIFOCONm8_TFNRFNIE | MCP251XFD_CAN_CiFIFOCONm8_TFHRFHIE | MCP251XFD_CAN_CiFIFOCONm8_TFERFFIE \
+                                                     | MCP251XFD_CAN_CiFIFOCONm8_RXOVIE   | MCP251XFD_CAN_CiFIFOCONm8_TXATIE ) //!< Interrupt flags mask
+
 //-----------------------------------------------------------------------------
 
 //! FIFO Status Register m, (m = 1 to 31)
@@ -3519,6 +3524,7 @@ typedef enum
   MCP251XFD_FIFO_EVENT_FIFO_FULL_INT          = 0x04, //!< Transmit Event FIFO Full Interrupt Enable
   MCP251XFD_FIFO_EVENT_FIFO_HALF_FULL_INT     = 0x02, //!< Transmit Event FIFO Half Full Interrupt Enable
   MCP251XFD_FIFO_EVENT_FIFO_NOT_EMPTY_INT     = 0x01, //!< Transmit Event FIFO Not Empty Interrupt Enable
+  MCP251XFD_FIFO_ALL_INTERRUPTS_FLAGS         = 0x1F, //!< Set all interrupt flags
 } eMCP251XFD_FIFOIntFlags;
 
 //! MCP251XFD FIFO configuration structure
@@ -4394,6 +4400,37 @@ inline eERRORRESULT MCP251XFD_GetNextMessageAddressTXQ(MCP251XFD *pComp, uint32_
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_ClearFIFOConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFO name);
+
+/*! @brief Set a FIFO interrupt configuration of the MCP251XFD device
+ *
+ * @param[in] *pComp Is the pointed structure of the device to be used
+ * @param[in] name Is the name of the FIFO where the configuration will be changed
+ * @param[in] interruptFlags Is the interrupt flags to change (mentionned flags will be set and the others will be cleared)
+ * @return Returns an #eERRORRESULT value enum
+ */
+eERRORRESULT MCP251XFD_SetFIFOinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFO name, eMCP251XFD_FIFOIntFlags interruptFlags);
+
+/*! @brief Set a TEF interrupt configuration of the MCP251XFD device
+ *
+ * @param[in] *pComp Is the pointed structure of the device to be used
+ * @param[in] interruptFlags Is the interrupt flags to change (mentionned flags will be set and the others will be cleared)
+ * @return Returns an #eERRORRESULT value enum
+ */
+inline eERRORRESULT MCP251XFD_SetTEFinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFOIntFlags interruptFlags)
+{
+  return MCP251XFD_SetFIFOinterruptConfiguration(pComp, MCP251XFD_TEF, interruptFlags);
+}
+
+/*! @brief Set a TXQ interrupt configuration of the MCP251XFD device
+ *
+ * @param[in] *pComp Is the pointed structure of the device to be used
+ * @param[in] interruptFlags Is the interrupt flags to change (mentionned flags will be set and the others will be cleared)
+ * @return Returns an #eERRORRESULT value enum
+ */
+inline eERRORRESULT MCP251XFD_SetTXQinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFOIntFlags interruptFlags)
+{
+  return MCP251XFD_SetFIFOinterruptConfiguration(pComp, MCP251XFD_TXQ, interruptFlags);
+}
 
 //********************************************************************************************************************
 

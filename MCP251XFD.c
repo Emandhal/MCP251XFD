@@ -381,7 +381,7 @@ eERRORRESULT MCP251XFD_WriteData(MCP251XFD *pComp, uint16_t address, const uint8
     *pBuf = ((Addr >> 8) & 0xFF);                                           // Set first byte of SPI command
     ++pBuf;
     *pBuf = Addr & 0xFF;                                                    // Set next byte of SPI command
-    ++pBuf;    
+    ++pBuf;
 
     //--- Set length of data ---
     ByteCount = (size > Increment ? Increment : size);                      // Define byte count to send
@@ -1760,6 +1760,40 @@ eERRORRESULT MCP251XFD_ClearFIFOConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFO 
   MCP251XFD_FIFO ClearConf = { name, MCP251XFD_FIFO_1_MESSAGE_DEEP, MCP251XFD_PAYLOAD_8BYTE, MCP251XFD_RECEIVE_FIFO, MCP251XFD_UNLIMITED_ATTEMPTS, MCP251XFD_MESSAGE_TX_PRIORITY1, MCP251XFD_FIFO_NO_CONTROL_FLAGS, MCP251XFD_FIFO_NO_INTERRUPT_FLAGS, NULL, };
 #endif // !__cplusplus
   return MCP251XFD_ConfigureFIFO(pComp, &ClearConf);     // Clear the configuration
+}
+
+
+
+//=============================================================================
+// Set a FIFO interrupt configuration of the MCP251XFD device
+//=============================================================================
+eERRORRESULT MCP251XFD_SetFIFOinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFO name, eMCP251XFD_FIFOIntFlags interruptFlags)
+{
+  eERRORRESULT Error;
+  uint8_t Config;
+  if (name >= MCP251XFD_FIFO_COUNT) return ERR__PARAMETER_ERROR;
+
+  //--- Set address of the FIFO ---
+  uint16_t Address = RegMCP251XFD_CiFIFOCONm_CONFIG + (MCP251XFD_FIFO_REG_SIZE * ((uint16_t)name - 1u)); // Select the address of the FIFO
+  if (name == MCP251XFD_TEF) Address = RegMCP251XFD_CiTEFCON_CONFIG;                                     // If it's the TEF then select its address
+  if (name == MCP251XFD_TXQ) Address = RegMCP251XFD_CiTXQCON_CONFIG;                                     // If it's the TXQ then select its address
+
+  //--- Read the FIFO's register ---
+  interruptFlags &= MCP251XFD_FIFO_ALL_INTERRUPTS_FLAGS;
+  Error = MCP251XFD_ReadSFR8(pComp, Address, &Config);                                                   // Read actual configuration of the FIFO's register
+  if (Error != ERR_OK) return Error;                                                                     // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+
+  //--- Set interrupts flags ---
+  Config &= ~MCP251XFD_CAN_CiFIFOCONm8_INT_Mask;                                                         // Force interrupts bits to 0
+  if (((interruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_NOT_FULL_INT  ) > 0)
+   || ((interruptFlags & MCP251XFD_FIFO_RECEIVE_FIFO_NOT_EMPTY_INT  ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_TFNRFNIE; // Transmit/Receive FIFO Not Full/Not Empty Interrupt Enable
+  if (((interruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_HALF_EMPTY_INT) > 0)
+   || ((interruptFlags & MCP251XFD_FIFO_RECEIVE_FIFO_HALF_FULL_INT  ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_TFHRFHIE; // Transmit/Receive FIFO Half Empty/Half Full Interrupt Enable
+  if (((interruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_EMPTY_INT     ) > 0)
+   || ((interruptFlags & MCP251XFD_FIFO_RECEIVE_FIFO_FULL_INT       ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_TFERFFIE; // Transmit/Receive FIFO Empty/Full Interrupt Enable
+  if (((interruptFlags & MCP251XFD_FIFO_OVERFLOW_INT                ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_RXOVIE;   // Overflow Interrupt Enable
+  if (((interruptFlags & MCP251XFD_FIFO_TX_ATTEMPTS_EXHAUSTED_INT   ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_TXATIE;   // Transmit Attempts Exhausted Interrupt Enable
+  return MCP251XFD_WriteSFR8(pComp, Address, Config);                                                    // Write new configuration to the FIFO's register
 }
 
 
