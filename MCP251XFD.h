@@ -3630,7 +3630,7 @@ eERRORRESULT MCP251XFD_ReadData(MCP251XFD *pComp, uint16_t address, uint8_t* dat
  * @param[out] *data Is where the data will be stored
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ReadSFR8(MCP251XFD *pComp, uint16_t address, uint8_t* data)
+static inline eERRORRESULT MCP251XFD_ReadSFR8(MCP251XFD *pComp, uint16_t address, uint8_t* data)
 {
   return MCP251XFD_ReadData(pComp, address, data, 1);
 }
@@ -3642,7 +3642,7 @@ inline eERRORRESULT MCP251XFD_ReadSFR8(MCP251XFD *pComp, uint16_t address, uint8
  * @param[out] *data Is where the data will be stored
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ReadSFR16(MCP251XFD *pComp, uint16_t address, uint16_t* data)
+static inline eERRORRESULT MCP251XFD_ReadSFR16(MCP251XFD *pComp, uint16_t address, uint16_t* data)
 {
   if (data == NULL) return ERR__PARAMETER_ERROR;
   MCP251XFD_uint16t_Conv Tmp;
@@ -3658,7 +3658,7 @@ inline eERRORRESULT MCP251XFD_ReadSFR16(MCP251XFD *pComp, uint16_t address, uint
  * @param[out] *data Is where the data will be stored
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint32_t* data)
+static inline eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint32_t* data)
 {
   if (data == NULL) return ERR__PARAMETER_ERROR;
   MCP251XFD_uint32t_Conv Tmp;
@@ -3674,7 +3674,7 @@ inline eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint
  * @param[out] *data Is where the data will be stored
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ReadRAM32(MCP251XFD *pComp, uint16_t address, uint32_t* data)
+static inline eERRORRESULT MCP251XFD_ReadRAM32(MCP251XFD *pComp, uint16_t address, uint32_t* data)
 {
   if (data == NULL) return ERR__PARAMETER_ERROR;
   MCP251XFD_uint32t_Conv Tmp;
@@ -3701,7 +3701,7 @@ eERRORRESULT MCP251XFD_WriteData(MCP251XFD *pComp, uint16_t address, const uint8
  * @param[in] data Is the data to write
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_WriteSFR8(MCP251XFD *pComp, uint16_t address, const uint8_t data)
+static inline eERRORRESULT MCP251XFD_WriteSFR8(MCP251XFD *pComp, uint16_t address, const uint8_t data)
 {
   return MCP251XFD_WriteData(pComp, address, &data, 1);
 }
@@ -3713,7 +3713,7 @@ inline eERRORRESULT MCP251XFD_WriteSFR8(MCP251XFD *pComp, uint16_t address, cons
  * @param[in] data Is the data to write
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_WriteSFR16(MCP251XFD *pComp, uint16_t address, const uint16_t data)
+static inline eERRORRESULT MCP251XFD_WriteSFR16(MCP251XFD *pComp, uint16_t address, const uint16_t data)
 {
   MCP251XFD_uint16t_Conv Tmp;
   Tmp.Uint16 = data;
@@ -3728,7 +3728,7 @@ inline eERRORRESULT MCP251XFD_WriteSFR16(MCP251XFD *pComp, uint16_t address, con
  * @param[in] data Is the data to write
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_WriteSFR32(MCP251XFD *pComp, uint16_t address, const uint32_t data)
+static inline eERRORRESULT MCP251XFD_WriteSFR32(MCP251XFD *pComp, uint16_t address, const uint32_t data)
 {
   MCP251XFD_uint32t_Conv Tmp;
   Tmp.Uint32 = data;
@@ -3743,7 +3743,7 @@ inline eERRORRESULT MCP251XFD_WriteSFR32(MCP251XFD *pComp, uint16_t address, con
  * @param[in] data Is the data to write
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_WriteRAM32(MCP251XFD *pComp, uint16_t address, uint32_t data)
+static inline eERRORRESULT MCP251XFD_WriteRAM32(MCP251XFD *pComp, uint16_t address, uint32_t data)
 {
   MCP251XFD_uint32t_Conv Tmp;
   Tmp.Uint32 = data;
@@ -3779,7 +3779,7 @@ eERRORRESULT MCP251XFD_TransmitMessageObjectToFIFO(MCP251XFD *pComp, uint8_t* me
  * @param[in] andFlush Indicate if the TXQ will be flush to the CAN bus right after this message
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_TransmitMessageObjectToTXQ(MCP251XFD *pComp, uint8_t* messageObjectToSend, uint8_t objectSize, bool andFlush)
+static inline eERRORRESULT MCP251XFD_TransmitMessageObjectToTXQ(MCP251XFD *pComp, uint8_t* messageObjectToSend, uint8_t objectSize, bool andFlush)
 {
   return MCP251XFD_TransmitMessageObjectToFIFO(pComp, messageObjectToSend, objectSize, MCP251XFD_TXQ, andFlush);
 }
@@ -3807,7 +3807,7 @@ eERRORRESULT MCP251XFD_TransmitMessageToFIFO(MCP251XFD *pComp, MCP251XFD_CANMess
  * @param[in] andFlush Indicate if the TXQ will be flush to the CAN bus right after this message
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_TransmitMessageToTXQ(MCP251XFD *pComp, MCP251XFD_CANMessage* messageToSend, bool andFlush)
+static inline eERRORRESULT MCP251XFD_TransmitMessageToTXQ(MCP251XFD *pComp, MCP251XFD_CANMessage* messageToSend, bool andFlush)
 {
   return MCP251XFD_TransmitMessageToFIFO(pComp, messageToSend, MCP251XFD_TXQ, andFlush);
 }
@@ -3835,7 +3835,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageObjectFromFIFO(MCP251XFD *pComp, uint8_t* m
  * @param[in] objectSize Is the size of the message object (with its data). This value needs to be modulo 4
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ReceiveMessageObjectFromTEF(MCP251XFD *pComp, uint8_t* messageObjectGet, uint8_t objectSize)
+static inline eERRORRESULT MCP251XFD_ReceiveMessageObjectFromTEF(MCP251XFD *pComp, uint8_t* messageObjectGet, uint8_t objectSize)
 {
   return MCP251XFD_ReceiveMessageObjectFromFIFO(pComp, messageObjectGet, objectSize, MCP251XFD_TEF);
 }
@@ -3864,7 +3864,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
  * @param[out] *timeStamp Is the returned TimeStamp of the message (can be set to NULL if the TimeStamp is not set in the TEF)
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ReceiveMessageFromTEF(MCP251XFD *pComp, MCP251XFD_CANMessage* messageGet, uint32_t* timeStamp)
+static inline eERRORRESULT MCP251XFD_ReceiveMessageFromTEF(MCP251XFD *pComp, MCP251XFD_CANMessage* messageGet, uint32_t* timeStamp)
 {
   return MCP251XFD_ReceiveMessageFromFIFO(pComp, messageGet, MCP251XFD_PAYLOAD_8BYTE, timeStamp, MCP251XFD_TEF); // Here the payload will not be used inside the function
 }
@@ -3895,7 +3895,7 @@ eERRORRESULT MCP251XFD_GetCRCEvents(MCP251XFD *pComp, setMCP251XFD_CRCEvents* ev
  * @param[in] *pComp Is the pointed structure of the device where the CRC status will be cleared
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ClearCRCEvents(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_ClearCRCEvents(MCP251XFD *pComp)
 {
   return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_CRC_FLAGS, MCP251XFD_CRC_NO_EVENT); // Write cleared status of the CRC register (third byte only)
 }
@@ -3929,7 +3929,7 @@ eERRORRESULT MCP251XFD_GetECCEvents(MCP251XFD *pComp, setMCP251XFD_ECCEvents* ev
  * @param[in] *pComp Is the pointed structure of the device where the ECC status will be cleared
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ClearECCEvents(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_ClearECCEvents(MCP251XFD *pComp)
 {
   return MCP251XFD_WriteSFR8(pComp, RegMCP251XFD_ECCSTAT_FLAGS, MCP251XFD_CRC_NO_EVENT); // Write cleared status of the ECC register (first byte only)
 }
@@ -4058,7 +4058,7 @@ eERRORRESULT MCP251XFD_WaitOperationModeChange(MCP251XFD *pComp, eMCP251XFD_Oper
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_StartCAN20(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_StartCAN20(MCP251XFD *pComp)
 {
   return MCP251XFD_RequestOperationMode(pComp, MCP251XFD_NORMAL_CAN20_MODE, false);
 }
@@ -4069,7 +4069,7 @@ inline eERRORRESULT MCP251XFD_StartCAN20(MCP251XFD *pComp)
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_StartCANFD(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_StartCANFD(MCP251XFD *pComp)
 {
   return MCP251XFD_RequestOperationMode(pComp, MCP251XFD_NORMAL_CANFD_MODE, false);
 }
@@ -4080,7 +4080,7 @@ inline eERRORRESULT MCP251XFD_StartCANFD(MCP251XFD *pComp)
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_StartCANListenOnly(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_StartCANListenOnly(MCP251XFD *pComp)
 {
   return MCP251XFD_RequestOperationMode(pComp, MCP251XFD_LISTEN_ONLY_MODE, false);
 }
@@ -4233,7 +4233,7 @@ eERRORRESULT MCP251XFD_ResetFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name);
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ResetTEF(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_ResetTEF(MCP251XFD *pComp)
 {
   return MCP251XFD_ResetFIFO(pComp, MCP251XFD_TEF);
 }
@@ -4244,7 +4244,7 @@ inline eERRORRESULT MCP251XFD_ResetTEF(MCP251XFD *pComp)
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ResetTXQ(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_ResetTXQ(MCP251XFD *pComp)
 {
   return MCP251XFD_ResetFIFO(pComp, MCP251XFD_TXQ);
 }
@@ -4265,7 +4265,7 @@ eERRORRESULT MCP251XFD_UpdateFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name, bool a
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_UpdateTEF(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_UpdateTEF(MCP251XFD *pComp)
 {
   return MCP251XFD_UpdateFIFO(pComp, MCP251XFD_TEF, false);
 }
@@ -4277,7 +4277,7 @@ inline eERRORRESULT MCP251XFD_UpdateTEF(MCP251XFD *pComp)
  * @param[in] andFlush Indicate if the TXQ must be flush too
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_UpdateTXQ(MCP251XFD *pComp, bool andFlush)
+static inline eERRORRESULT MCP251XFD_UpdateTXQ(MCP251XFD *pComp, bool andFlush)
 {
   return MCP251XFD_UpdateFIFO(pComp, MCP251XFD_TXQ, andFlush);
 }
@@ -4297,7 +4297,7 @@ eERRORRESULT MCP251XFD_FlushFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name);
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_FlushTXQ(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_FlushTXQ(MCP251XFD *pComp)
 {
   return MCP251XFD_FlushFIFO(pComp, MCP251XFD_TXQ);
 }
@@ -4308,7 +4308,7 @@ inline eERRORRESULT MCP251XFD_FlushTXQ(MCP251XFD *pComp)
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_FlushAllFIFO(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_FlushAllFIFO(MCP251XFD *pComp)
 {
   return MCP251XFD_WriteSFR32(pComp, RegMCP251XFD_CiTXREQ, 0xFFFFFFFF);
 }
@@ -4330,7 +4330,7 @@ eERRORRESULT MCP251XFD_GetFIFOStatus(MCP251XFD *pComp, eMCP251XFD_FIFO name, set
  * @param[out] *statusFlags Is the return value of status flags
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetTEFStatus(MCP251XFD *pComp, setMCP251XFD_TEFstatus *statusFlags)
+static inline eERRORRESULT MCP251XFD_GetTEFStatus(MCP251XFD *pComp, setMCP251XFD_TEFstatus *statusFlags)
 {
   eERRORRESULT Error = MCP251XFD_GetFIFOStatus(pComp, MCP251XFD_TEF, (setMCP251XFD_FIFOstatus*)statusFlags);
   *statusFlags = (setMCP251XFD_TEFstatus)((*statusFlags) & MCP251XFD_TEF_FIFO_STATUS_MASK);
@@ -4344,7 +4344,7 @@ inline eERRORRESULT MCP251XFD_GetTEFStatus(MCP251XFD *pComp, setMCP251XFD_TEFsta
  * @param[out] *statusFlags Is the return value of status flags
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetTXQStatus(MCP251XFD *pComp, setMCP251XFD_TXQstatus *statusFlags)
+static inline eERRORRESULT MCP251XFD_GetTXQStatus(MCP251XFD *pComp, setMCP251XFD_TXQstatus *statusFlags)
 {
   eERRORRESULT Error = MCP251XFD_GetFIFOStatus(pComp, MCP251XFD_TXQ, (setMCP251XFD_FIFOstatus*)statusFlags);
   *statusFlags = (setMCP251XFD_TXQstatus)((*statusFlags) & MCP251XFD_TXQ_STATUS_MASK);
@@ -4372,7 +4372,7 @@ eERRORRESULT MCP251XFD_GetNextMessageAddressFIFO(MCP251XFD *pComp, eMCP251XFD_FI
  * @param[out] *nextAddress Is the next user address of the TEF. This parameter can be NULL if not needed
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetNextMessageAddressTEF(MCP251XFD *pComp, uint32_t *nextAddress)
+static inline eERRORRESULT MCP251XFD_GetNextMessageAddressTEF(MCP251XFD *pComp, uint32_t *nextAddress)
 {
   return MCP251XFD_GetNextMessageAddressFIFO(pComp, MCP251XFD_TEF, nextAddress, NULL);
 }
@@ -4386,7 +4386,7 @@ inline eERRORRESULT MCP251XFD_GetNextMessageAddressTEF(MCP251XFD *pComp, uint32_
  * @param[out] *nextIndex Is the next user index of the TXQ. This parameter can be NULL if not needed
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetNextMessageAddressTXQ(MCP251XFD *pComp, uint32_t *nextAddress, uint8_t *nextIndex)
+static inline eERRORRESULT MCP251XFD_GetNextMessageAddressTXQ(MCP251XFD *pComp, uint32_t *nextAddress, uint8_t *nextIndex)
 {
   return MCP251XFD_GetNextMessageAddressFIFO(pComp, MCP251XFD_TXQ, nextAddress, nextIndex);
 }
@@ -4416,7 +4416,7 @@ eERRORRESULT MCP251XFD_SetFIFOinterruptConfiguration(MCP251XFD *pComp, eMCP251XF
  * @param[in] interruptFlags Is the interrupt flags to change (mentionned flags will be set and the others will be cleared)
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_SetTEFinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFOIntFlags interruptFlags)
+static inline eERRORRESULT MCP251XFD_SetTEFinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFOIntFlags interruptFlags)
 {
   return MCP251XFD_SetFIFOinterruptConfiguration(pComp, MCP251XFD_TEF, interruptFlags);
 }
@@ -4427,7 +4427,7 @@ inline eERRORRESULT MCP251XFD_SetTEFinterruptConfiguration(MCP251XFD *pComp, eMC
  * @param[in] interruptFlags Is the interrupt flags to change (mentionned flags will be set and the others will be cleared)
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_SetTXQinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFOIntFlags interruptFlags)
+static inline eERRORRESULT MCP251XFD_SetTXQinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFOIntFlags interruptFlags)
 {
   return MCP251XFD_SetFIFOinterruptConfiguration(pComp, MCP251XFD_TXQ, interruptFlags);
 }
@@ -4488,7 +4488,7 @@ eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(MCP251XFD *pC
  * @param[out] *name Is the returned name of the FIFO that generate an interrupt
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name)
+static inline eERRORRESULT MCP251XFD_GetCurrentReceiveFIFONameInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name)
 {
   return MCP251XFD_GetCurrentReceiveFIFONameAndStatusInterrupt(pComp, name, NULL);
 }
@@ -4514,7 +4514,7 @@ eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(MCP251XFD *p
  * @param[out] *name Is the returned name of the FIFO that generate an interrupt
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name)
+static inline eERRORRESULT MCP251XFD_GetCurrentTransmitFIFONameInterrupt(MCP251XFD *pComp, eMCP251XFD_FIFO *name)
 {
   return MCP251XFD_GetCurrentTransmitFIFONameAndStatusInterrupt(pComp, name, NULL);
 }
@@ -4535,7 +4535,7 @@ eERRORRESULT MCP251XFD_ClearFIFOEvents(MCP251XFD *pComp, eMCP251XFD_FIFO name, u
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ClearTEFOverflowEvent(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_ClearTEFOverflowEvent(MCP251XFD *pComp)
 {
   return MCP251XFD_ClearFIFOEvents(pComp, MCP251XFD_TEF, MCP251XFD_TEF_FIFO_OVERFLOW);
 }
@@ -4548,7 +4548,7 @@ inline eERRORRESULT MCP251XFD_ClearTEFOverflowEvent(MCP251XFD *pComp)
  * @param[in] name Is the name of the FIFO where event will be cleared
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ClearFIFOOverflowEvent(MCP251XFD *pComp, eMCP251XFD_FIFO name)
+static inline eERRORRESULT MCP251XFD_ClearFIFOOverflowEvent(MCP251XFD *pComp, eMCP251XFD_FIFO name)
 {
   return MCP251XFD_ClearFIFOEvents(pComp, name, MCP251XFD_RX_FIFO_OVERFLOW);
 }
@@ -4561,7 +4561,7 @@ inline eERRORRESULT MCP251XFD_ClearFIFOOverflowEvent(MCP251XFD *pComp, eMCP251XF
  * @param[in] name Is the name of the FIFO where event will be cleared
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ClearFIFOAttemptsEvent(MCP251XFD *pComp, eMCP251XFD_FIFO name)
+static inline eERRORRESULT MCP251XFD_ClearFIFOAttemptsEvent(MCP251XFD *pComp, eMCP251XFD_FIFO name)
 {
   return MCP251XFD_ClearFIFOEvents(pComp, name, MCP251XFD_TX_FIFO_ATTEMPTS_EXHAUSTED);
 }
@@ -4572,7 +4572,7 @@ inline eERRORRESULT MCP251XFD_ClearFIFOAttemptsEvent(MCP251XFD *pComp, eMCP251XF
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_ClearTXQAttemptsEvent(MCP251XFD *pComp)
+static inline eERRORRESULT MCP251XFD_ClearTXQAttemptsEvent(MCP251XFD *pComp)
 {
   return MCP251XFD_ClearFIFOEvents(pComp, MCP251XFD_TXQ, MCP251XFD_TXQ_ATTEMPTS_EXHAUSTED);
 }
@@ -4594,7 +4594,7 @@ eERRORRESULT MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(MCP251XFD *pComp, setM
  * @param[out] *interruptPending Is the return of the receive pending interrupt of all FIFOs
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetReceivePendingInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* interruptPending)
+static inline eERRORRESULT MCP251XFD_GetReceivePendingInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* interruptPending)
 {
   if (interruptPending == NULL) return ERR__PARAMETER_ERROR;
   return MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(pComp, interruptPending, NULL);
@@ -4607,7 +4607,7 @@ inline eERRORRESULT MCP251XFD_GetReceivePendingInterruptStatusOfAllFIFO(MCP251XF
  * @param[out] *overflowStatus Is the return of the receive overflow pending interrupt of all FIFOs
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetReceiveOverflowInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* overflowStatus)
+static inline eERRORRESULT MCP251XFD_GetReceiveOverflowInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* overflowStatus)
 {
   if (overflowStatus == NULL) return ERR__PARAMETER_ERROR;
   return MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(pComp, NULL, overflowStatus);
@@ -4630,7 +4630,7 @@ eERRORRESULT MCP251XFD_GetTransmitInterruptStatusOfAllFIFO(MCP251XFD *pComp, set
  * @param[out] *interruptPending Is the return of the transmit pending interrupt of all FIFOs
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* interruptPending)
+static inline eERRORRESULT MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* interruptPending)
 {
   if (interruptPending == NULL) return ERR__PARAMETER_ERROR;
   return MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(pComp, interruptPending, NULL);
@@ -4643,7 +4643,7 @@ inline eERRORRESULT MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO(MCP251X
  * @param[out] *attemptStatus Is the return of the transmit attempt exhaust pending interrupt of all FIFOs
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* attemptStatus)
+static inline eERRORRESULT MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* attemptStatus)
 {
   if (attemptStatus == NULL) return ERR__PARAMETER_ERROR;
   return MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(pComp, NULL, attemptStatus);
@@ -4708,7 +4708,7 @@ eERRORRESULT MCP251XFD_GetTransmitReceiveErrorCountAndStatus(MCP251XFD *pComp, u
  * @param[out] *transmitErrorCount Is the result of the transmit error count
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetTransmitErrorCount(MCP251XFD *pComp, uint8_t* transmitErrorCount)
+static inline eERRORRESULT MCP251XFD_GetTransmitErrorCount(MCP251XFD *pComp, uint8_t* transmitErrorCount)
 {
   if (transmitErrorCount == NULL) return ERR__PARAMETER_ERROR;
   return MCP251XFD_GetTransmitReceiveErrorCountAndStatus(pComp, transmitErrorCount, NULL, NULL);
@@ -4720,7 +4720,7 @@ inline eERRORRESULT MCP251XFD_GetTransmitErrorCount(MCP251XFD *pComp, uint8_t* t
  * @param[out] *receiveErrorCount Is the result of the receive error count
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetReceiveErrorCount(MCP251XFD *pComp, uint8_t* receiveErrorCount)
+static inline eERRORRESULT MCP251XFD_GetReceiveErrorCount(MCP251XFD *pComp, uint8_t* receiveErrorCount)
 {
   if (receiveErrorCount == NULL) return ERR__PARAMETER_ERROR;
   return MCP251XFD_GetTransmitReceiveErrorCountAndStatus(pComp, NULL, receiveErrorCount, NULL);
@@ -4732,7 +4732,7 @@ inline eERRORRESULT MCP251XFD_GetReceiveErrorCount(MCP251XFD *pComp, uint8_t* re
  * @param[out] *status Is the return transmit/receive error status
  * @return Returns an #eERRORRESULT value enum
  */
-inline eERRORRESULT MCP251XFD_GetTransmitReceiveErrorStatus(MCP251XFD *pComp, eMCP251XFD_TXRXErrorStatus* status)
+static inline eERRORRESULT MCP251XFD_GetTransmitReceiveErrorStatus(MCP251XFD *pComp, eMCP251XFD_TXRXErrorStatus* status)
 {
   if (status == NULL) return ERR__PARAMETER_ERROR;
   return MCP251XFD_GetTransmitReceiveErrorCountAndStatus(pComp, NULL, NULL, status);
