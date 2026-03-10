@@ -1,8 +1,8 @@
 /*!*****************************************************************************
  * @file    MCP251XFD.h
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.8
- * @date    16/03/2025
+ * @version 1.0.9
+ * @date    08/03/2026
  * @brief   MCP251XFD driver
  * @details
  * The MCP251XFD component is a CAN-bus controller supporting CAN2.0A, CAN2.0B
@@ -14,7 +14,7 @@
  ******************************************************************************/
 /* @page License
  *
- * Copyright (c) 2020-2025 Fabien MAILLY
+ * Copyright (c) 2020-2026 Fabien MAILLY
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,15 @@
  *****************************************************************************/
 
 /* Revision history:
+ * 1.0.9    Fix data segment clamping using nominal limits (NTSEG) instead of data limits (DTSEG) — wrong max 128/256 instead of 16/32
+ *          Fix DTQBIT_MIN/MAX macros referencing nominal instead of data constants in header
+ *          Fix uint32 overflow in BRP search loop - rewrite error metric using actual bitrate comparison
+ *          Fix MaxBusLength unsigned wraparound when propagation budget < transceiver delay
+ *          Fix TDC SSP missing DSYNC: BRP * DTSEG1 -> BRP * (DSYNC + DTSEG1)
+ *          Align TDC with Linux: AUTO only for DBRP ≤ 2, DISABLED otherwise, TDCV always 0 in AUTO
+ *          Replace fixed 80% sample point with CiA 601-3 stepped targets (875/800/750‰) with automatic fallback when TSEG1 overflows
+ *          Add division-by-zero guards and unsigned underflow protections in statistics
+ *          [Thanks to mickeyl]
  * 1.0.8    Put 'ul' suffix instead of 'u' suffix on Masks values to remove warnings on 16-bits systems [Thanks to Bobbybigears]
  * 1.0.7    Add MCP251XFD_SetFIFOinterruptConfiguration(), MCP251XFD_SetTEFinterruptConfiguration() and MCP251XFD_SetTXQinterruptConfiguration()
  *          These are to change interrupt configuration of a FIFO/TEF/TXQ at runtime [Thanks to xmurx]
@@ -142,8 +151,8 @@
 #define MCP251XFD_DTSEG2_MAX    (  16 ) //!< Max DTSEG2
 #define MCP251XFD_DSJW_MIN      (   1 ) //!< Min DSJW
 #define MCP251XFD_DSJW_MAX      (  16 ) //!< Max DSJW
-#define MCP251XFD_DTQBIT_MIN    ( MCP251XFD_NSYNC + MCP251XFD_NTSEG1_MIN + MCP251XFD_NTSEG2_MIN ) //!< Min DTQ per Bit (1-bit SYNC + 1-bit PRSEG + 1-bit PHSEG1 + 1-bit PHSEG2)
-#define MCP251XFD_DTQBIT_MAX    ( MCP251XFD_NTSEG1_MAX + MCP251XFD_NTSEG2_MAX + 1 )               //!< Max DTQ per Bit (49-bits)
+#define MCP251XFD_DTQBIT_MIN    ( MCP251XFD_DSYNC + MCP251XFD_DTSEG1_MIN + MCP251XFD_DTSEG2_MIN ) //!< Min DTQ per Bit (1-bit SYNC + 1-bit PRSEG + 1-bit PHSEG1 + 1-bit PHSEG2)
+#define MCP251XFD_DTQBIT_MAX    ( MCP251XFD_DTSEG1_MAX + MCP251XFD_DTSEG2_MAX + 1 )               //!< Max DTQ per Bit (49-bits)
 
 #define MCP251XFD_TDCO_MIN      ( -64 ) //!< Min TDCO
 #define MCP251XFD_TDCO_MAX      (  63 ) //!< Max TDCO
