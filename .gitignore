@@ -60,3 +60,5 @@ Tests/UnitTest/Debug/
 Tests/CANTool.7z
 
 Tests/jlink.log
+
+Tests/UnitTest/x64/

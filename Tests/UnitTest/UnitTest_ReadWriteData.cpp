@@ -78,7 +78,7 @@ namespace UnitTest_BufSize81
       //--- CRC16-CMS call function ---
       struc->fnComputeCRC16 = NULL;
       //--- IO configuration ---
-      struc->GPIOsOutState = 0b00;
+      struc->GPIOsOutLevel  = 0b00;
 
       TransferCounter = 0;
       BytesTransfered = 0;

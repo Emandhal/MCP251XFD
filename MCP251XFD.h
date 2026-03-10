@@ -264,7 +264,7 @@ typedef enum
 {
   MCP2517FD         = 0x0, //!< MCP2517FD supported
   MCP2518FD         = 0x1, //!< MCP2518FD/MCP251863 supported
-  eMPC251XFD_DEVICE_COUNT, // Device count of this enum, keep last
+  eMCP251XFD_DEVICE_COUNT, // Device count of this enum, keep last
 } eMCP251XFD_Devices;
 
 #define MCP251XFD_DEV_ID_Pos         2
@@ -272,7 +272,7 @@ typedef enum
 #define MCP251XFD_DEV_ID_SET(value)  (((uint8_t)(value) << MCP251XFD_DEV_ID_Pos) & MCP251XFD_DEV_ID_Mask) //!< Set Device ID
 #define MCP251XFD_DEV_ID_GET(value)  (((uint8_t)(value) & MCP251XFD_DEV_ID_Mask) >> MCP251XFD_DEV_ID_Pos) //!< Get Device ID
 
-static const char* const MCP251XFD_DevicesNames[eMPC251XFD_DEVICE_COUNT] =
+static const char* const MCP251XFD_DevicesNames[eMCP251XFD_DEVICE_COUNT] =
 {
   "MCP2517FD",
   "MCP2518FD", // Same for MCP251863
@@ -1558,88 +1558,88 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiINT_Register
 MCP251XFD_UNPACKITEM;
 MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiINT_Register, 4);
 
-#define MCP251XFD_CAN_CiINT_TXIF      (0x1ul <<  0) //! Transmit FIFO Interrupt Flag
-#define MCP251XFD_CAN_CiINT_RXIF      (0x1ul <<  1) //! Receive FIFO Interrupt Flag
-#define MCP251XFD_CAN_CiINT_TBCIF     (0x1ul <<  2) //! Time Base Counter Overflow Interrupt Flag
-#define MCP251XFD_CAN_CiINT_MODIF     (0x1ul <<  3) //! Operation Mode Change Interrupt Flag
-#define MCP251XFD_CAN_CiINT_TEFIF     (0x1ul <<  4) //! Transmit Event FIFO Interrupt Flag
-#define MCP251XFD_CAN_CiINT_ECCIF     (0x1ul <<  8) //! ECC Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT_SPICRCIF  (0x1ul <<  9) //! SPI CRC Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT_TXATIF    (0x1ul << 10) //! Transmit Attempt Interrupt Flag
-#define MCP251XFD_CAN_CiINT_RXOVIF    (0x1ul << 11) //! Receive Object Overflow Interrupt Flag
-#define MCP251XFD_CAN_CiINT_SERRIF    (0x1ul << 12) //! System Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT_CERRIF    (0x1ul << 13) //! CAN Bus Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT_WAKIF     (0x1ul << 14) //! Bus Wake Up Interrupt Flag
-#define MCP251XFD_CAN_CiINT_IVMIF     (0x1ul << 15) //! Invalid Message Interrupt Flag
-#define MCP251XFD_CAN_CiINT_TXIE      (0x1ul << 16) //! Transmit FIFO Interrupt Enable
-#define MCP251XFD_CAN_CiINT_RXIE      (0x1ul << 17) //! Receive FIFO Interrupt Enable
-#define MCP251XFD_CAN_CiINT_TBCIE     (0x1ul << 18) //! Time Base Counter Interrupt Enable
-#define MCP251XFD_CAN_CiINT_MODIE     (0x1ul << 19) //! Mode Change Interrupt Enable
-#define MCP251XFD_CAN_CiINT_TEFIE     (0x1ul << 20) //! Transmit Event FIFO Interrupt Enable
-#define MCP251XFD_CAN_CiINT_ECCIE     (0x1ul << 24) //! ECC Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT_SPICRCIE  (0x1ul << 25) //! SPI CRC Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT_TXATIE    (0x1ul << 26) //! Transmit Attempt Interrupt Enable
-#define MCP251XFD_CAN_CiINT_RXOVIE    (0x1ul << 27) //! Receive FIFO Overflow Interrupt Enable
-#define MCP251XFD_CAN_CiINT_SERRIE    (0x1ul << 28) //! System Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT_CERRIE    (0x1ul << 29) //! CAN Bus Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT_WAKIE     (0x1ul << 30) //! Bus Wake Up Interrupt Enable
-#define MCP251XFD_CAN_CiINT_IVMIE     (0x1ul << 31) //! Invalid Message Interrupt Enable
+#define MCP251XFD_CAN_CiINT_TXIF      (0x1ul <<  0) //!< Transmit FIFO Interrupt Flag
+#define MCP251XFD_CAN_CiINT_RXIF      (0x1ul <<  1) //!< Receive FIFO Interrupt Flag
+#define MCP251XFD_CAN_CiINT_TBCIF     (0x1ul <<  2) //!< Time Base Counter Overflow Interrupt Flag
+#define MCP251XFD_CAN_CiINT_MODIF     (0x1ul <<  3) //!< Operation Mode Change Interrupt Flag
+#define MCP251XFD_CAN_CiINT_TEFIF     (0x1ul <<  4) //!< Transmit Event FIFO Interrupt Flag
+#define MCP251XFD_CAN_CiINT_ECCIF     (0x1ul <<  8) //!< ECC Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT_SPICRCIF  (0x1ul <<  9) //!< SPI CRC Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT_TXATIF    (0x1ul << 10) //!< Transmit Attempt Interrupt Flag
+#define MCP251XFD_CAN_CiINT_RXOVIF    (0x1ul << 11) //!< Receive Object Overflow Interrupt Flag
+#define MCP251XFD_CAN_CiINT_SERRIF    (0x1ul << 12) //!< System Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT_CERRIF    (0x1ul << 13) //!< CAN Bus Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT_WAKIF     (0x1ul << 14) //!< Bus Wake Up Interrupt Flag
+#define MCP251XFD_CAN_CiINT_IVMIF     (0x1ul << 15) //!< Invalid Message Interrupt Flag
+#define MCP251XFD_CAN_CiINT_TXIE      (0x1ul << 16) //!< Transmit FIFO Interrupt Enable
+#define MCP251XFD_CAN_CiINT_RXIE      (0x1ul << 17) //!< Receive FIFO Interrupt Enable
+#define MCP251XFD_CAN_CiINT_TBCIE     (0x1ul << 18) //!< Time Base Counter Interrupt Enable
+#define MCP251XFD_CAN_CiINT_MODIE     (0x1ul << 19) //!< Mode Change Interrupt Enable
+#define MCP251XFD_CAN_CiINT_TEFIE     (0x1ul << 20) //!< Transmit Event FIFO Interrupt Enable
+#define MCP251XFD_CAN_CiINT_ECCIE     (0x1ul << 24) //!< ECC Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT_SPICRCIE  (0x1ul << 25) //!< SPI CRC Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT_TXATIE    (0x1ul << 26) //!< Transmit Attempt Interrupt Enable
+#define MCP251XFD_CAN_CiINT_RXOVIE    (0x1ul << 27) //!< Receive FIFO Overflow Interrupt Enable
+#define MCP251XFD_CAN_CiINT_SERRIE    (0x1ul << 28) //!< System Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT_CERRIE    (0x1ul << 29) //!< CAN Bus Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT_WAKIE     (0x1ul << 30) //!< Bus Wake Up Interrupt Enable
+#define MCP251XFD_CAN_CiINT_IVMIE     (0x1ul << 31) //!< Invalid Message Interrupt Enable
 
 //*** Byte version access to Registers ***
-#define MCP251XFD_CAN_CiINT8_TXIF      (0x1u << 0) //! Transmit FIFO Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_RXIF      (0x1u << 1) //! Receive FIFO Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_TBCIF     (0x1u << 2) //! Time Base Counter Overflow Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_MODIF     (0x1u << 3) //! Operation Mode Change Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_TEFIF     (0x1u << 4) //! Transmit Event FIFO Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_ECCIF     (0x1u << 0) //! ECC Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_SPICRCIF  (0x1u << 1) //! SPI CRC Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_TXATIF    (0x1u << 2) //! Transmit Attempt Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_RXOVIF    (0x1u << 3) //! Receive Object Overflow Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_SERRIF    (0x1u << 4) //! System Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_CERRIF    (0x1u << 5) //! CAN Bus Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_WAKIF     (0x1u << 6) //! Bus Wake Up Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_IVMIF     (0x1u << 7) //! Invalid Message Interrupt Flag
-#define MCP251XFD_CAN_CiINT8_TXIE      (0x1u << 0) //! Transmit FIFO Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_RXIE      (0x1u << 1) //! Receive FIFO Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_TBCIE     (0x1u << 2) //! Time Base Counter Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_MODIE     (0x1u << 3) //! Mode Change Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_TEFIE     (0x1u << 4) //! Transmit Event FIFO Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_ECCIE     (0x1u << 0) //! ECC Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_SPICRCIE  (0x1u << 1) //! SPI CRC Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_TXATIE    (0x1u << 2) //! Transmit Attempt Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_RXOVIE    (0x1u << 3) //! Receive FIFO Overflow Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_SERRIE    (0x1u << 4) //! System Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_CERRIE    (0x1u << 5) //! CAN Bus Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_WAKIE     (0x1u << 6) //! Bus Wake Up Interrupt Enable
-#define MCP251XFD_CAN_CiINT8_IVMIE     (0x1u << 7) //! Invalid Message Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_TXIF      (0x1u << 0) //!< Transmit FIFO Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_RXIF      (0x1u << 1) //!< Receive FIFO Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_TBCIF     (0x1u << 2) //!< Time Base Counter Overflow Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_MODIF     (0x1u << 3) //!< Operation Mode Change Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_TEFIF     (0x1u << 4) //!< Transmit Event FIFO Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_ECCIF     (0x1u << 0) //!< ECC Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_SPICRCIF  (0x1u << 1) //!< SPI CRC Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_TXATIF    (0x1u << 2) //!< Transmit Attempt Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_RXOVIF    (0x1u << 3) //!< Receive Object Overflow Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_SERRIF    (0x1u << 4) //!< System Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_CERRIF    (0x1u << 5) //!< CAN Bus Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_WAKIF     (0x1u << 6) //!< Bus Wake Up Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_IVMIF     (0x1u << 7) //!< Invalid Message Interrupt Flag
+#define MCP251XFD_CAN_CiINT8_TXIE      (0x1u << 0) //!< Transmit FIFO Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_RXIE      (0x1u << 1) //!< Receive FIFO Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_TBCIE     (0x1u << 2) //!< Time Base Counter Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_MODIE     (0x1u << 3) //!< Mode Change Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_TEFIE     (0x1u << 4) //!< Transmit Event FIFO Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_ECCIE     (0x1u << 0) //!< ECC Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_SPICRCIE  (0x1u << 1) //!< SPI CRC Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_TXATIE    (0x1u << 2) //!< Transmit Attempt Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_RXOVIE    (0x1u << 3) //!< Receive FIFO Overflow Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_SERRIE    (0x1u << 4) //!< System Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_CERRIE    (0x1u << 5) //!< CAN Bus Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_WAKIE     (0x1u << 6) //!< Bus Wake Up Interrupt Enable
+#define MCP251XFD_CAN_CiINT8_IVMIE     (0x1u << 7) //!< Invalid Message Interrupt Enable
 
 //*** 2-Byte version access to Registers ***
-#define MCP251XFD_CAN_CiINT16_TXIF      (0x1u <<  0) //! Transmit FIFO Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_RXIF      (0x1u <<  1) //! Receive FIFO Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_TBCIF     (0x1u <<  2) //! Time Base Counter Overflow Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_MODIF     (0x1u <<  3) //! Operation Mode Change Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_TEFIF     (0x1u <<  4) //! Transmit Event FIFO Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_ECCIF     (0x1u <<  8) //! ECC Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_SPICRCIF  (0x1u <<  9) //! SPI CRC Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_TXATIF    (0x1u << 10) //! Transmit Attempt Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_RXOVIF    (0x1u << 11) //! Receive Object Overflow Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_SERRIF    (0x1u << 12) //! System Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_CERRIF    (0x1u << 13) //! CAN Bus Error Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_WAKIF     (0x1u << 14) //! Bus Wake Up Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_IVMIF     (0x1u << 15) //! Invalid Message Interrupt Flag
-#define MCP251XFD_CAN_CiINT16_TXIE      (0x1u <<  0) //! Transmit FIFO Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_RXIE      (0x1u <<  1) //! Receive FIFO Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_TBCIE     (0x1u <<  2) //! Time Base Counter Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_MODIE     (0x1u <<  3) //! Mode Change Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_TEFIE     (0x1u <<  4) //! Transmit Event FIFO Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_ECCIE     (0x1u <<  8) //! ECC Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_SPICRCIE  (0x1u <<  9) //! SPI CRC Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_TXATIE    (0x1u << 10) //! Transmit Attempt Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_RXOVIE    (0x1u << 11) //! Receive FIFO Overflow Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_SERRIE    (0x1u << 12) //! System Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_CERRIE    (0x1u << 13) //! CAN Bus Error Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_WAKIE     (0x1u << 14) //! Bus Wake Up Interrupt Enable
-#define MCP251XFD_CAN_CiINT16_IVMIE     (0x1u << 15) //! Invalid Message Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_TXIF      (0x1u <<  0) //!< Transmit FIFO Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_RXIF      (0x1u <<  1) //!< Receive FIFO Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_TBCIF     (0x1u <<  2) //!< Time Base Counter Overflow Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_MODIF     (0x1u <<  3) //!< Operation Mode Change Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_TEFIF     (0x1u <<  4) //!< Transmit Event FIFO Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_ECCIF     (0x1u <<  8) //!< ECC Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_SPICRCIF  (0x1u <<  9) //!< SPI CRC Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_TXATIF    (0x1u << 10) //!< Transmit Attempt Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_RXOVIF    (0x1u << 11) //!< Receive Object Overflow Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_SERRIF    (0x1u << 12) //!< System Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_CERRIF    (0x1u << 13) //!< CAN Bus Error Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_WAKIF     (0x1u << 14) //!< Bus Wake Up Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_IVMIF     (0x1u << 15) //!< Invalid Message Interrupt Flag
+#define MCP251XFD_CAN_CiINT16_TXIE      (0x1u <<  0) //!< Transmit FIFO Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_RXIE      (0x1u <<  1) //!< Receive FIFO Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_TBCIE     (0x1u <<  2) //!< Time Base Counter Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_MODIE     (0x1u <<  3) //!< Mode Change Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_TEFIE     (0x1u <<  4) //!< Transmit Event FIFO Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_ECCIE     (0x1u <<  8) //!< ECC Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_SPICRCIE  (0x1u <<  9) //!< SPI CRC Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_TXATIE    (0x1u << 10) //!< Transmit Attempt Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_RXOVIE    (0x1u << 11) //!< Receive FIFO Overflow Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_SERRIE    (0x1u << 12) //!< System Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_CERRIE    (0x1u << 13) //!< CAN Bus Error Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_WAKIE     (0x1u << 14) //!< Bus Wake Up Interrupt Enable
+#define MCP251XFD_CAN_CiINT16_IVMIE     (0x1u << 15) //!< Invalid Message Interrupt Enable
 
 #define MCP251XFD_CAN_INT_ALL_INT          ( MCP251XFD_CAN_CiINT16_TXIE   | MCP251XFD_CAN_CiINT16_RXIE   | MCP251XFD_CAN_CiINT16_TEFIE  | MCP251XFD_CAN_CiINT16_TXATIE   | MCP251XFD_CAN_CiINT16_RXOVIE | \
                                              MCP251XFD_CAN_CiINT16_TBCIE  | MCP251XFD_CAN_CiINT16_MODIE  | MCP251XFD_CAN_CiINT16_ECCIE  | MCP251XFD_CAN_CiINT16_SPICRCIE |                                \
@@ -1671,7 +1671,7 @@ typedef enum
   MCP251XFD_INT_CLEARABLE_FLAGS_MASK        = MCP251XFD_CAN_INT_CLEARABLE_FLAGS, //!< Clearable in CiINT
 } eMCP251XFD_InterruptEvents;
 
-typedef eMCP251XFD_InterruptEvents setMCP251XFD_InterruptEvents; //! Set of Interrupt Events (can be OR'ed)
+typedef eMCP251XFD_InterruptEvents setMCP251XFD_InterruptEvents; //!< Set of Interrupt Events (can be OR'ed)
 
 //-----------------------------------------------------------------------------
 
@@ -2030,7 +2030,7 @@ typedef enum
   MCP251XFD_INTERRUPT_ON_FIFO31 = 0x80000000, //!< Interrupt is pending on FIFO 31 (TFIF<31> or TFATIF<31> or RFIF<31> or RFOVIF<31> set)
 } eMCP251XFD_InterruptOnFIFO;
 
-typedef eMCP251XFD_InterruptOnFIFO setMCP251XFD_InterruptOnFIFO; //! Set of Receive Interrupt Status (can be OR'ed)
+typedef eMCP251XFD_InterruptOnFIFO setMCP251XFD_InterruptOnFIFO; //!< Set of Receive Interrupt Status (can be OR'ed)
 
 //-----------------------------------------------------------------------------
 
@@ -2711,7 +2711,7 @@ typedef enum
   MCP251XFD_TXQ_STATUS_MASK        = MCP251XFD_CAN_CiTXQSTA8_ALL_EVENTS, //!< TXQ status mask
 } eMCP251XFD_TXQstatus;
 
-typedef eMCP251XFD_TXQstatus setMCP251XFD_TXQstatus; //! Set of Transmit Queue status (can be OR'ed)
+typedef eMCP251XFD_TXQstatus setMCP251XFD_TXQstatus; //!< Set of Transmit Queue status (can be OR'ed)
 
 //-----------------------------------------------------------------------------
 
@@ -3468,7 +3468,7 @@ typedef enum
   MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11        = 0x40, //!< RRS is used as SID11 in CAN FD base format messages: SID<11:0> = {SID<10:0>, SID11}
 } eMCP251XFD_CANCtrlFlags;
 
-typedef eMCP251XFD_CANCtrlFlags setMCP251XFD_CANCtrlFlags; //! Set of CAN control configuration flags (can be OR'ed)
+typedef eMCP251XFD_CANCtrlFlags setMCP251XFD_CANCtrlFlags; //!< Set of CAN control configuration flags (can be OR'ed)
 
 //! MCP251XFD Controller and CAN configuration structure
 typedef struct MCP251XFD_Config
