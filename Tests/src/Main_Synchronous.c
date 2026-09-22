@@ -205,7 +205,7 @@ static void ProcessCommand(void)
       ContinuousSendMessagesExt1 = false;
       break;
     case SLEEP:
-      Error = MCP251XFD_ConfigureSleepMode(CANEXT1, false, MCP251XFD_T11FILTER_300ns, true);
+      Error = MCP251XFD_ConfigureSleepMode(CANEXT1, false, MCP251XFD_T11FILTER_225ns_390ns, true);
       if (Error == ERR_OK)
       {
         MCP251XFD_EnterSleepMode(CANEXT1);
@@ -214,7 +214,7 @@ static void ProcessCommand(void)
       else ShowDeviceError(CANEXT1, Error);
       break;
     case DEEPSLEEP:
-      Error = MCP251XFD_ConfigureSleepMode(CANEXT1, true, MCP251XFD_T11FILTER_300ns, true);
+      Error = MCP251XFD_ConfigureSleepMode(CANEXT1, true, MCP251XFD_T11FILTER_225ns_390ns, true);
       if (Error == ERR_OK)
       {
          MCP251XFD_EnterSleepMode(CANEXT1);
