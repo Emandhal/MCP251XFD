@@ -156,7 +156,7 @@ void ConsoleRx_InterfaceInit_V71(ConsoleRx *pApi);
  *
  * This function will be called when a character have to be get from the interface
  * @param[in] *pApi Is the pointed structure of the API that call this function
- * @param[out] *charToSend Is the char received from the interface
+ * @param[out] *charReceived Is the char received from the interface
  * @return If the char have been send or not
  */
 bool ConsoleRx_GetChar_V71(ConsoleRx *pApi, char *charReceived);

@@ -4142,7 +4142,7 @@ eERRORRESULT MCP251XFD_IsDeviceInSleepMode(MCP251XFD *pComp, bool* isInSleepMode
  *
  * After a wake-up from sleep, the device will be in configuration mode. After a wake-up from low power sleep, the device is at the same state as a Power On Reset, the device must be reconfigured
  * @param[in] *pComp Is the pointed structure of the device to be used
- * @param[out] *fromstate Is the power mode state before the wake up (Can be NULL if not necessary to know)
+ * @param[out] *fromState Is the power mode state before the wake up (Can be NULL if not necessary to know)
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_WakeUp(MCP251XFD *pComp, eMCP251XFD_PowerStates *fromState);
