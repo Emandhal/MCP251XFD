@@ -4643,7 +4643,7 @@ eERRORRESULT MCP251XFD_GetTransmitInterruptStatusOfAllFIFO(MCP251XFD *pComp, set
 static inline eERRORRESULT MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* interruptPending)
 {
   if (interruptPending == NULL) return ERR__PARAMETER_ERROR;
-  return MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(pComp, interruptPending, NULL);
+  return MCP251XFD_GetTransmitInterruptStatusOfAllFIFO(pComp, interruptPending, NULL);
 }
 
 /*! @brief Get the transmit attempt exhaust interrupt pending status of all FIFO
@@ -4656,7 +4656,7 @@ static inline eERRORRESULT MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO(
 static inline eERRORRESULT MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO(MCP251XFD *pComp, setMCP251XFD_InterruptOnFIFO* attemptStatus)
 {
   if (attemptStatus == NULL) return ERR__PARAMETER_ERROR;
-  return MCP251XFD_GetReceiveInterruptStatusOfAllFIFO(pComp, NULL, attemptStatus);
+  return MCP251XFD_GetTransmitInterruptStatusOfAllFIFO(pComp, NULL, attemptStatus);
 }
 
 //********************************************************************************************************************
