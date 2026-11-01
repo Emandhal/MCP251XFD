@@ -1081,11 +1081,16 @@ typedef enum
  */
 typedef enum
 {
-  MCP251XFD_T00FILTER_60ns  = 0b000, //!< Filter 00: Time min =  40ns (MCP2517FD) /  50ns (MCP2518FD) ; max =  75ns (MCP2517FD) / 100ns (MCP2518FD)
-  MCP251XFD_T01FILTER_100ns = 0b001, //!< Filter 01: Time min =  70ns (MCP2517FD) /  80ns (MCP2518FD) ; max = 120ns (MCP2517FD) / 140ns (MCP2518FD)
-  MCP251XFD_T10FILTER_170ns = 0b010, //!< Filter 10: Time min = 125ns (MCP2517FD) / 130ns (MCP2518FD) ; max = 215ns (MCP2517FD) / 220ns (MCP2518FD)
-  MCP251XFD_T11FILTER_300ns = 0b011, //!< Filter 11: Time min = 225ns (MCP2517FD) / 225ns (MCP2518FD) ; max = 390ns (MCP2517FD) / 390ns (MCP2518FD)
-  MCP251XFD_NO_FILTER       = 0b111, //!< Do not use a filter for wake-up
+  MCP2517FD_T00FILTER_40ns_75ns   = 0b000, //!< Filter 00: Time min =  40ns; max =  75ns (MCP2517FD only)
+  MCP2517FD_T01FILTER_70ns_120ns  = 0b001, //!< Filter 01: Time min =  70ns; max = 120ns (MCP2517FD only)
+  MCP2517FD_T10FILTER_125ns_215ns = 0b010, //!< Filter 10: Time min = 125ns; max = 215ns (MCP2517FD only)
+
+  MCP2518FD_T00FILTER_50ns_100ns  = 0b000, //!< Filter 00: Time min =  50ns; max = 100ns (MCP2518FD only)
+  MCP2518FD_T01FILTER_80ns_140ns  = 0b001, //!< Filter 01: Time min =  80ns; max = 140ns (MCP2518FD only)
+  MCP2518FD_T10FILTER_130ns_220ns = 0b010, //!< Filter 10: Time min = 130ns; max = 220ns (MCP2518FD only)
+
+  MCP251XFD_T11FILTER_225ns_390ns = 0b011, //!< Filter 11: Time min = 225ns; max = 390ns (MCP2517FD and MCP2518FD)
+  MCP251XFD_NO_FILTER             = 0b111, //!< Do not use a filter for wake-up
 } eMCP251XFD_WakeUpFilter;
 
 #define MCP251XFD_CAN_CiCON_WFT_Pos         9
