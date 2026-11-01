@@ -95,7 +95,7 @@ uint32_t HexString_ToUint32(const char* srcString);
 /*! @brief Convert an hexadecimal string to uint32 by reference
  *
  * If too many char are present, the result may be uncertain. If a wrong character is found, the result is the value found and the value returned is a pointer to the wrong character
- * @param[in] *buff Buffer of char where the string int32 is stored with a null terminal
+ * @param[in] *srcString Buffer of char where the string int32 is stored with a null terminal
  * @param[out] *result Is the result of the conversion
  * @return The new char* position
  */
