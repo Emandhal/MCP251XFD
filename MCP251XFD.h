@@ -1,8 +1,8 @@
 /*!*****************************************************************************
  * @file    MCP251XFD.h
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.9
- * @date    08/03/2026
+ * @version 1.0.10
+ * @date    01/11/2026
  * @brief   MCP251XFD driver
  * @details
  * The MCP251XFD component is a CAN-bus controller supporting CAN2.0A, CAN2.0B
@@ -36,6 +36,10 @@
  *****************************************************************************/
 
 /* Revision history:
+ * 1.0.10   Fix MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO() and MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO() that called the Receive function [Thanks to ceckelman]
+ *          Fix parameter names in functions documentation [Thanks to ceckelman]
+ *          Add per-controller eMCP251XFD_WakeUpFilter identifiers (MCP2517FD_/MCP2518FD_) with precise timings, old names kept for compatibility [Thanks to ceckelman]
+ *          Decouple packed macros from language and improve compiler support (MSVC, IAR, GCC/Clang) [Thanks to ceckelman]
  * 1.0.9    Fix data segment clamping using nominal limits (NTSEG) instead of data limits (DTSEG) — wrong max 128/256 instead of 16/32
  *          Fix DTQBIT_MIN/MAX macros referencing nominal instead of data constants in header
  *          Fix uint32 overflow in BRP search loop - rewrite error metric using actual bitrate comparison
@@ -88,8 +92,8 @@
 #if defined(_MSC_VER)
   // Microsoft Visual C++
 # define __MCP251XFD_PACKED__
-# define MCP251XFD_PACKITEM             __pragma(pack(push, 1))
-# define MCP251XFD_UNPACKITEM           __pragma(pack(pop))
+# define MCP251XFD_PACKITEM               __pragma(pack(push, 1))
+# define MCP251XFD_UNPACKITEM             __pragma(pack(pop))
 # if defined(__cplusplus) || (_MSC_VER >= 1936)
 #   define MCP251XFD_PACKENUM(name,type)  typedef enum name : type
 #   define MCP251XFD_UNPACKENUM(name)     name
@@ -100,9 +104,9 @@
 
 #elif defined(__IAR_SYSTEMS_ICC__)
   // IAR Embedded Workbench
-# define __MCP251XFD_PACKED__           __attribute__((__packed__))
-# define MCP251XFD_PACKITEM             _Pragma("pack(push, 1)")
-# define MCP251XFD_UNPACKITEM           _Pragma("pack(pop)")
+# define __MCP251XFD_PACKED__             __attribute__((__packed__))
+# define MCP251XFD_PACKITEM               _Pragma("pack(push, 1)")
+# define MCP251XFD_UNPACKITEM             _Pragma("pack(pop)")
 # if defined(__cplusplus) && (__cplusplus >= 201103L)
 #   define MCP251XFD_PACKENUM(name,type)  typedef enum name : type
 #   define MCP251XFD_UNPACKENUM(name)     name
@@ -113,7 +117,7 @@
 
 #else
   // GCC, Clang, ARM Compiler (armclang/armcc), Microchip XC32/XC16, and others
-# define __MCP251XFD_PACKED__           __attribute__((__packed__))
+# define __MCP251XFD_PACKED__             __attribute__((__packed__))
 # define MCP251XFD_PACKITEM
 # define MCP251XFD_UNPACKITEM
 # if defined(__cplusplus) && (__cplusplus >= 201103L)
@@ -1126,6 +1130,12 @@ typedef enum
 
   MCP251XFD_T11FILTER_225ns_390ns = 0b011, //!< Filter 11: Time min = 225ns; max = 390ns (MCP2517FD and MCP2518FD)
   MCP251XFD_NO_FILTER             = 0b111, //!< Do not use a filter for wake-up
+
+  // Deprecated identifiers kept for backward compatibility, use the identifiers above instead
+  MCP251XFD_T00FILTER_60ns        = 0b000, //!< Deprecated, use MCP2517FD_T00FILTER_40ns_75ns or MCP2518FD_T00FILTER_50ns_100ns
+  MCP251XFD_T01FILTER_100ns       = 0b001, //!< Deprecated, use MCP2517FD_T01FILTER_70ns_120ns or MCP2518FD_T01FILTER_80ns_140ns
+  MCP251XFD_T10FILTER_170ns       = 0b010, //!< Deprecated, use MCP2517FD_T10FILTER_125ns_215ns or MCP2518FD_T10FILTER_130ns_220ns
+  MCP251XFD_T11FILTER_300ns       = 0b011, //!< Deprecated, use MCP251XFD_T11FILTER_225ns_390ns
 } eMCP251XFD_WakeUpFilter;
 
 #define MCP251XFD_CAN_CiCON_WFT_Pos         9

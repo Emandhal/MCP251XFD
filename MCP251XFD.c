@@ -1,8 +1,8 @@
 /*!*****************************************************************************
  * @file    MCP251XFD.c
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.9
- * @date    08/03/2026
+ * @version 1.0.10
+ * @date    01/11/2026
  * @brief   MCP251XFD driver
  * @details
  * The MCP251XFD component is a CAN-bus controller supporting CAN2.0A, CAN2.0B
