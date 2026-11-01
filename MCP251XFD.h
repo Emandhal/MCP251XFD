@@ -72,22 +72,57 @@
 #include <stdlib.h>
 //-----------------------------------------------------------------------------
 #include "ErrorsDef.h"
+#if !defined(MCP251XFD_TRANS_BUF_SIZE)
+#  include "Conf_MCP251XFD.h"
+#endif
 //-----------------------------------------------------------------------------
 #ifdef __cplusplus
-# define USE_MCP251XFD_TOOLS
+# ifndef USE_MCP251XFD_TOOLS
+#   define USE_MCP251XFD_TOOLS
+# endif
   extern "C" {
-#  define __MCP251XFD_PACKED__
-#  define MCP251XFD_PACKITEM             __pragma(pack(push, 1))
-#  define MCP251XFD_UNPACKITEM           __pragma(pack(pop))
-#  define MCP251XFD_PACKENUM(name,type)  typedef enum name : type
-#  define MCP251XFD_UNPACKENUM(name)     name
+#endif
+//-----------------------------------------------------------------------------
+// Packed structures and enums definitions
+//-----------------------------------------------------------------------------
+#if defined(_MSC_VER)
+  // Microsoft Visual C++
+# define __MCP251XFD_PACKED__
+# define MCP251XFD_PACKITEM             __pragma(pack(push, 1))
+# define MCP251XFD_UNPACKITEM           __pragma(pack(pop))
+# if defined(__cplusplus) || (_MSC_VER >= 1936)
+#   define MCP251XFD_PACKENUM(name,type)  typedef enum name : type
+#   define MCP251XFD_UNPACKENUM(name)     name
+# else
+#   define MCP251XFD_PACKENUM(name,type)  typedef enum
+#   define MCP251XFD_UNPACKENUM(name)     name
+# endif
+
+#elif defined(__IAR_SYSTEMS_ICC__)
+  // IAR Embedded Workbench
+# define __MCP251XFD_PACKED__           __attribute__((__packed__))
+# define MCP251XFD_PACKITEM             _Pragma("pack(push, 1)")
+# define MCP251XFD_UNPACKITEM           _Pragma("pack(pop)")
+# if defined(__cplusplus) && (__cplusplus >= 201103L)
+#   define MCP251XFD_PACKENUM(name,type)  typedef enum name : type
+#   define MCP251XFD_UNPACKENUM(name)     name
+# else
+#   define MCP251XFD_PACKENUM(name,type)  typedef enum __MCP251XFD_PACKED__
+#   define MCP251XFD_UNPACKENUM(name)     name
+# endif
+
 #else
-#  include "Conf_MCP251XFD.h"
-#  define __MCP251XFD_PACKED__           __attribute__((packed))
-#  define MCP251XFD_PACKITEM
-#  define MCP251XFD_UNPACKITEM
-#  define MCP251XFD_PACKENUM(name,type)  typedef enum __MCP251XFD_PACKED__
-#  define MCP251XFD_UNPACKENUM(name)     name
+  // GCC, Clang, ARM Compiler (armclang/armcc), Microchip XC32/XC16, and others
+# define __MCP251XFD_PACKED__           __attribute__((__packed__))
+# define MCP251XFD_PACKITEM
+# define MCP251XFD_UNPACKITEM
+# if defined(__cplusplus) && (__cplusplus >= 201103L)
+#   define MCP251XFD_PACKENUM(name,type)  typedef enum name : type
+#   define MCP251XFD_UNPACKENUM(name)     name
+# else
+#   define MCP251XFD_PACKENUM(name,type)  typedef enum __MCP251XFD_PACKED__
+#   define MCP251XFD_UNPACKENUM(name)     name
+# endif
 #endif
 //-----------------------------------------------------------------------------
 
