@@ -44,9 +44,11 @@
  *          Fix GCC warning: sign compare in MCP251XFD_ConfigureFilterList()
  *          Update CRC16_CMS (size parameter is a size_t like the ComputeCRC16_Func type)
  *          Fix the oscillator tolerance condition 5 in statistics: use unsigned values for max(0,NBRP/DBRP-1) and avoid an unsigned wrap
+ *          Fix MCP251XFD_ConfigureFIFOList() that left a pointer to a local variable in listFIFO[x].RAMInfos when it returned an error
  *          Fix MISRA C:2012 rule 10.4 (operands of the same essential type category): unsigned suffixes, unsigned limit macros, and explicit casts of the flags and of the registers enums
  *          Fix the strict aliasing warning (GCC -Wstrict-aliasing) in MCP251XFD_TransmitMessageToFIFO() and MCP251XFD_ReceiveMessageFromFIFO(): the buffer is now a union of bytes and message structures
  *          Initialize the temporary value of MCP251XFD_ReadSFR16(), MCP251XFD_ReadSFR32() and MCP251XFD_ReadRAM32() so that no uninitialized value is stored in *data when the read fails
+ *          Fix MCP251XFD_ConfigureFIFOList() that cleared the FIFO being configured instead of the FIFO that are not in the list between two FIFO of the list
  *          Fix the structures and enums size with Clang using the MSVC ABI (clang-cl): it now uses the GCC/Clang branch of the packed macros, with an underlying type for the enums in C
  *          Fix MCP251XFD_CiBDIAG1_Register that was 6 bytes instead of 4 with MSVC in C (an enum can not be packed in C with MSVC), and make the size controls effective with MSVC (negative array size instead of a division by 0)
  * 1.0.10   Fix MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO() and MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO() that called the Receive function [Thanks to ceckelman]

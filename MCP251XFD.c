@@ -1653,12 +1653,12 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
       if (TEFcount > MCP251XFD_TEF_MAX) return ERR__TOO_MANY_TEF;
 
       //--- Configure TEF ---
-      UseTmpRAMInfos = (listFIFO[zTEF].RAMInfos == NULL);           // Is there a RAMInfos structure attached to the configuration?
-      if (UseTmpRAMInfos) listFIFO[zTEF].RAMInfos = &TmpRAMInfos;   // If not RAMInfos structure attached, then set a temporary one
-      Error = MCP251XFD_ConfigureTEF(pComp, true, &listFIFO[zTEF]); // Configure the TEF
-      if (Error != ERR_NONE) return Error;                          // If there is an error while calling MCP251XFD_ConfigureTEF() then return the error
-      TotalSize += listFIFO[zTEF].RAMInfos->ByteInFIFO;             // Add TEF size to the total
-      if (UseTmpRAMInfos) listFIFO[zTEF].RAMInfos = NULL;           // If not RAMInfos structure attached, then unset the temporary one
+      UseTmpRAMInfos = (listFIFO[zTEF].RAMInfos == NULL);                          // Is there a RAMInfos structure attached to the configuration?
+      if (UseTmpRAMInfos) listFIFO[zTEF].RAMInfos = &TmpRAMInfos;                  // If not RAMInfos structure attached, then set a temporary one
+      Error = MCP251XFD_ConfigureTEF(pComp, true, &listFIFO[zTEF]);                // Configure the TEF
+      if (Error == ERR_NONE) TotalSize += listFIFO[zTEF].RAMInfos->ByteInFIFO;     // Add TEF size to the total
+      if (UseTmpRAMInfos) listFIFO[zTEF].RAMInfos = NULL;                          // If not RAMInfos structure attached, then unset the temporary one, also on error to not leave a pointer on a local variable
+      if (Error != ERR_NONE) return Error;                                         // If there is an error while calling MCP251XFD_ConfigureTEF() then return the error
     }
   }
   if (TEFcount == 0u)
@@ -1677,13 +1677,16 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
       if (TXQcount > MCP251XFD_TXQ_MAX) return ERR__TOO_MANY_TXQ;
 
       //--- Configure TXQ --
-      UseTmpRAMInfos = (listFIFO[zTXQ].RAMInfos == NULL);                        // Is there a RAMInfos structure attached to the configuration?
-      if (UseTmpRAMInfos) listFIFO[zTXQ].RAMInfos = &TmpRAMInfos;                // If not RAMInfos structure attached, then set a temporary one
-      Error = MCP251XFD_ConfigureTXQ(pComp, true, &listFIFO[zTXQ]);              // Configure the TXQ
-      if (Error != ERR_NONE) return Error;                                       // If there is an error while calling MCP251XFD_ConfigureTXQ() then return the error
-      listFIFO[zTXQ].RAMInfos->RAMStartAddress = MCP251XFD_RAM_ADDR + TotalSize; // Set start address
-      TotalSize += listFIFO[zTXQ].RAMInfos->ByteInFIFO;                          // Add TXQ size to the total
-      if (UseTmpRAMInfos) listFIFO[zTXQ].RAMInfos = NULL;                        // If not RAMInfos structure attached, then unset the temporary one
+      UseTmpRAMInfos = (listFIFO[zTXQ].RAMInfos == NULL);                          // Is there a RAMInfos structure attached to the configuration?
+      if (UseTmpRAMInfos) listFIFO[zTXQ].RAMInfos = &TmpRAMInfos;                  // If not RAMInfos structure attached, then set a temporary one
+      Error = MCP251XFD_ConfigureTXQ(pComp, true, &listFIFO[zTXQ]);                // Configure the TXQ
+      if (Error == ERR_NONE)
+      {
+        listFIFO[zTXQ].RAMInfos->RAMStartAddress = MCP251XFD_RAM_ADDR + TotalSize; // Set start address
+        TotalSize += listFIFO[zTXQ].RAMInfos->ByteInFIFO;                          // Add TXQ size to the total
+      }
+      if (UseTmpRAMInfos) listFIFO[zTXQ].RAMInfos = NULL;                          // If not RAMInfos structure attached, then unset the temporary one, also on error to not leave a pointer on a local variable
+      if (Error != ERR_NONE) return Error;                                         // If there is an error while calling MCP251XFD_ConfigureTXQ() then return the error
     }
   }
   if (TXQcount == 0u)
@@ -1700,21 +1703,24 @@ eERRORRESULT MCP251XFD_ConfigureFIFOList(MCP251XFD *pComp, MCP251XFD_FIFO *listF
     {
       if ((int32_t)listFIFO[z].Name == zFIFO)
       {
-        for (int32_t clearFIFO = LastFIFO + 1; clearFIFO < zFIFO; clearFIFO++)     // For each FIFO not listed between 2 FIFO
+        for (int32_t clearFIFO = LastFIFO + 1; clearFIFO < zFIFO; clearFIFO++)         // For each FIFO not listed between 2 FIFO
         {
-          Error = MCP251XFD_ClearFIFOConfiguration(pComp, (eMCP251XFD_FIFO)zFIFO); // Clear FIFO configuration
-          if (Error != ERR_NONE) return Error;                                     // If there is an error while calling MCP251XFD_ClearFIFOConfiguration() then return the error
-          TotalSize += MCP251XFD_FIFO_MIN_SIZE;                                    // Add min FIFO size. A FIFO cannot be completely disable so, it takes the minimum possible size
+          Error = MCP251XFD_ClearFIFOConfiguration(pComp, (eMCP251XFD_FIFO)clearFIFO); // Clear FIFO configuration
+          if (Error != ERR_NONE) return Error;                                         // If there is an error while calling MCP251XFD_ClearFIFOConfiguration() then return the error
+          TotalSize += MCP251XFD_FIFO_MIN_SIZE;                                        // Add min FIFO size. A FIFO cannot be completely disable so, it takes the minimum possible size
         }
         LastFIFO = zFIFO;
         //--- Configure FIFO --
-        UseTmpRAMInfos = (listFIFO[z].RAMInfos == NULL);                        // Is there a RAMInfos structure attached to the configuration?
-        if (UseTmpRAMInfos) listFIFO[z].RAMInfos = &TmpRAMInfos;                // If not RAMInfos structure attached, then set a temporary one
-        Error = MCP251XFD_ConfigureFIFO(pComp, &listFIFO[z]);                   // Configure the FIFO
-        if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_ConfigureFIFO() then return the error
-        listFIFO[z].RAMInfos->RAMStartAddress = MCP251XFD_RAM_ADDR + TotalSize; // Set start address
-        TotalSize += listFIFO[z].RAMInfos->ByteInFIFO;                          // Add FIFO size to the total
-        if (UseTmpRAMInfos) listFIFO[z].RAMInfos = NULL;                        // If not RAMInfos structure attached, then unset the temporary one
+        UseTmpRAMInfos = (listFIFO[z].RAMInfos == NULL);                          // Is there a RAMInfos structure attached to the configuration?
+        if (UseTmpRAMInfos) listFIFO[z].RAMInfos = &TmpRAMInfos;                  // If not RAMInfos structure attached, then set a temporary one
+        Error = MCP251XFD_ConfigureFIFO(pComp, &listFIFO[z]);                     // Configure the FIFO
+        if (Error == ERR_NONE)
+        {
+          listFIFO[z].RAMInfos->RAMStartAddress = MCP251XFD_RAM_ADDR + TotalSize; // Set start address
+          TotalSize += listFIFO[z].RAMInfos->ByteInFIFO;                          // Add FIFO size to the total
+        }
+        if (UseTmpRAMInfos) listFIFO[z].RAMInfos = NULL;                          // If not RAMInfos structure attached, then unset the temporary one, also on error to not leave a pointer on a local variable
+        if (Error != ERR_NONE) return Error;                                      // If there is an error while calling MCP251XFD_ConfigureFIFO() then return the error
       }
     }
   }
