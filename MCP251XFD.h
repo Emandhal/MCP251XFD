@@ -44,6 +44,7 @@
  *          Fix GCC warning: sign compare in MCP251XFD_ConfigureFilterList()
  *          Update CRC16_CMS (size parameter is a size_t like the ComputeCRC16_Func type)
  *          Fix the oscillator tolerance condition 5 in statistics: use unsigned values for max(0,NBRP/DBRP-1) and avoid an unsigned wrap
+ *          Fix MISRA C:2012 rule 10.4 (operands of the same essential type category): unsigned suffixes, unsigned limit macros, and explicit casts of the flags and of the registers enums
  *          Fix the structures and enums size with Clang using the MSVC ABI (clang-cl): it now uses the GCC/Clang branch of the packed macros, with an underlying type for the enums in C
  *          Fix MCP251XFD_CiBDIAG1_Register that was 6 bytes instead of 4 with MSVC in C (an enum can not be packed in C with MSVC), and make the size controls effective with MSVC (negative array size instead of a division by 0)
  * 1.0.10   Fix MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO() and MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO() that called the Receive function [Thanks to ceckelman]
@@ -177,44 +178,44 @@
 //-----------------------------------------------------------------------------
 
 // Limits Bit Rate configuration range for MCP251XFD
-#define MCP251XFD_tTXDtRXD_MAX  ( 255 ) //!< tTXD-RXD is the propagation delay of the transceiver, a maximum 255ns according to ISO 11898-1:2015
-#define MCP251XFD_tBUS_CONV     (   5 ) //!< TBUS is the delay on the CAN bus, which is approximately 5ns/m
+#define MCP251XFD_tTXDtRXD_MAX  ( 255  ) //!< tTXD-RXD is the propagation delay of the transceiver, a maximum 255ns according to ISO 11898-1:2015
+#define MCP251XFD_tBUS_CONV     (   5u ) //!< TBUS is the delay on the CAN bus, which is approximately 5ns/m
 
-#define MCP251XFD_NBRP_MIN      (   1 ) //!< Min NBRP
-#define MCP251XFD_NBRP_MAX      ( 256 ) //!< Max NBRP
-#define MCP251XFD_NSYNC         (   1 ) //!< NSYNC is 1 NTQ (Defined in ISO 11898-1:2015)
-#define MCP251XFD_NTSEG1_MIN    (   2 ) //!< Min NTSEG1
-#define MCP251XFD_NTSEG1_MAX    ( 256 ) //!< Max NTSEG1
-#define MCP251XFD_NTSEG2_MIN    (   1 ) //!< Min NTSEG2
-#define MCP251XFD_NTSEG2_MAX    ( 128 ) //!< Max NTSEG2
-#define MCP251XFD_NSJW_MIN      (   1 ) //!< Min NSJW
-#define MCP251XFD_NSJW_MAX      ( 128 ) //!< Max NSJW
+#define MCP251XFD_NBRP_MIN      (   1  ) //!< Min NBRP
+#define MCP251XFD_NBRP_MAX      ( 256  ) //!< Max NBRP
+#define MCP251XFD_NSYNC         (   1u ) //!< NSYNC is 1 NTQ (Defined in ISO 11898-1:2015)
+#define MCP251XFD_NTSEG1_MIN    (   2u ) //!< Min NTSEG1
+#define MCP251XFD_NTSEG1_MAX    ( 256u ) //!< Max NTSEG1
+#define MCP251XFD_NTSEG2_MIN    (   1u ) //!< Min NTSEG2
+#define MCP251XFD_NTSEG2_MAX    ( 128u ) //!< Max NTSEG2
+#define MCP251XFD_NSJW_MIN      (   1u ) //!< Min NSJW
+#define MCP251XFD_NSJW_MAX      ( 128u ) //!< Max NSJW
 #define MCP251XFD_NTQBIT_MIN    ( MCP251XFD_NSYNC + MCP251XFD_NTSEG1_MIN + MCP251XFD_NTSEG2_MIN ) //!< Min NTQ per Bit (1-bit SYNC + 1-bit PRSEG + 1-bit PHSEG1 + 1-bit PHSEG2)
-#define MCP251XFD_NTQBIT_MAX    ( MCP251XFD_NTSEG1_MAX + MCP251XFD_NTSEG2_MAX + 1 )               //!< Max NTQ per Bit (385-bits)
+#define MCP251XFD_NTQBIT_MAX    ( MCP251XFD_NTSEG1_MAX + MCP251XFD_NTSEG2_MAX + 1u )              //!< Max NTQ per Bit (385-bits)
 
-#define MCP251XFD_DBRP_MIN      (   1 ) //!< Min DBRP
-#define MCP251XFD_DBRP_MAX      ( 256 ) //!< Max DBRP
-#define MCP251XFD_DSYNC         (   1 ) //!< DSYNC is 1 NTQ (Defined in ISO 11898-1:2015)
-#define MCP251XFD_DTSEG1_MIN    (   1 ) //!< Min DTSEG1
-#define MCP251XFD_DTSEG1_MAX    (  32 ) //!< Max DTSEG1
-#define MCP251XFD_DTSEG2_MIN    (   1 ) //!< Min DTSEG2
-#define MCP251XFD_DTSEG2_MAX    (  16 ) //!< Max DTSEG2
-#define MCP251XFD_DSJW_MIN      (   1 ) //!< Min DSJW
-#define MCP251XFD_DSJW_MAX      (  16 ) //!< Max DSJW
+#define MCP251XFD_DBRP_MIN      (   1  ) //!< Min DBRP
+#define MCP251XFD_DBRP_MAX      ( 256  ) //!< Max DBRP
+#define MCP251XFD_DSYNC         (   1u ) //!< DSYNC is 1 NTQ (Defined in ISO 11898-1:2015)
+#define MCP251XFD_DTSEG1_MIN    (   1u ) //!< Min DTSEG1
+#define MCP251XFD_DTSEG1_MAX    (  32u ) //!< Max DTSEG1
+#define MCP251XFD_DTSEG2_MIN    (   1u ) //!< Min DTSEG2
+#define MCP251XFD_DTSEG2_MAX    (  16u ) //!< Max DTSEG2
+#define MCP251XFD_DSJW_MIN      (   1u ) //!< Min DSJW
+#define MCP251XFD_DSJW_MAX      (  16u ) //!< Max DSJW
 #define MCP251XFD_DTQBIT_MIN    ( MCP251XFD_DSYNC + MCP251XFD_DTSEG1_MIN + MCP251XFD_DTSEG2_MIN ) //!< Min DTQ per Bit (1-bit SYNC + 1-bit PRSEG + 1-bit PHSEG1 + 1-bit PHSEG2)
-#define MCP251XFD_DTQBIT_MAX    ( MCP251XFD_DTSEG1_MAX + MCP251XFD_DTSEG2_MAX + 1 )               //!< Max DTQ per Bit (49-bits)
+#define MCP251XFD_DTQBIT_MAX    ( MCP251XFD_DTSEG1_MAX + MCP251XFD_DTSEG2_MAX + 1u )              //!< Max DTQ per Bit (49-bits)
 
-#define MCP251XFD_TDCO_MIN      ( -64 ) //!< Min TDCO
-#define MCP251XFD_TDCO_MAX      (  63 ) //!< Max TDCO
-#define MCP251XFD_TDCV_MIN      (   0 ) //!< Min TDCV
-#define MCP251XFD_TDCV_MAX      (  63 ) //!< Max TDCV
+#define MCP251XFD_TDCO_MIN      ( -64  ) //!< Min TDCO
+#define MCP251XFD_TDCO_MAX      (  63u ) //!< Max TDCO
+#define MCP251XFD_TDCV_MIN      (   0  ) //!< Min TDCV
+#define MCP251XFD_TDCV_MAX      (  63  ) //!< Max TDCV
 
 //-----------------------------------------------------------------------------
 
 // FIFO definitions
-#define MCP251XFD_TEF_MAX        (  1 ) //!< 1 TEF maximum
-#define MCP251XFD_TXQ_MAX        (  1 ) //!< 1 TXQ maximum
-#define MCP251XFD_FIFO_MAX       ( 31 ) //!< 31 FIFOs maximum
+#define MCP251XFD_TEF_MAX        (  1u ) //!< 1 TEF maximum
+#define MCP251XFD_TXQ_MAX        (  1u ) //!< 1 TXQ maximum
+#define MCP251XFD_FIFO_MAX       ( 31u ) //!< 31 FIFOs maximum
 #define MCP251XFD_FIFO_CONF_MAX  ( MCP251XFD_TEF_MAX + MCP251XFD_TXQ_MAX + MCP251XFD_FIFO_MAX ) //!< Maximum 33 FIFO configurable (TEF + TXQ + 31 FIFO)
 #define MCP251XFD_TX_FIFO_MAX    ( MCP251XFD_TXQ_MAX + MCP251XFD_FIFO_MAX )                     //!< Maximum 32 transmit FIFO (TXQ + 31 FIFO)
 #define MCP251XFD_RX_FIFO_MAX    ( MCP251XFD_TEF_MAX + MCP251XFD_FIFO_MAX )                     //!< Maximum 32 receive FIFO (TEF + 31 FIFO)
@@ -300,7 +301,7 @@ typedef eMCP251XFD_DriverConfig setMCP251XFD_DriverConfig; //!< Set of Driver co
 //-----------------------------------------------------------------------------
 
 // Safe Reset speed definition
-#define MCP251XFD_DRIVER_SAFE_RESET_SPI_CLK  ( MCP251XFD_SYSCLK_MIN / 2 ) //!< Set the SPI safe reset clock speed at 1MHz because SPI speed max is SYSCLK/2 and Xtal/Resonator/Oscillator frequency min is 2MHz
+#define MCP251XFD_DRIVER_SAFE_RESET_SPI_CLK  ( MCP251XFD_SYSCLK_MIN / 2u ) //!< Set the SPI safe reset clock speed at 1MHz because SPI speed max is SYSCLK/2 and Xtal/Resonator/Oscillator frequency min is 2MHz
 
 //-----------------------------------------------------------------------------
 
@@ -312,9 +313,9 @@ typedef eMCP251XFD_DriverConfig setMCP251XFD_DriverConfig; //!< Set of Driver co
 #define MCP251XFD_SPI_INSTRUCTION_READ_CRC    ( 0x0B ) //!< Read with CRC instruction
 #define MCP251XFD_SPI_INSTRUCTION_SAFE_WRITE  ( 0x0C ) //!< Safe Write instruction
 
-#define MCP251XFD_SPI_FIRST_BYTE(instruction,address)   ( ((instruction) << 4) | (((address) >> 8) & 0xFu) ) //!< Set first byte of SPI command
-#define MCP251XFD_SPI_SECOND_BYTE(address)              ( (address) & 0xFFu )                                //!< Set next byte of SPI command
-#define MCP251XFD_SPI_16BITS_WORD(instruction,address)  ( ((instruction) << 12) | ((address) & 0xFFFu) )     //!< Set first and second byte of SPI command into a 16-bit word
+#define MCP251XFD_SPI_FIRST_BYTE(instruction,address)   ( ((instruction) << 4) | (((address) >> 8) & 0xFu) )         //!< Set first byte of SPI command
+#define MCP251XFD_SPI_SECOND_BYTE(address)              ( (address) & 0xFFu )                                        //!< Set next byte of SPI command
+#define MCP251XFD_SPI_16BITS_WORD(instruction,address)  ( (((uint32_t)(instruction)) << 12) | ((address) & 0xFFFu) ) //!< Set first and second byte of SPI command into a 16-bit word
 
 //-----------------------------------------------------------------------------
 
@@ -351,298 +352,298 @@ static const char* const MCP251XFD_DevicesNames[eMCP251XFD_DEVICE_COUNT] =
 typedef enum
 {
   // CAN-FD Controller Module Registers
-  RegMCP251XFD_CiCON              = 0x000,                     //!< CAN Control Register
-  RegMCP251XFD_CiNBTCFG           = 0x004,                     //!< Nominal BitTime Configuration Register
-  RegMCP251XFD_CiNBTCFG_SJW       = RegMCP251XFD_CiNBTCFG+0,   //!< Nominal BitTime Configuration Register - Synchronization Jump Width
-  RegMCP251XFD_CiNBTCFG_TSEG2     = RegMCP251XFD_CiNBTCFG+1,   //!< Nominal BitTime Configuration Register - Time Segment 2 (Phase Segment 2)
-  RegMCP251XFD_CiNBTCFG_TSEG1     = RegMCP251XFD_CiNBTCFG+2,   //!< Nominal BitTime Configuration Register - Time Segment 1 (Propagation Segment + Phase Segment 1)
-  RegMCP251XFD_CiNBTCFG_BRP       = RegMCP251XFD_CiNBTCFG+3,   //!< Nominal BitTime Configuration Register - Baud Rate Prescaler
-  RegMCP251XFD_CiDBTCFG           = 0x008,                     //!< Data BitTime Configuration Register
-  RegMCP251XFD_CiDBTCFG_SJW       = RegMCP251XFD_CiDBTCFG+0,   //!< Data BitTime Configuration Register - Synchronization Jump Width
-  RegMCP251XFD_CiDBTCFG_TSEG2     = RegMCP251XFD_CiDBTCFG+1,   //!< Data BitTime Configuration Register - Time Segment 2 (Phase Segment 2)
-  RegMCP251XFD_CiDBTCFG_TSEG1     = RegMCP251XFD_CiDBTCFG+2,   //!< Data BitTime Configuration Register - Time Segment 1 (Propagation Segment + Phase Segment 1)
-  RegMCP251XFD_CiDBTCFG_BRP       = RegMCP251XFD_CiDBTCFG+3,   //!< Data BitTime Configuration Register - Baud Rate Prescaler
-  RegMCP251XFD_CiTDC              = 0x00C,                     //!< Transmitter Delay Compensation Register
-  RegMCP251XFD_CiTDC_TDCV         = RegMCP251XFD_CiTDC+0,      //!< Transmitter Delay Compensation Register - Transmitter Delay Compensation Value
-  RegMCP251XFD_CiTDC_TDCO         = RegMCP251XFD_CiTDC+1,      //!< Transmitter Delay Compensation Register - Transmitter Delay Compensation Offset
-  RegMCP251XFD_CiTDC_TDCMOD       = RegMCP251XFD_CiTDC+2,      //!< Transmitter Delay Compensation Register - Transmitter Delay Compensation Mode
-  RegMCP251XFD_CiTDC_CONFIG       = RegMCP251XFD_CiTDC+3,      //!< Transmitter Delay Compensation Register - CAN-FD configuration
-  RegMCP251XFD_CiTBC              = 0x010,                     //!< Time Base Counter Register
-  RegMCP251XFD_CiTSCON            = 0x014,                     //!< Time Stamp Control Register
-  RegMCP251XFD_CiTSCON_TBCPRE     = RegMCP251XFD_CiTSCON+0,    //!< Time Stamp Control Register - Time Base Counter Prescaler
-  RegMCP251XFD_CiTSCON_CONFIG     = RegMCP251XFD_CiTSCON+2,    //!< Time Stamp Control Register - Time Base Counter Configuration
-  RegMCP251XFD_CiVEC              = 0x018,                     //!< Interrupt Code Register
-  RegMCP251XFD_CiVEC_ICODE        = RegMCP251XFD_CiVEC+0,      //!< Interrupt Code Register - Interrupt Flag Code
-  RegMCP251XFD_CiVEC_FILHIT       = RegMCP251XFD_CiVEC+1,      //!< Interrupt Code Register - Filter Hit Number
-  RegMCP251XFD_CiVEC_TXCODE       = RegMCP251XFD_CiVEC+2,      //!< Interrupt Code Register - Transmit Interrupt Flag Code
-  RegMCP251XFD_CiVEC_RXCODE       = RegMCP251XFD_CiVEC+3,      //!< Interrupt Code Register - Receive Interrupt Flag Code
-  RegMCP251XFD_CiINT              = 0x01C,                     //!< Interrupt Register
-  RegMCP251XFD_CiINT_FLAG         = RegMCP251XFD_CiINT+0,      //!< Interrupt Register - Interrupts flags
-  RegMCP251XFD_CiINT_CONFIG       = RegMCP251XFD_CiINT+2,      //!< Interrupt Register - Interrupts enable
-  RegMCP251XFD_CiRXIF             = 0x020,                     //!< Receive Interrupt Status Register
-  RegMCP251XFD_CiTXIF             = 0x024,                     //!< Receive Overflow Interrupt Status Register
-  RegMCP251XFD_CiRXOVIF           = 0x028,                     //!< Transmit Interrupt Status Register
-  RegMCP251XFD_CiTXATIF           = 0x02C,                     //!< Transmit Attempt Interrupt Status Register
-  RegMCP251XFD_CiTXREQ            = 0x030,                     //!< Transmit Request Register
-  RegMCP251XFD_CiTREC             = 0x034,                     //!< Transmit/Receive Error Count Register
-  RegMCP251XFD_CiTREC_REC         = RegMCP251XFD_CiTREC+0,     //!< Transmit/Receive Error Count Register - Receive Error Counter
-  RegMCP251XFD_CiTREC_TEC         = RegMCP251XFD_CiTREC+1,     //!< Transmit/Receive Error Count Register - Transmit Error Counter
-  RegMCP251XFD_CiTREC_STATUS      = RegMCP251XFD_CiTREC+2,     //!< Transmit/Receive Error Count Register - Error Status
-  RegMCP251XFD_CiBDIAG0           = 0x038,                     //!< Bus Diagnostic Register 0
-  RegMCP251XFD_CiBDIAG0_NRERRCNT  = RegMCP251XFD_CiBDIAG0+0,   //!< Bus Diagnostic Register 0 - Nominal Bit Rate Receive Error Counter
-  RegMCP251XFD_CiBDIAG0_NTERRCNT  = RegMCP251XFD_CiBDIAG0+1,   //!< Bus Diagnostic Register 0 - Nominal Bit Rate Transmit Error Counter
-  RegMCP251XFD_CiBDIAG0_DRERRCNT  = RegMCP251XFD_CiBDIAG0+2,   //!< Bus Diagnostic Register 0 - Data Bit Rate Receive Error Counter
-  RegMCP251XFD_CiBDIAG0_DTERRCNT  = RegMCP251XFD_CiBDIAG0+3,   //!< Bus Diagnostic Register 0 - Data Bit Rate Transmit Error Counter
-  RegMCP251XFD_CiBDIAG1           = 0x03C,                     //!< Bus Diagnostic Register 1
-  RegMCP251XFD_CiBDIAG1_EFMSGCNT  = RegMCP251XFD_CiBDIAG1+0,   //!< Bus Diagnostic Register 1 - Error Free Message Counter
-  RegMCP251XFD_CiTEFCON           = 0x040,                     //!< Transmit Event FIFO Control Register
-  RegMCP251XFD_CiTEFCON_CONFIG    = RegMCP251XFD_CiTEFCON+0,   //!< Transmit Event FIFO Control Register - Interrupt configuration
-  RegMCP251XFD_CiTEFCON_CONTROL   = RegMCP251XFD_CiTEFCON+1,   //!< Transmit Event FIFO Control Register - TEF Control
-  RegMCP251XFD_CiTEFSTA           = 0x044,                     //!< Transmit Event FIFO Status Register
-  RegMCP251XFD_CiTEFSTA_FLAGS     = RegMCP251XFD_CiTEFSTA+0,   //!< Transmit Event FIFO Status Register - Flags
-  RegMCP251XFD_CiTEFUA            = 0x048,                     //!< Transmit Event FIFO User Address Register
-  RegMCP251XFD_Reserved4C         = 0x04C,                     //!< Reserved Register
+  RegMCP251XFD_CiCON              = 0x000,                                            //!< CAN Control Register
+  RegMCP251XFD_CiNBTCFG           = 0x004,                                            //!< Nominal BitTime Configuration Register
+  RegMCP251XFD_CiNBTCFG_SJW       = (uint16_t)((uint16_t)RegMCP251XFD_CiNBTCFG+0u),   //!< Nominal BitTime Configuration Register - Synchronization Jump Width
+  RegMCP251XFD_CiNBTCFG_TSEG2     = (uint16_t)((uint16_t)RegMCP251XFD_CiNBTCFG+1u),   //!< Nominal BitTime Configuration Register - Time Segment 2 (Phase Segment 2)
+  RegMCP251XFD_CiNBTCFG_TSEG1     = (uint16_t)((uint16_t)RegMCP251XFD_CiNBTCFG+2u),   //!< Nominal BitTime Configuration Register - Time Segment 1 (Propagation Segment + Phase Segment 1)
+  RegMCP251XFD_CiNBTCFG_BRP       = (uint16_t)((uint16_t)RegMCP251XFD_CiNBTCFG+3u),   //!< Nominal BitTime Configuration Register - Baud Rate Prescaler
+  RegMCP251XFD_CiDBTCFG           = 0x008,                                            //!< Data BitTime Configuration Register
+  RegMCP251XFD_CiDBTCFG_SJW       = (uint16_t)((uint16_t)RegMCP251XFD_CiDBTCFG+0u),   //!< Data BitTime Configuration Register - Synchronization Jump Width
+  RegMCP251XFD_CiDBTCFG_TSEG2     = (uint16_t)((uint16_t)RegMCP251XFD_CiDBTCFG+1u),   //!< Data BitTime Configuration Register - Time Segment 2 (Phase Segment 2)
+  RegMCP251XFD_CiDBTCFG_TSEG1     = (uint16_t)((uint16_t)RegMCP251XFD_CiDBTCFG+2u),   //!< Data BitTime Configuration Register - Time Segment 1 (Propagation Segment + Phase Segment 1)
+  RegMCP251XFD_CiDBTCFG_BRP       = (uint16_t)((uint16_t)RegMCP251XFD_CiDBTCFG+3u),   //!< Data BitTime Configuration Register - Baud Rate Prescaler
+  RegMCP251XFD_CiTDC              = 0x00C,                                            //!< Transmitter Delay Compensation Register
+  RegMCP251XFD_CiTDC_TDCV         = (uint16_t)((uint16_t)RegMCP251XFD_CiTDC+0u),      //!< Transmitter Delay Compensation Register - Transmitter Delay Compensation Value
+  RegMCP251XFD_CiTDC_TDCO         = (uint16_t)((uint16_t)RegMCP251XFD_CiTDC+1u),      //!< Transmitter Delay Compensation Register - Transmitter Delay Compensation Offset
+  RegMCP251XFD_CiTDC_TDCMOD       = (uint16_t)((uint16_t)RegMCP251XFD_CiTDC+2u),      //!< Transmitter Delay Compensation Register - Transmitter Delay Compensation Mode
+  RegMCP251XFD_CiTDC_CONFIG       = (uint16_t)((uint16_t)RegMCP251XFD_CiTDC+3u),      //!< Transmitter Delay Compensation Register - CAN-FD configuration
+  RegMCP251XFD_CiTBC              = 0x010,                                            //!< Time Base Counter Register
+  RegMCP251XFD_CiTSCON            = 0x014,                                            //!< Time Stamp Control Register
+  RegMCP251XFD_CiTSCON_TBCPRE     = (uint16_t)((uint16_t)RegMCP251XFD_CiTSCON+0u),    //!< Time Stamp Control Register - Time Base Counter Prescaler
+  RegMCP251XFD_CiTSCON_CONFIG     = (uint16_t)((uint16_t)RegMCP251XFD_CiTSCON+2u),    //!< Time Stamp Control Register - Time Base Counter Configuration
+  RegMCP251XFD_CiVEC              = 0x018,                                            //!< Interrupt Code Register
+  RegMCP251XFD_CiVEC_ICODE        = (uint16_t)((uint16_t)RegMCP251XFD_CiVEC+0u),      //!< Interrupt Code Register - Interrupt Flag Code
+  RegMCP251XFD_CiVEC_FILHIT       = (uint16_t)((uint16_t)RegMCP251XFD_CiVEC+1u),      //!< Interrupt Code Register - Filter Hit Number
+  RegMCP251XFD_CiVEC_TXCODE       = (uint16_t)((uint16_t)RegMCP251XFD_CiVEC+2u),      //!< Interrupt Code Register - Transmit Interrupt Flag Code
+  RegMCP251XFD_CiVEC_RXCODE       = (uint16_t)((uint16_t)RegMCP251XFD_CiVEC+3u),      //!< Interrupt Code Register - Receive Interrupt Flag Code
+  RegMCP251XFD_CiINT              = 0x01C,                                            //!< Interrupt Register
+  RegMCP251XFD_CiINT_FLAG         = (uint16_t)((uint16_t)RegMCP251XFD_CiINT+0u),      //!< Interrupt Register - Interrupts flags
+  RegMCP251XFD_CiINT_CONFIG       = (uint16_t)((uint16_t)RegMCP251XFD_CiINT+2u),      //!< Interrupt Register - Interrupts enable
+  RegMCP251XFD_CiRXIF             = 0x020,                                            //!< Receive Interrupt Status Register
+  RegMCP251XFD_CiTXIF             = 0x024,                                            //!< Receive Overflow Interrupt Status Register
+  RegMCP251XFD_CiRXOVIF           = 0x028,                                            //!< Transmit Interrupt Status Register
+  RegMCP251XFD_CiTXATIF           = 0x02C,                                            //!< Transmit Attempt Interrupt Status Register
+  RegMCP251XFD_CiTXREQ            = 0x030,                                            //!< Transmit Request Register
+  RegMCP251XFD_CiTREC             = 0x034,                                            //!< Transmit/Receive Error Count Register
+  RegMCP251XFD_CiTREC_REC         = (uint16_t)((uint16_t)RegMCP251XFD_CiTREC+0u),     //!< Transmit/Receive Error Count Register - Receive Error Counter
+  RegMCP251XFD_CiTREC_TEC         = (uint16_t)((uint16_t)RegMCP251XFD_CiTREC+1u),     //!< Transmit/Receive Error Count Register - Transmit Error Counter
+  RegMCP251XFD_CiTREC_STATUS      = (uint16_t)((uint16_t)RegMCP251XFD_CiTREC+2u),     //!< Transmit/Receive Error Count Register - Error Status
+  RegMCP251XFD_CiBDIAG0           = 0x038,                                            //!< Bus Diagnostic Register 0
+  RegMCP251XFD_CiBDIAG0_NRERRCNT  = (uint16_t)((uint16_t)RegMCP251XFD_CiBDIAG0+0u),   //!< Bus Diagnostic Register 0 - Nominal Bit Rate Receive Error Counter
+  RegMCP251XFD_CiBDIAG0_NTERRCNT  = (uint16_t)((uint16_t)RegMCP251XFD_CiBDIAG0+1u),   //!< Bus Diagnostic Register 0 - Nominal Bit Rate Transmit Error Counter
+  RegMCP251XFD_CiBDIAG0_DRERRCNT  = (uint16_t)((uint16_t)RegMCP251XFD_CiBDIAG0+2u),   //!< Bus Diagnostic Register 0 - Data Bit Rate Receive Error Counter
+  RegMCP251XFD_CiBDIAG0_DTERRCNT  = (uint16_t)((uint16_t)RegMCP251XFD_CiBDIAG0+3u),   //!< Bus Diagnostic Register 0 - Data Bit Rate Transmit Error Counter
+  RegMCP251XFD_CiBDIAG1           = 0x03C,                                            //!< Bus Diagnostic Register 1
+  RegMCP251XFD_CiBDIAG1_EFMSGCNT  = (uint16_t)((uint16_t)RegMCP251XFD_CiBDIAG1+0u),   //!< Bus Diagnostic Register 1 - Error Free Message Counter
+  RegMCP251XFD_CiTEFCON           = 0x040,                                            //!< Transmit Event FIFO Control Register
+  RegMCP251XFD_CiTEFCON_CONFIG    = (uint16_t)((uint16_t)RegMCP251XFD_CiTEFCON+0u),   //!< Transmit Event FIFO Control Register - Interrupt configuration
+  RegMCP251XFD_CiTEFCON_CONTROL   = (uint16_t)((uint16_t)RegMCP251XFD_CiTEFCON+1u),   //!< Transmit Event FIFO Control Register - TEF Control
+  RegMCP251XFD_CiTEFSTA           = 0x044,                                            //!< Transmit Event FIFO Status Register
+  RegMCP251XFD_CiTEFSTA_FLAGS     = (uint16_t)((uint16_t)RegMCP251XFD_CiTEFSTA+0u),   //!< Transmit Event FIFO Status Register - Flags
+  RegMCP251XFD_CiTEFUA            = 0x048,                                            //!< Transmit Event FIFO User Address Register
+  RegMCP251XFD_Reserved4C         = 0x04C,                                            //!< Reserved Register
   // Transmit Queue Registers
-  RegMCP251XFD_CiTXQCON           = 0x050,                     //!< Transmit Queue Control Register
-  RegMCP251XFD_CiTXQCON_CONFIG    = RegMCP251XFD_CiTXQCON+0,   //!< Transmit Queue Control Register - Interrupt configuration
-  RegMCP251XFD_CiTXQCON_CONTROL   = RegMCP251XFD_CiTXQCON+1,   //!< Transmit Queue Control Register - TXQ Control
-  RegMCP251XFD_CiTXQSTA           = 0x054,                     //!< Transmit Queue Status Register
-  RegMCP251XFD_CiTXQSTA_FLAGS     = RegMCP251XFD_CiTXQSTA+0,   //!< Transmit Queue Status Register - Flags
-  RegMCP251XFD_CiTXQSTA_TXQCI     = RegMCP251XFD_CiTXQSTA+1,   //!< Transmit Queue Status Register - Transmit Queue Message Index
-  RegMCP251XFD_CiTXQUA            = 0x058,                     //!< Transmit Queue User Address Register
+  RegMCP251XFD_CiTXQCON           = 0x050,                                            //!< Transmit Queue Control Register
+  RegMCP251XFD_CiTXQCON_CONFIG    = (uint16_t)((uint16_t)RegMCP251XFD_CiTXQCON+0u),   //!< Transmit Queue Control Register - Interrupt configuration
+  RegMCP251XFD_CiTXQCON_CONTROL   = (uint16_t)((uint16_t)RegMCP251XFD_CiTXQCON+1u),   //!< Transmit Queue Control Register - TXQ Control
+  RegMCP251XFD_CiTXQSTA           = 0x054,                                            //!< Transmit Queue Status Register
+  RegMCP251XFD_CiTXQSTA_FLAGS     = (uint16_t)((uint16_t)RegMCP251XFD_CiTXQSTA+0u),   //!< Transmit Queue Status Register - Flags
+  RegMCP251XFD_CiTXQSTA_TXQCI     = (uint16_t)((uint16_t)RegMCP251XFD_CiTXQSTA+1u),   //!< Transmit Queue Status Register - Transmit Queue Message Index
+  RegMCP251XFD_CiTXQUA            = 0x058,                                            //!< Transmit Queue User Address Register
   // FIFOs Registers
-  RegMCP251XFD_CiFIFOCONm         = 0x05C,                     //!< FIFO Control Register m, (m = 1 to 31)
-  RegMCP251XFD_CiFIFOCONm_CONFIG  = RegMCP251XFD_CiFIFOCONm+0, //!< FIFO Control Register m, (m = 1 to 31) - Interrupt configuration
-  RegMCP251XFD_CiFIFOCONm_CONTROL = RegMCP251XFD_CiFIFOCONm+1, //!< FIFO Control Register m, (m = 1 to 31) - FIFO Control
-  RegMCP251XFD_CiFIFOSTAm         = 0x060,                     //!< FIFO Status Register m, (m = 1 to 31)
-  RegMCP251XFD_CiFIFOSTAm_FLAGS   = RegMCP251XFD_CiFIFOSTAm+0, //!< FIFO Status Register m, (m = 1 to 31) - Flags
-  RegMCP251XFD_CiFIFOSTAm_FIFOCI  = RegMCP251XFD_CiFIFOSTAm+1, //!< FIFO Status Register m, (m = 1 to 31) - FIFO Message Index
-  RegMCP251XFD_CiFIFOUAm          = 0x064,                     //!< FIFO User Address Register m, (m = 1 to 31)
-  RegMCP251XFD_CiFIFOCON1         = 0x05C,                     //!< FIFO Control Register 1
-  RegMCP251XFD_CiFIFOSTA1         = 0x060,                     //!< FIFO Status Register 1
-  RegMCP251XFD_CiFIFOUA1          = 0x064,                     //!< FIFO User Address Register 1
-  RegMCP251XFD_CiFIFOCON2         = 0x068,                     //!< FIFO Control Register 2
-  RegMCP251XFD_CiFIFOSTA2         = 0x06C,                     //!< FIFO Status Register 2
-  RegMCP251XFD_CiFIFOUA2          = 0x070,                     //!< FIFO User Address Register 2
-  RegMCP251XFD_CiFIFOCON3         = 0x074,                     //!< FIFO Control Register 3
-  RegMCP251XFD_CiFIFOSTA3         = 0x078,                     //!< FIFO Status Register 3
-  RegMCP251XFD_CiFIFOUA3          = 0x07C,                     //!< FIFO User Address Register 3
-  RegMCP251XFD_CiFIFOCON4         = 0x080,                     //!< FIFO Control Register 4
-  RegMCP251XFD_CiFIFOSTA4         = 0x084,                     //!< FIFO Status Register 4
-  RegMCP251XFD_CiFIFOUA4          = 0x088,                     //!< FIFO User Address Register 4
-  RegMCP251XFD_CiFIFOCON5         = 0x08C,                     //!< FIFO Control Register 5
-  RegMCP251XFD_CiFIFOSTA5         = 0x090,                     //!< FIFO Status Register 5
-  RegMCP251XFD_CiFIFOUA5          = 0x094,                     //!< FIFO User Address Register 5
-  RegMCP251XFD_CiFIFOCON6         = 0x098,                     //!< FIFO Control Register 6
-  RegMCP251XFD_CiFIFOSTA6         = 0x09C,                     //!< FIFO Status Register 6
-  RegMCP251XFD_CiFIFOUA6          = 0x0A0,                     //!< FIFO User Address Register 6
-  RegMCP251XFD_CiFIFOCON7         = 0x0A4,                     //!< FIFO Control Register 7
-  RegMCP251XFD_CiFIFOSTA7         = 0x0A8,                     //!< FIFO Status Register 7
-  RegMCP251XFD_CiFIFOUA7          = 0x0AC,                     //!< FIFO User Address Register 7
-  RegMCP251XFD_CiFIFOCON8         = 0x0B0,                     //!< FIFO Control Register 8
-  RegMCP251XFD_CiFIFOSTA8         = 0x0B4,                     //!< FIFO Status Register 8
-  RegMCP251XFD_CiFIFOUA8          = 0x0B8,                     //!< FIFO User Address Register 8
-  RegMCP251XFD_CiFIFOCON9         = 0x0BC,                     //!< FIFO Control Register 9
-  RegMCP251XFD_CiFIFOSTA9         = 0x0C0,                     //!< FIFO Status Register 9
-  RegMCP251XFD_CiFIFOUA9          = 0x0C4,                     //!< FIFO User Address Register 9
-  RegMCP251XFD_CiFIFOCON10        = 0x0C8,                     //!< FIFO Control Register 10
-  RegMCP251XFD_CiFIFOSTA10        = 0x0CC,                     //!< FIFO Status Register 10
-  RegMCP251XFD_CiFIFOUA10         = 0x0D0,                     //!< FIFO User Address Register 10
-  RegMCP251XFD_CiFIFOCON11        = 0x0D4,                     //!< FIFO Control Register 11
-  RegMCP251XFD_CiFIFOSTA11        = 0x0D8,                     //!< FIFO Status Register 11
-  RegMCP251XFD_CiFIFOUA11         = 0x0DC,                     //!< FIFO User Address Register 11
-  RegMCP251XFD_CiFIFOCON12        = 0x0E0,                     //!< FIFO Control Register 12
-  RegMCP251XFD_CiFIFOSTA12        = 0x0E4,                     //!< FIFO Status Register 12
-  RegMCP251XFD_CiFIFOUA12         = 0x0E8,                     //!< FIFO User Address Register 12
-  RegMCP251XFD_CiFIFOCON13        = 0x0EC,                     //!< FIFO Control Register 13
-  RegMCP251XFD_CiFIFOSTA13        = 0x0F0,                     //!< FIFO Status Register 13
-  RegMCP251XFD_CiFIFOUA13         = 0x0F4,                     //!< FIFO User Address Register 13
-  RegMCP251XFD_CiFIFOCON14        = 0x0F8,                     //!< FIFO Control Register 14
-  RegMCP251XFD_CiFIFOSTA14        = 0x0FC,                     //!< FIFO Status Register 14
-  RegMCP251XFD_CiFIFOUA14         = 0x100,                     //!< FIFO User Address Register 14
-  RegMCP251XFD_CiFIFOCON15        = 0x104,                     //!< FIFO Control Register 15
-  RegMCP251XFD_CiFIFOSTA15        = 0x108,                     //!< FIFO Status Register 15
-  RegMCP251XFD_CiFIFOUA15         = 0x10C,                     //!< FIFO User Address Register 15
-  RegMCP251XFD_CiFIFOCON16        = 0x110,                     //!< FIFO Control Register 16
-  RegMCP251XFD_CiFIFOSTA16        = 0x114,                     //!< FIFO Status Register 16
-  RegMCP251XFD_CiFIFOUA16         = 0x118,                     //!< FIFO User Address Register 16
-  RegMCP251XFD_CiFIFOCON17        = 0x11C,                     //!< FIFO Control Register 17
-  RegMCP251XFD_CiFIFOSTA17        = 0x120,                     //!< FIFO Status Register 17
-  RegMCP251XFD_CiFIFOUA17         = 0x124,                     //!< FIFO User Address Register 17
-  RegMCP251XFD_CiFIFOCON18        = 0x128,                     //!< FIFO Control Register 18
-  RegMCP251XFD_CiFIFOSTA18        = 0x12C,                     //!< FIFO Status Register 18
-  RegMCP251XFD_CiFIFOUA18         = 0x130,                     //!< FIFO User Address Register 18
-  RegMCP251XFD_CiFIFOCON19        = 0x134,                     //!< FIFO Control Register 19
-  RegMCP251XFD_CiFIFOSTA19        = 0x138,                     //!< FIFO Status Register 19
-  RegMCP251XFD_CiFIFOUA19         = 0x13C,                     //!< FIFO User Address Register 19
-  RegMCP251XFD_CiFIFOCON20        = 0x140,                     //!< FIFO Control Register 20
-  RegMCP251XFD_CiFIFOSTA20        = 0x144,                     //!< FIFO Status Register 20
-  RegMCP251XFD_CiFIFOUA20         = 0x148,                     //!< FIFO User Address Register 20
-  RegMCP251XFD_CiFIFOCON21        = 0x14C,                     //!< FIFO Control Register 21
-  RegMCP251XFD_CiFIFOSTA21        = 0x150,                     //!< FIFO Status Register 21
-  RegMCP251XFD_CiFIFOUA21         = 0x154,                     //!< FIFO User Address Register 21
-  RegMCP251XFD_CiFIFOCON22        = 0x158,                     //!< FIFO Control Register 22
-  RegMCP251XFD_CiFIFOSTA22        = 0x15C,                     //!< FIFO Status Register 22
-  RegMCP251XFD_CiFIFOUA22         = 0x160,                     //!< FIFO User Address Register 22
-  RegMCP251XFD_CiFIFOCON23        = 0x164,                     //!< FIFO Control Register 23
-  RegMCP251XFD_CiFIFOSTA23        = 0x168,                     //!< FIFO Status Register 23
-  RegMCP251XFD_CiFIFOUA23         = 0x16C,                     //!< FIFO User Address Register 23
-  RegMCP251XFD_CiFIFOCON24        = 0x170,                     //!< FIFO Control Register 24
-  RegMCP251XFD_CiFIFOSTA24        = 0x174,                     //!< FIFO Status Register 24
-  RegMCP251XFD_CiFIFOUA24         = 0x178,                     //!< FIFO User Address Register 24
-  RegMCP251XFD_CiFIFOCON25        = 0x17C,                     //!< FIFO Control Register 25
-  RegMCP251XFD_CiFIFOSTA25        = 0x180,                     //!< FIFO Status Register 25
-  RegMCP251XFD_CiFIFOUA25         = 0x184,                     //!< FIFO User Address Register 25
-  RegMCP251XFD_CiFIFOCON26        = 0x188,                     //!< FIFO Control Register 26
-  RegMCP251XFD_CiFIFOSTA26        = 0x18C,                     //!< FIFO Status Register 26
-  RegMCP251XFD_CiFIFOUA26         = 0x190,                     //!< FIFO User Address Register 26
-  RegMCP251XFD_CiFIFOCON27        = 0x194,                     //!< FIFO Control Register 27
-  RegMCP251XFD_CiFIFOSTA27        = 0x198,                     //!< FIFO Status Register 27
-  RegMCP251XFD_CiFIFOUA27         = 0x19C,                     //!< FIFO User Address Register 27
-  RegMCP251XFD_CiFIFOCON28        = 0x1A0,                     //!< FIFO Control Register 28
-  RegMCP251XFD_CiFIFOSTA28        = 0x1A4,                     //!< FIFO Status Register 28
-  RegMCP251XFD_CiFIFOUA28         = 0x1A8,                     //!< FIFO User Address Register 28
-  RegMCP251XFD_CiFIFOCON29        = 0x1AC,                     //!< FIFO Control Register 29
-  RegMCP251XFD_CiFIFOSTA29        = 0x1B0,                     //!< FIFO Status Register 29
-  RegMCP251XFD_CiFIFOUA29         = 0x1B4,                     //!< FIFO User Address Register 29
-  RegMCP251XFD_CiFIFOCON30        = 0x1B8,                     //!< FIFO Control Register 30
-  RegMCP251XFD_CiFIFOSTA30        = 0x1BC,                     //!< FIFO Status Register 30
-  RegMCP251XFD_CiFIFOUA30         = 0x1C0,                     //!< FIFO User Address Register 30
-  RegMCP251XFD_CiFIFOCON31        = 0x1C4,                     //!< FIFO Control Register 31
-  RegMCP251XFD_CiFIFOSTA31        = 0x1C8,                     //!< FIFO Status Register 31
-  RegMCP251XFD_CiFIFOUA31         = 0x1CC,                     //!< FIFO User Address Register 31
+  RegMCP251XFD_CiFIFOCONm         = 0x05C,                                            //!< FIFO Control Register m, (m = 1 to 31)
+  RegMCP251XFD_CiFIFOCONm_CONFIG  = (uint16_t)((uint16_t)RegMCP251XFD_CiFIFOCONm+0u), //!< FIFO Control Register m, (m = 1 to 31) - Interrupt configuration
+  RegMCP251XFD_CiFIFOCONm_CONTROL = (uint16_t)((uint16_t)RegMCP251XFD_CiFIFOCONm+1u), //!< FIFO Control Register m, (m = 1 to 31) - FIFO Control
+  RegMCP251XFD_CiFIFOSTAm         = 0x060,                                            //!< FIFO Status Register m, (m = 1 to 31)
+  RegMCP251XFD_CiFIFOSTAm_FLAGS   = (uint16_t)((uint16_t)RegMCP251XFD_CiFIFOSTAm+0u), //!< FIFO Status Register m, (m = 1 to 31) - Flags
+  RegMCP251XFD_CiFIFOSTAm_FIFOCI  = (uint16_t)((uint16_t)RegMCP251XFD_CiFIFOSTAm+1u), //!< FIFO Status Register m, (m = 1 to 31) - FIFO Message Index
+  RegMCP251XFD_CiFIFOUAm          = 0x064,                                            //!< FIFO User Address Register m, (m = 1 to 31)
+  RegMCP251XFD_CiFIFOCON1         = 0x05C,                                            //!< FIFO Control Register 1
+  RegMCP251XFD_CiFIFOSTA1         = 0x060,                                            //!< FIFO Status Register 1
+  RegMCP251XFD_CiFIFOUA1          = 0x064,                                            //!< FIFO User Address Register 1
+  RegMCP251XFD_CiFIFOCON2         = 0x068,                                            //!< FIFO Control Register 2
+  RegMCP251XFD_CiFIFOSTA2         = 0x06C,                                            //!< FIFO Status Register 2
+  RegMCP251XFD_CiFIFOUA2          = 0x070,                                            //!< FIFO User Address Register 2
+  RegMCP251XFD_CiFIFOCON3         = 0x074,                                            //!< FIFO Control Register 3
+  RegMCP251XFD_CiFIFOSTA3         = 0x078,                                            //!< FIFO Status Register 3
+  RegMCP251XFD_CiFIFOUA3          = 0x07C,                                            //!< FIFO User Address Register 3
+  RegMCP251XFD_CiFIFOCON4         = 0x080,                                            //!< FIFO Control Register 4
+  RegMCP251XFD_CiFIFOSTA4         = 0x084,                                            //!< FIFO Status Register 4
+  RegMCP251XFD_CiFIFOUA4          = 0x088,                                            //!< FIFO User Address Register 4
+  RegMCP251XFD_CiFIFOCON5         = 0x08C,                                            //!< FIFO Control Register 5
+  RegMCP251XFD_CiFIFOSTA5         = 0x090,                                            //!< FIFO Status Register 5
+  RegMCP251XFD_CiFIFOUA5          = 0x094,                                            //!< FIFO User Address Register 5
+  RegMCP251XFD_CiFIFOCON6         = 0x098,                                            //!< FIFO Control Register 6
+  RegMCP251XFD_CiFIFOSTA6         = 0x09C,                                            //!< FIFO Status Register 6
+  RegMCP251XFD_CiFIFOUA6          = 0x0A0,                                            //!< FIFO User Address Register 6
+  RegMCP251XFD_CiFIFOCON7         = 0x0A4,                                            //!< FIFO Control Register 7
+  RegMCP251XFD_CiFIFOSTA7         = 0x0A8,                                            //!< FIFO Status Register 7
+  RegMCP251XFD_CiFIFOUA7          = 0x0AC,                                            //!< FIFO User Address Register 7
+  RegMCP251XFD_CiFIFOCON8         = 0x0B0,                                            //!< FIFO Control Register 8
+  RegMCP251XFD_CiFIFOSTA8         = 0x0B4,                                            //!< FIFO Status Register 8
+  RegMCP251XFD_CiFIFOUA8          = 0x0B8,                                            //!< FIFO User Address Register 8
+  RegMCP251XFD_CiFIFOCON9         = 0x0BC,                                            //!< FIFO Control Register 9
+  RegMCP251XFD_CiFIFOSTA9         = 0x0C0,                                            //!< FIFO Status Register 9
+  RegMCP251XFD_CiFIFOUA9          = 0x0C4,                                            //!< FIFO User Address Register 9
+  RegMCP251XFD_CiFIFOCON10        = 0x0C8,                                            //!< FIFO Control Register 10
+  RegMCP251XFD_CiFIFOSTA10        = 0x0CC,                                            //!< FIFO Status Register 10
+  RegMCP251XFD_CiFIFOUA10         = 0x0D0,                                            //!< FIFO User Address Register 10
+  RegMCP251XFD_CiFIFOCON11        = 0x0D4,                                            //!< FIFO Control Register 11
+  RegMCP251XFD_CiFIFOSTA11        = 0x0D8,                                            //!< FIFO Status Register 11
+  RegMCP251XFD_CiFIFOUA11         = 0x0DC,                                            //!< FIFO User Address Register 11
+  RegMCP251XFD_CiFIFOCON12        = 0x0E0,                                            //!< FIFO Control Register 12
+  RegMCP251XFD_CiFIFOSTA12        = 0x0E4,                                            //!< FIFO Status Register 12
+  RegMCP251XFD_CiFIFOUA12         = 0x0E8,                                            //!< FIFO User Address Register 12
+  RegMCP251XFD_CiFIFOCON13        = 0x0EC,                                            //!< FIFO Control Register 13
+  RegMCP251XFD_CiFIFOSTA13        = 0x0F0,                                            //!< FIFO Status Register 13
+  RegMCP251XFD_CiFIFOUA13         = 0x0F4,                                            //!< FIFO User Address Register 13
+  RegMCP251XFD_CiFIFOCON14        = 0x0F8,                                            //!< FIFO Control Register 14
+  RegMCP251XFD_CiFIFOSTA14        = 0x0FC,                                            //!< FIFO Status Register 14
+  RegMCP251XFD_CiFIFOUA14         = 0x100,                                            //!< FIFO User Address Register 14
+  RegMCP251XFD_CiFIFOCON15        = 0x104,                                            //!< FIFO Control Register 15
+  RegMCP251XFD_CiFIFOSTA15        = 0x108,                                            //!< FIFO Status Register 15
+  RegMCP251XFD_CiFIFOUA15         = 0x10C,                                            //!< FIFO User Address Register 15
+  RegMCP251XFD_CiFIFOCON16        = 0x110,                                            //!< FIFO Control Register 16
+  RegMCP251XFD_CiFIFOSTA16        = 0x114,                                            //!< FIFO Status Register 16
+  RegMCP251XFD_CiFIFOUA16         = 0x118,                                            //!< FIFO User Address Register 16
+  RegMCP251XFD_CiFIFOCON17        = 0x11C,                                            //!< FIFO Control Register 17
+  RegMCP251XFD_CiFIFOSTA17        = 0x120,                                            //!< FIFO Status Register 17
+  RegMCP251XFD_CiFIFOUA17         = 0x124,                                            //!< FIFO User Address Register 17
+  RegMCP251XFD_CiFIFOCON18        = 0x128,                                            //!< FIFO Control Register 18
+  RegMCP251XFD_CiFIFOSTA18        = 0x12C,                                            //!< FIFO Status Register 18
+  RegMCP251XFD_CiFIFOUA18         = 0x130,                                            //!< FIFO User Address Register 18
+  RegMCP251XFD_CiFIFOCON19        = 0x134,                                            //!< FIFO Control Register 19
+  RegMCP251XFD_CiFIFOSTA19        = 0x138,                                            //!< FIFO Status Register 19
+  RegMCP251XFD_CiFIFOUA19         = 0x13C,                                            //!< FIFO User Address Register 19
+  RegMCP251XFD_CiFIFOCON20        = 0x140,                                            //!< FIFO Control Register 20
+  RegMCP251XFD_CiFIFOSTA20        = 0x144,                                            //!< FIFO Status Register 20
+  RegMCP251XFD_CiFIFOUA20         = 0x148,                                            //!< FIFO User Address Register 20
+  RegMCP251XFD_CiFIFOCON21        = 0x14C,                                            //!< FIFO Control Register 21
+  RegMCP251XFD_CiFIFOSTA21        = 0x150,                                            //!< FIFO Status Register 21
+  RegMCP251XFD_CiFIFOUA21         = 0x154,                                            //!< FIFO User Address Register 21
+  RegMCP251XFD_CiFIFOCON22        = 0x158,                                            //!< FIFO Control Register 22
+  RegMCP251XFD_CiFIFOSTA22        = 0x15C,                                            //!< FIFO Status Register 22
+  RegMCP251XFD_CiFIFOUA22         = 0x160,                                            //!< FIFO User Address Register 22
+  RegMCP251XFD_CiFIFOCON23        = 0x164,                                            //!< FIFO Control Register 23
+  RegMCP251XFD_CiFIFOSTA23        = 0x168,                                            //!< FIFO Status Register 23
+  RegMCP251XFD_CiFIFOUA23         = 0x16C,                                            //!< FIFO User Address Register 23
+  RegMCP251XFD_CiFIFOCON24        = 0x170,                                            //!< FIFO Control Register 24
+  RegMCP251XFD_CiFIFOSTA24        = 0x174,                                            //!< FIFO Status Register 24
+  RegMCP251XFD_CiFIFOUA24         = 0x178,                                            //!< FIFO User Address Register 24
+  RegMCP251XFD_CiFIFOCON25        = 0x17C,                                            //!< FIFO Control Register 25
+  RegMCP251XFD_CiFIFOSTA25        = 0x180,                                            //!< FIFO Status Register 25
+  RegMCP251XFD_CiFIFOUA25         = 0x184,                                            //!< FIFO User Address Register 25
+  RegMCP251XFD_CiFIFOCON26        = 0x188,                                            //!< FIFO Control Register 26
+  RegMCP251XFD_CiFIFOSTA26        = 0x18C,                                            //!< FIFO Status Register 26
+  RegMCP251XFD_CiFIFOUA26         = 0x190,                                            //!< FIFO User Address Register 26
+  RegMCP251XFD_CiFIFOCON27        = 0x194,                                            //!< FIFO Control Register 27
+  RegMCP251XFD_CiFIFOSTA27        = 0x198,                                            //!< FIFO Status Register 27
+  RegMCP251XFD_CiFIFOUA27         = 0x19C,                                            //!< FIFO User Address Register 27
+  RegMCP251XFD_CiFIFOCON28        = 0x1A0,                                            //!< FIFO Control Register 28
+  RegMCP251XFD_CiFIFOSTA28        = 0x1A4,                                            //!< FIFO Status Register 28
+  RegMCP251XFD_CiFIFOUA28         = 0x1A8,                                            //!< FIFO User Address Register 28
+  RegMCP251XFD_CiFIFOCON29        = 0x1AC,                                            //!< FIFO Control Register 29
+  RegMCP251XFD_CiFIFOSTA29        = 0x1B0,                                            //!< FIFO Status Register 29
+  RegMCP251XFD_CiFIFOUA29         = 0x1B4,                                            //!< FIFO User Address Register 29
+  RegMCP251XFD_CiFIFOCON30        = 0x1B8,                                            //!< FIFO Control Register 30
+  RegMCP251XFD_CiFIFOSTA30        = 0x1BC,                                            //!< FIFO Status Register 30
+  RegMCP251XFD_CiFIFOUA30         = 0x1C0,                                            //!< FIFO User Address Register 30
+  RegMCP251XFD_CiFIFOCON31        = 0x1C4,                                            //!< FIFO Control Register 31
+  RegMCP251XFD_CiFIFOSTA31        = 0x1C8,                                            //!< FIFO Status Register 31
+  RegMCP251XFD_CiFIFOUA31         = 0x1CC,                                            //!< FIFO User Address Register 31
   // Filters Registers
-  RegMCP251XFD_CiFLTCONm          = 0x1D0,                     //!< Filter Control Register m, (m = 0 to 31)
-  RegMCP251XFD_CiFLTCON0          = 0x1D0,                     //!< Filter  0 to  3 Control Register
-  RegMCP251XFD_CiFLTCON0_FILTER0  = RegMCP251XFD_CiFLTCON0+0,  //!< Filter  0 to  3 Control Register - Filter 0
-  RegMCP251XFD_CiFLTCON0_FILTER1  = RegMCP251XFD_CiFLTCON0+1,  //!< Filter  0 to  3 Control Register - Filter 1
-  RegMCP251XFD_CiFLTCON0_FILTER2  = RegMCP251XFD_CiFLTCON0+2,  //!< Filter  0 to  3 Control Register - Filter 2
-  RegMCP251XFD_CiFLTCON0_FILTER3  = RegMCP251XFD_CiFLTCON0+3,  //!< Filter  0 to  3 Control Register - Filter 3
-  RegMCP251XFD_CiFLTCON1          = 0x1D4,                     //!< Filter  4 to  7 Control Register
-  RegMCP251XFD_CiFLTCON1_FILTER4  = RegMCP251XFD_CiFLTCON1+0,  //!< Filter  4 to  7 Control Register - Filter 4
-  RegMCP251XFD_CiFLTCON1_FILTER5  = RegMCP251XFD_CiFLTCON1+1,  //!< Filter  4 to  7 Control Register - Filter 5
-  RegMCP251XFD_CiFLTCON1_FILTER6  = RegMCP251XFD_CiFLTCON1+2,  //!< Filter  4 to  7 Control Register - Filter 6
-  RegMCP251XFD_CiFLTCON1_FILTER7  = RegMCP251XFD_CiFLTCON1+3,  //!< Filter  4 to  7 Control Register - Filter 7
-  RegMCP251XFD_CiFLTCON2          = 0x1D8,                     //!< Filter  8 to 11 Control Register
-  RegMCP251XFD_CiFLTCON2_FILTER8  = RegMCP251XFD_CiFLTCON2+0,  //!< Filter  8 to 11 Control Register - Filter 8
-  RegMCP251XFD_CiFLTCON2_FILTER9  = RegMCP251XFD_CiFLTCON2+1,  //!< Filter  8 to 11 Control Register - Filter 9
-  RegMCP251XFD_CiFLTCON2_FILTER10 = RegMCP251XFD_CiFLTCON2+2,  //!< Filter  8 to 11 Control Register - Filter 10
-  RegMCP251XFD_CiFLTCON2_FILTER11 = RegMCP251XFD_CiFLTCON2+3,  //!< Filter  8 to 11 Control Register - Filter 11
-  RegMCP251XFD_CiFLTCON3          = 0x1DC,                     //!< Filter 12 to 15 Control Register
-  RegMCP251XFD_CiFLTCON3_FILTER12 = RegMCP251XFD_CiFLTCON3+0,  //!< Filter 12 to 15 Control Register - Filter 12
-  RegMCP251XFD_CiFLTCON3_FILTER13 = RegMCP251XFD_CiFLTCON3+1,  //!< Filter 12 to 15 Control Register - Filter 13
-  RegMCP251XFD_CiFLTCON3_FILTER14 = RegMCP251XFD_CiFLTCON3+2,  //!< Filter 12 to 15 Control Register - Filter 14
-  RegMCP251XFD_CiFLTCON3_FILTER15 = RegMCP251XFD_CiFLTCON3+3,  //!< Filter 12 to 15 Control Register - Filter 15
-  RegMCP251XFD_CiFLTCON4          = 0x1E0,                     //!< Filter 16 to 19 Control Register
-  RegMCP251XFD_CiFLTCON4_FILTER16 = RegMCP251XFD_CiFLTCON4+0,  //!< Filter 16 to 19 Control Register - Filter 16
-  RegMCP251XFD_CiFLTCON4_FILTER17 = RegMCP251XFD_CiFLTCON4+1,  //!< Filter 16 to 19 Control Register - Filter 17
-  RegMCP251XFD_CiFLTCON4_FILTER18 = RegMCP251XFD_CiFLTCON4+2,  //!< Filter 16 to 19 Control Register - Filter 18
-  RegMCP251XFD_CiFLTCON4_FILTER19 = RegMCP251XFD_CiFLTCON4+3,  //!< Filter 16 to 19 Control Register - Filter 19
-  RegMCP251XFD_CiFLTCON5          = 0x1E4,                     //!< Filter 20 to 23 Control Register
-  RegMCP251XFD_CiFLTCON5_FILTER20 = RegMCP251XFD_CiFLTCON5+0,  //!< Filter 20 to 23 Control Register - Filter 20
-  RegMCP251XFD_CiFLTCON5_FILTER21 = RegMCP251XFD_CiFLTCON5+1,  //!< Filter 20 to 23 Control Register - Filter 21
-  RegMCP251XFD_CiFLTCON5_FILTER22 = RegMCP251XFD_CiFLTCON5+2,  //!< Filter 20 to 23 Control Register - Filter 22
-  RegMCP251XFD_CiFLTCON5_FILTER23 = RegMCP251XFD_CiFLTCON5+3,  //!< Filter 20 to 23 Control Register - Filter 23
-  RegMCP251XFD_CiFLTCON6          = 0x1E8,                     //!< Filter 24 to 27 Control Register
-  RegMCP251XFD_CiFLTCON6_FILTER24 = RegMCP251XFD_CiFLTCON6+0,  //!< Filter 24 to 27 Control Register - Filter 24
-  RegMCP251XFD_CiFLTCON6_FILTER25 = RegMCP251XFD_CiFLTCON6+1,  //!< Filter 24 to 27 Control Register - Filter 25
-  RegMCP251XFD_CiFLTCON6_FILTER26 = RegMCP251XFD_CiFLTCON6+2,  //!< Filter 24 to 27 Control Register - Filter 26
-  RegMCP251XFD_CiFLTCON6_FILTER27 = RegMCP251XFD_CiFLTCON6+3,  //!< Filter 24 to 27 Control Register - Filter 27
-  RegMCP251XFD_CiFLTCON7          = 0x1EC,                     //!< Filter 28 to 31 Control Register
-  RegMCP251XFD_CiFLTCON7_FILTER28 = RegMCP251XFD_CiFLTCON7+0,  //!< Filter 28 to 31 Control Register - Filter 28
-  RegMCP251XFD_CiFLTCON7_FILTER29 = RegMCP251XFD_CiFLTCON7+1,  //!< Filter 28 to 31 Control Register - Filter 29
-  RegMCP251XFD_CiFLTCON7_FILTER30 = RegMCP251XFD_CiFLTCON7+2,  //!< Filter 28 to 31 Control Register - Filter 30
-  RegMCP251XFD_CiFLTCON7_FILTER31 = RegMCP251XFD_CiFLTCON7+3,  //!< Filter 28 to 31 Control Register - Filter 31
-  RegMCP251XFD_CiFLTOBJm          = 0x1F0,                     //!< Filter Object Register m, (m = 0 to 31)
-  RegMCP251XFD_CiMASKm            = 0x1F4,                     //!< Filter Mask Register m, (m = 0 to 31)
-  RegMCP251XFD_CiFLTOBJ0          = 0x1F0,                     //!< Filter Object Register 0
-  RegMCP251XFD_CiMASK0            = 0x1F4,                     //!< Filter Mask Register 0
-  RegMCP251XFD_CiFLTOBJ1          = 0x1F8,                     //!< Filter Object Register 1
-  RegMCP251XFD_CiMASK1            = 0x1FC,                     //!< Filter Mask Register 1
-  RegMCP251XFD_CiFLTOBJ2          = 0x200,                     //!< Filter Object Register 2
-  RegMCP251XFD_CiMASK2            = 0x204,                     //!< Filter Mask Register 2
-  RegMCP251XFD_CiFLTOBJ3          = 0x208,                     //!< Filter Object Register 3
-  RegMCP251XFD_CiMASK3            = 0x20C,                     //!< Filter Mask Register 3
-  RegMCP251XFD_CiFLTOBJ4          = 0x210,                     //!< Filter Object Register 4
-  RegMCP251XFD_CiMASK4            = 0x214,                     //!< Filter Mask Register 4
-  RegMCP251XFD_CiFLTOBJ5          = 0x218,                     //!< Filter Object Register 5
-  RegMCP251XFD_CiMASK5            = 0x21C,                     //!< Filter Mask Register 5
-  RegMCP251XFD_CiFLTOBJ6          = 0x220,                     //!< Filter Object Register 6
-  RegMCP251XFD_CiMASK6            = 0x224,                     //!< Filter Mask Register 6
-  RegMCP251XFD_CiFLTOBJ7          = 0x228,                     //!< Filter Object Register 7
-  RegMCP251XFD_CiMASK7            = 0x22C,                     //!< Filter Mask Register 7
-  RegMCP251XFD_CiFLTOBJ8          = 0x230,                     //!< Filter Object Register 8
-  RegMCP251XFD_CiMASK8            = 0x234,                     //!< Filter Mask Register 8
-  RegMCP251XFD_CiFLTOBJ9          = 0x238,                     //!< Filter Object Register 9
-  RegMCP251XFD_CiMASK9            = 0x23C,                     //!< Filter Mask Register 9
-  RegMCP251XFD_CiFLTOBJ10         = 0x240,                     //!< Filter Object Register 10
-  RegMCP251XFD_CiMASK10           = 0x244,                     //!< Filter Mask Register 10
-  RegMCP251XFD_CiFLTOBJ11         = 0x248,                     //!< Filter Object Register 11
-  RegMCP251XFD_CiMASK11           = 0x24C,                     //!< Filter Mask Register 11
-  RegMCP251XFD_CiFLTOBJ12         = 0x250,                     //!< Filter Object Register 12
-  RegMCP251XFD_CiMASK12           = 0x254,                     //!< Filter Mask Register 12
-  RegMCP251XFD_CiFLTOBJ13         = 0x258,                     //!< Filter Object Register 13
-  RegMCP251XFD_CiMASK13           = 0x25C,                     //!< Filter Mask Register 13
-  RegMCP251XFD_CiFLTOBJ14         = 0x260,                     //!< Filter Object Register 14
-  RegMCP251XFD_CiMASK14           = 0x264,                     //!< Filter Mask Register 14
-  RegMCP251XFD_CiFLTOBJ15         = 0x268,                     //!< Filter Object Register 15
-  RegMCP251XFD_CiMASK15           = 0x26C,                     //!< Filter Mask Register 15
-  RegMCP251XFD_CiFLTOBJ16         = 0x270,                     //!< Filter Object Register 16
-  RegMCP251XFD_CiMASK16           = 0x274,                     //!< Filter Mask Register 16
-  RegMCP251XFD_CiFLTOBJ17         = 0x278,                     //!< Filter Object Register 17
-  RegMCP251XFD_CiMASK17           = 0x27C,                     //!< Filter Mask Register 17
-  RegMCP251XFD_CiFLTOBJ18         = 0x280,                     //!< Filter Object Register 18
-  RegMCP251XFD_CiMASK18           = 0x284,                     //!< Filter Mask Register 18
-  RegMCP251XFD_CiFLTOBJ19         = 0x288,                     //!< Filter Object Register 19
-  RegMCP251XFD_CiMASK19           = 0x28C,                     //!< Filter Mask Register 19
-  RegMCP251XFD_CiFLTOBJ20         = 0x290,                     //!< Filter Object Register 20
-  RegMCP251XFD_CiMASK20           = 0x294,                     //!< Filter Mask Register 20
-  RegMCP251XFD_CiFLTOBJ21         = 0x298,                     //!< Filter Object Register 21
-  RegMCP251XFD_CiMASK21           = 0x29C,                     //!< Filter Mask Register 21
-  RegMCP251XFD_CiFLTOBJ22         = 0x2A0,                     //!< Filter Object Register 22
-  RegMCP251XFD_CiMASK22           = 0x2A4,                     //!< Filter Mask Register 22
-  RegMCP251XFD_CiFLTOBJ23         = 0x2A8,                     //!< Filter Object Register 23
-  RegMCP251XFD_CiMASK23           = 0x2AC,                     //!< Filter Mask Register 23
-  RegMCP251XFD_CiFLTOBJ24         = 0x2B0,                     //!< Filter Object Register 24
-  RegMCP251XFD_CiMASK24           = 0x2B4,                     //!< Filter Mask Register 24
-  RegMCP251XFD_CiFLTOBJ25         = 0x2B8,                     //!< Filter Object Register 25
-  RegMCP251XFD_CiMASK25           = 0x2BC,                     //!< Filter Mask Register 25
-  RegMCP251XFD_CiFLTOBJ26         = 0x2C0,                     //!< Filter Object Register 26
-  RegMCP251XFD_CiMASK26           = 0x2C4,                     //!< Filter Mask Register 26
-  RegMCP251XFD_CiFLTOBJ27         = 0x2C8,                     //!< Filter Object Register 27
-  RegMCP251XFD_CiMASK27           = 0x2CC,                     //!< Filter Mask Register 27
-  RegMCP251XFD_CiFLTOBJ28         = 0x2D0,                     //!< Filter Object Register 28
-  RegMCP251XFD_CiMASK28           = 0x2D4,                     //!< Filter Mask Register 28
-  RegMCP251XFD_CiFLTOBJ29         = 0x2D8,                     //!< Filter Object Register 29
-  RegMCP251XFD_CiMASK29           = 0x2DC,                     //!< Filter Mask Register 29
-  RegMCP251XFD_CiFLTOBJ30         = 0x2E0,                     //!< Filter Object Register 30
-  RegMCP251XFD_CiMASK30           = 0x2E4,                     //!< Filter Mask Register 30
-  RegMCP251XFD_CiFLTOBJ31         = 0x2E8,                     //!< Filter Object Register 31
-  RegMCP251XFD_CiMASK31           = 0x2EC,                     //!< Filter Mask Register 31
+  RegMCP251XFD_CiFLTCONm          = 0x1D0,                                            //!< Filter Control Register m, (m = 0 to 31)
+  RegMCP251XFD_CiFLTCON0          = 0x1D0,                                            //!< Filter  0 to  3 Control Register
+  RegMCP251XFD_CiFLTCON0_FILTER0  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON0+0u),  //!< Filter  0 to  3 Control Register - Filter 0
+  RegMCP251XFD_CiFLTCON0_FILTER1  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON0+1u),  //!< Filter  0 to  3 Control Register - Filter 1
+  RegMCP251XFD_CiFLTCON0_FILTER2  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON0+2u),  //!< Filter  0 to  3 Control Register - Filter 2
+  RegMCP251XFD_CiFLTCON0_FILTER3  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON0+3u),  //!< Filter  0 to  3 Control Register - Filter 3
+  RegMCP251XFD_CiFLTCON1          = 0x1D4,                                            //!< Filter  4 to  7 Control Register
+  RegMCP251XFD_CiFLTCON1_FILTER4  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON1+0u),  //!< Filter  4 to  7 Control Register - Filter 4
+  RegMCP251XFD_CiFLTCON1_FILTER5  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON1+1u),  //!< Filter  4 to  7 Control Register - Filter 5
+  RegMCP251XFD_CiFLTCON1_FILTER6  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON1+2u),  //!< Filter  4 to  7 Control Register - Filter 6
+  RegMCP251XFD_CiFLTCON1_FILTER7  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON1+3u),  //!< Filter  4 to  7 Control Register - Filter 7
+  RegMCP251XFD_CiFLTCON2          = 0x1D8,                                            //!< Filter  8 to 11 Control Register
+  RegMCP251XFD_CiFLTCON2_FILTER8  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON2+0u),  //!< Filter  8 to 11 Control Register - Filter 8
+  RegMCP251XFD_CiFLTCON2_FILTER9  = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON2+1u),  //!< Filter  8 to 11 Control Register - Filter 9
+  RegMCP251XFD_CiFLTCON2_FILTER10 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON2+2u),  //!< Filter  8 to 11 Control Register - Filter 10
+  RegMCP251XFD_CiFLTCON2_FILTER11 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON2+3u),  //!< Filter  8 to 11 Control Register - Filter 11
+  RegMCP251XFD_CiFLTCON3          = 0x1DC,                                            //!< Filter 12 to 15 Control Register
+  RegMCP251XFD_CiFLTCON3_FILTER12 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON3+0u),  //!< Filter 12 to 15 Control Register - Filter 12
+  RegMCP251XFD_CiFLTCON3_FILTER13 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON3+1u),  //!< Filter 12 to 15 Control Register - Filter 13
+  RegMCP251XFD_CiFLTCON3_FILTER14 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON3+2u),  //!< Filter 12 to 15 Control Register - Filter 14
+  RegMCP251XFD_CiFLTCON3_FILTER15 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON3+3u),  //!< Filter 12 to 15 Control Register - Filter 15
+  RegMCP251XFD_CiFLTCON4          = 0x1E0,                                            //!< Filter 16 to 19 Control Register
+  RegMCP251XFD_CiFLTCON4_FILTER16 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON4+0u),  //!< Filter 16 to 19 Control Register - Filter 16
+  RegMCP251XFD_CiFLTCON4_FILTER17 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON4+1u),  //!< Filter 16 to 19 Control Register - Filter 17
+  RegMCP251XFD_CiFLTCON4_FILTER18 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON4+2u),  //!< Filter 16 to 19 Control Register - Filter 18
+  RegMCP251XFD_CiFLTCON4_FILTER19 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON4+3u),  //!< Filter 16 to 19 Control Register - Filter 19
+  RegMCP251XFD_CiFLTCON5          = 0x1E4,                                            //!< Filter 20 to 23 Control Register
+  RegMCP251XFD_CiFLTCON5_FILTER20 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON5+0u),  //!< Filter 20 to 23 Control Register - Filter 20
+  RegMCP251XFD_CiFLTCON5_FILTER21 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON5+1u),  //!< Filter 20 to 23 Control Register - Filter 21
+  RegMCP251XFD_CiFLTCON5_FILTER22 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON5+2u),  //!< Filter 20 to 23 Control Register - Filter 22
+  RegMCP251XFD_CiFLTCON5_FILTER23 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON5+3u),  //!< Filter 20 to 23 Control Register - Filter 23
+  RegMCP251XFD_CiFLTCON6          = 0x1E8,                                            //!< Filter 24 to 27 Control Register
+  RegMCP251XFD_CiFLTCON6_FILTER24 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON6+0u),  //!< Filter 24 to 27 Control Register - Filter 24
+  RegMCP251XFD_CiFLTCON6_FILTER25 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON6+1u),  //!< Filter 24 to 27 Control Register - Filter 25
+  RegMCP251XFD_CiFLTCON6_FILTER26 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON6+2u),  //!< Filter 24 to 27 Control Register - Filter 26
+  RegMCP251XFD_CiFLTCON6_FILTER27 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON6+3u),  //!< Filter 24 to 27 Control Register - Filter 27
+  RegMCP251XFD_CiFLTCON7          = 0x1EC,                                            //!< Filter 28 to 31 Control Register
+  RegMCP251XFD_CiFLTCON7_FILTER28 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON7+0u),  //!< Filter 28 to 31 Control Register - Filter 28
+  RegMCP251XFD_CiFLTCON7_FILTER29 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON7+1u),  //!< Filter 28 to 31 Control Register - Filter 29
+  RegMCP251XFD_CiFLTCON7_FILTER30 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON7+2u),  //!< Filter 28 to 31 Control Register - Filter 30
+  RegMCP251XFD_CiFLTCON7_FILTER31 = (uint16_t)((uint16_t)RegMCP251XFD_CiFLTCON7+3u),  //!< Filter 28 to 31 Control Register - Filter 31
+  RegMCP251XFD_CiFLTOBJm          = 0x1F0,                                            //!< Filter Object Register m, (m = 0 to 31)
+  RegMCP251XFD_CiMASKm            = 0x1F4,                                            //!< Filter Mask Register m, (m = 0 to 31)
+  RegMCP251XFD_CiFLTOBJ0          = 0x1F0,                                            //!< Filter Object Register 0
+  RegMCP251XFD_CiMASK0            = 0x1F4,                                            //!< Filter Mask Register 0
+  RegMCP251XFD_CiFLTOBJ1          = 0x1F8,                                            //!< Filter Object Register 1
+  RegMCP251XFD_CiMASK1            = 0x1FC,                                            //!< Filter Mask Register 1
+  RegMCP251XFD_CiFLTOBJ2          = 0x200,                                            //!< Filter Object Register 2
+  RegMCP251XFD_CiMASK2            = 0x204,                                            //!< Filter Mask Register 2
+  RegMCP251XFD_CiFLTOBJ3          = 0x208,                                            //!< Filter Object Register 3
+  RegMCP251XFD_CiMASK3            = 0x20C,                                            //!< Filter Mask Register 3
+  RegMCP251XFD_CiFLTOBJ4          = 0x210,                                            //!< Filter Object Register 4
+  RegMCP251XFD_CiMASK4            = 0x214,                                            //!< Filter Mask Register 4
+  RegMCP251XFD_CiFLTOBJ5          = 0x218,                                            //!< Filter Object Register 5
+  RegMCP251XFD_CiMASK5            = 0x21C,                                            //!< Filter Mask Register 5
+  RegMCP251XFD_CiFLTOBJ6          = 0x220,                                            //!< Filter Object Register 6
+  RegMCP251XFD_CiMASK6            = 0x224,                                            //!< Filter Mask Register 6
+  RegMCP251XFD_CiFLTOBJ7          = 0x228,                                            //!< Filter Object Register 7
+  RegMCP251XFD_CiMASK7            = 0x22C,                                            //!< Filter Mask Register 7
+  RegMCP251XFD_CiFLTOBJ8          = 0x230,                                            //!< Filter Object Register 8
+  RegMCP251XFD_CiMASK8            = 0x234,                                            //!< Filter Mask Register 8
+  RegMCP251XFD_CiFLTOBJ9          = 0x238,                                            //!< Filter Object Register 9
+  RegMCP251XFD_CiMASK9            = 0x23C,                                            //!< Filter Mask Register 9
+  RegMCP251XFD_CiFLTOBJ10         = 0x240,                                            //!< Filter Object Register 10
+  RegMCP251XFD_CiMASK10           = 0x244,                                            //!< Filter Mask Register 10
+  RegMCP251XFD_CiFLTOBJ11         = 0x248,                                            //!< Filter Object Register 11
+  RegMCP251XFD_CiMASK11           = 0x24C,                                            //!< Filter Mask Register 11
+  RegMCP251XFD_CiFLTOBJ12         = 0x250,                                            //!< Filter Object Register 12
+  RegMCP251XFD_CiMASK12           = 0x254,                                            //!< Filter Mask Register 12
+  RegMCP251XFD_CiFLTOBJ13         = 0x258,                                            //!< Filter Object Register 13
+  RegMCP251XFD_CiMASK13           = 0x25C,                                            //!< Filter Mask Register 13
+  RegMCP251XFD_CiFLTOBJ14         = 0x260,                                            //!< Filter Object Register 14
+  RegMCP251XFD_CiMASK14           = 0x264,                                            //!< Filter Mask Register 14
+  RegMCP251XFD_CiFLTOBJ15         = 0x268,                                            //!< Filter Object Register 15
+  RegMCP251XFD_CiMASK15           = 0x26C,                                            //!< Filter Mask Register 15
+  RegMCP251XFD_CiFLTOBJ16         = 0x270,                                            //!< Filter Object Register 16
+  RegMCP251XFD_CiMASK16           = 0x274,                                            //!< Filter Mask Register 16
+  RegMCP251XFD_CiFLTOBJ17         = 0x278,                                            //!< Filter Object Register 17
+  RegMCP251XFD_CiMASK17           = 0x27C,                                            //!< Filter Mask Register 17
+  RegMCP251XFD_CiFLTOBJ18         = 0x280,                                            //!< Filter Object Register 18
+  RegMCP251XFD_CiMASK18           = 0x284,                                            //!< Filter Mask Register 18
+  RegMCP251XFD_CiFLTOBJ19         = 0x288,                                            //!< Filter Object Register 19
+  RegMCP251XFD_CiMASK19           = 0x28C,                                            //!< Filter Mask Register 19
+  RegMCP251XFD_CiFLTOBJ20         = 0x290,                                            //!< Filter Object Register 20
+  RegMCP251XFD_CiMASK20           = 0x294,                                            //!< Filter Mask Register 20
+  RegMCP251XFD_CiFLTOBJ21         = 0x298,                                            //!< Filter Object Register 21
+  RegMCP251XFD_CiMASK21           = 0x29C,                                            //!< Filter Mask Register 21
+  RegMCP251XFD_CiFLTOBJ22         = 0x2A0,                                            //!< Filter Object Register 22
+  RegMCP251XFD_CiMASK22           = 0x2A4,                                            //!< Filter Mask Register 22
+  RegMCP251XFD_CiFLTOBJ23         = 0x2A8,                                            //!< Filter Object Register 23
+  RegMCP251XFD_CiMASK23           = 0x2AC,                                            //!< Filter Mask Register 23
+  RegMCP251XFD_CiFLTOBJ24         = 0x2B0,                                            //!< Filter Object Register 24
+  RegMCP251XFD_CiMASK24           = 0x2B4,                                            //!< Filter Mask Register 24
+  RegMCP251XFD_CiFLTOBJ25         = 0x2B8,                                            //!< Filter Object Register 25
+  RegMCP251XFD_CiMASK25           = 0x2BC,                                            //!< Filter Mask Register 25
+  RegMCP251XFD_CiFLTOBJ26         = 0x2C0,                                            //!< Filter Object Register 26
+  RegMCP251XFD_CiMASK26           = 0x2C4,                                            //!< Filter Mask Register 26
+  RegMCP251XFD_CiFLTOBJ27         = 0x2C8,                                            //!< Filter Object Register 27
+  RegMCP251XFD_CiMASK27           = 0x2CC,                                            //!< Filter Mask Register 27
+  RegMCP251XFD_CiFLTOBJ28         = 0x2D0,                                            //!< Filter Object Register 28
+  RegMCP251XFD_CiMASK28           = 0x2D4,                                            //!< Filter Mask Register 28
+  RegMCP251XFD_CiFLTOBJ29         = 0x2D8,                                            //!< Filter Object Register 29
+  RegMCP251XFD_CiMASK29           = 0x2DC,                                            //!< Filter Mask Register 29
+  RegMCP251XFD_CiFLTOBJ30         = 0x2E0,                                            //!< Filter Object Register 30
+  RegMCP251XFD_CiMASK30           = 0x2E4,                                            //!< Filter Mask Register 30
+  RegMCP251XFD_CiFLTOBJ31         = 0x2E8,                                            //!< Filter Object Register 31
+  RegMCP251XFD_CiMASK31           = 0x2EC,                                            //!< Filter Mask Register 31
 
   // MCP251XFD Specific Registers
-  RegMCP251XFD_OSC                = 0xE00,                     //!< Oscillator Control Register
-  RegMCP251XFD_OSC_CONFIG         = RegMCP251XFD_OSC+0,        //!< Oscillator Control Register - Configuration register
-  RegMCP251XFD_OSC_CHECK          = RegMCP251XFD_OSC+1,        //!< Oscillator Control Register - Check frequency configuration register
+  RegMCP251XFD_OSC                = 0xE00,                                            //!< Oscillator Control Register
+  RegMCP251XFD_OSC_CONFIG         = (uint16_t)((uint16_t)RegMCP251XFD_OSC+0u),        //!< Oscillator Control Register - Configuration register
+  RegMCP251XFD_OSC_CHECK          = (uint16_t)((uint16_t)RegMCP251XFD_OSC+1u),        //!< Oscillator Control Register - Check frequency configuration register
 #if defined(_MSC_VER) || (defined(__cplusplus) && (__cplusplus >= 201103L/*C++11*/)) || (!defined(__cplusplus))
-  RegMCP251XFD_IOCON              = 0xE04,                     //!< Input/Output Control Register
+  RegMCP251XFD_IOCON              = 0xE04,                                            //!< Input/Output Control Register
                                                                //!< @deprecated Use RegMCP251XFD_IOCON_x subregisters with MCP251XFD_ReadSFR8() and MCP251XFD_WriteSFR8(). Follows datasheets errata for: Writing multiple bytes to the IOCON register using one SPI WRITE instruction may overwrite LAT0 and LAT1
 #endif
-  RegMCP251XFD_IOCON_DIRECTION    = 0xE04+0,                   //!< Input/Output Control Register - Pins direction
-  RegMCP251XFD_IOCON_OUTLEVEL     = 0xE04+1,                   //!< Input/Output Control Register - Pin output level
-  RegMCP251XFD_IOCON_INLEVEL      = 0xE04+2,                   //!< Input/Output Control Register - Pin input level
-  RegMCP251XFD_IOCON_PINMODE      = 0xE04+3,                   //!< Input/Output Control Register - Pin mode
-  RegMCP251XFD_CRC                = 0xE08,                     //!< CRC Register
-  RegMCP251XFD_CRC_CRC            = RegMCP251XFD_CRC+0,        //!< CRC Register - Last CRC mismatch
-  RegMCP251XFD_CRC_FLAGS          = RegMCP251XFD_CRC+2,        //!< CRC Register - Status flags
-  RegMCP251XFD_CRC_CONFIG         = RegMCP251XFD_CRC+3,        //!< CRC Register - Interrupts enable
-  RegMCP251XFD_ECCCON             = 0xE0C,                     //!< ECC Control Register
-  RegMCP251XFD_ECCCON_ENABLE      = RegMCP251XFD_ECCCON+0,     //!< ECC Control Register - Interrupt and ECC enable
-  RegMCP251XFD_ECCCON_PARITY      = RegMCP251XFD_ECCCON+1,     //!< ECC Control Register - Fixed parity value
-  RegMCP251XFD_ECCSTAT            = 0xE10,                     //!< ECC Status Register
-  RegMCP251XFD_ECCSTAT_FLAGS      = RegMCP251XFD_ECCSTAT+0,    //!< ECC Status Register - Status flags
-  RegMCP251XFD_ECCSTAT_ERRADDR    = RegMCP251XFD_ECCSTAT+2,    //!< ECC Status Register - ECC error address
-  RegMCP251XFD_DEVID              = 0xE14,                     //!< Device ID Register
+  RegMCP251XFD_IOCON_DIRECTION    = 0xE04+0,                                          //!< Input/Output Control Register - Pins direction
+  RegMCP251XFD_IOCON_OUTLEVEL     = 0xE04+1,                                          //!< Input/Output Control Register - Pin output level
+  RegMCP251XFD_IOCON_INLEVEL      = 0xE04+2,                                          //!< Input/Output Control Register - Pin input level
+  RegMCP251XFD_IOCON_PINMODE      = 0xE04+3,                                          //!< Input/Output Control Register - Pin mode
+  RegMCP251XFD_CRC                = 0xE08,                                            //!< CRC Register
+  RegMCP251XFD_CRC_CRC            = (uint16_t)((uint16_t)RegMCP251XFD_CRC+0u),        //!< CRC Register - Last CRC mismatch
+  RegMCP251XFD_CRC_FLAGS          = (uint16_t)((uint16_t)RegMCP251XFD_CRC+2u),        //!< CRC Register - Status flags
+  RegMCP251XFD_CRC_CONFIG         = (uint16_t)((uint16_t)RegMCP251XFD_CRC+3u),        //!< CRC Register - Interrupts enable
+  RegMCP251XFD_ECCCON             = 0xE0C,                                            //!< ECC Control Register
+  RegMCP251XFD_ECCCON_ENABLE      = (uint16_t)((uint16_t)RegMCP251XFD_ECCCON+0u),     //!< ECC Control Register - Interrupt and ECC enable
+  RegMCP251XFD_ECCCON_PARITY      = (uint16_t)((uint16_t)RegMCP251XFD_ECCCON+1u),     //!< ECC Control Register - Fixed parity value
+  RegMCP251XFD_ECCSTAT            = 0xE10,                                            //!< ECC Status Register
+  RegMCP251XFD_ECCSTAT_FLAGS      = (uint16_t)((uint16_t)RegMCP251XFD_ECCSTAT+0u),    //!< ECC Status Register - Status flags
+  RegMCP251XFD_ECCSTAT_ERRADDR    = (uint16_t)((uint16_t)RegMCP251XFD_ECCSTAT+2u),    //!< ECC Status Register - ECC error address
+  RegMCP251XFD_DEVID              = 0xE14,                                            //!< Device ID Register
 } eMCP251XFD_Registers;
 
 //-----------------------------------------------------------------------------
@@ -1460,7 +1461,7 @@ typedef enum
 #define MCP251XFD_CAN_CiTSCON_TBCPRE_MINVALUE    (0x0000u)
 #define MCP251XFD_CAN_CiTSCON_TBCPRE_Pos         0
 #define MCP251XFD_CAN_CiTSCON_TBCPRE_Bits        10
-#define MCP251XFD_CAN_CiTSCON_TBCPRE_MAXVALUE    ((1 << MCP251XFD_CAN_CiTSCON_TBCPRE_Bits) - 1)
+#define MCP251XFD_CAN_CiTSCON_TBCPRE_MAXVALUE    ((1u << MCP251XFD_CAN_CiTSCON_TBCPRE_Bits) - 1u)
 #define MCP251XFD_CAN_CiTSCON_TBCPRE_Mask        (MCP251XFD_CAN_CiTSCON_TBCPRE_MAXVALUE << MCP251XFD_CAN_CiTSCON_TBCPRE_Pos)
 #define MCP251XFD_CAN_CiTSCON_TBCPRE_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTSCON_TBCPRE_Pos) & MCP251XFD_CAN_CiTSCON_TBCPRE_Mask) //!< Time Base Counter Prescaler bits. TBC increments every 'value' clocks
 #define MCP251XFD_CAN_CiTSCON_TSSP_Pos           16
@@ -3113,10 +3114,10 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiFLTOBJm_Register, 4);
 #define MCP251XFD_CAN_CiFLTOBJm_SID11           (0x1ul << 29) //!< Standard Identifier filter in FD mode
 #define MCP251XFD_CAN_CiFLTOBJm_EXIDE           (0x1ul << 30) //!< Extended Identifier Enable
 
-#define MCP251XFD_SID_Size  11
-#define MCP251XFD_SID_Mask  ((1ul << MCP251XFD_SID_Size) - 1)
-#define MCP251XFD_EID_Size  18
-#define MCP251XFD_EID_Mask  ((1ul << MCP251XFD_EID_Size) - 1)
+#define MCP251XFD_SID_Size  11u
+#define MCP251XFD_SID_Mask  ((1ul << MCP251XFD_SID_Size) - 1ul)
+#define MCP251XFD_EID_Size  18u
+#define MCP251XFD_EID_Mask  ((1ul << MCP251XFD_EID_Size) - 1ul)
 
 //-----------------------------------------------------------------------------
 
@@ -3303,7 +3304,7 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_TX_Message, 8);
 
 //-----------------------------------------------------------------------------
 
-#define MCP251XFD_CAN_TX_MESSAGE_SIZE_MAX  ( sizeof(MCP251XFD_CAN_TX_Message) + MCP251XFD_PAYLOAD_MAX )
+#define MCP251XFD_CAN_TX_MESSAGE_SIZE_MAX  ( sizeof(MCP251XFD_CAN_TX_Message) + (size_t)MCP251XFD_PAYLOAD_MAX )
 
 //-----------------------------------------------------------------------------
 
@@ -3416,11 +3417,11 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CAN_RX_Message, 12);
 
 //-----------------------------------------------------------------------------
 
-#define MCP251XFD_CAN_RX_MESSAGE_SIZE_MAX  ( sizeof(MCP251XFD_CAN_RX_Message) + MCP251XFD_PAYLOAD_MAX )
+#define MCP251XFD_CAN_RX_MESSAGE_SIZE_MAX  ( sizeof(MCP251XFD_CAN_RX_Message) + (size_t)MCP251XFD_PAYLOAD_MAX )
 
 //-----------------------------------------------------------------------------
 
-#define MCP251XFD_FIFO_MIN_SIZE  ( sizeof(MCP251XFD_CAN_TX_Message) + MCP251XFD_PAYLOAD_MIN )
+#define MCP251XFD_FIFO_MIN_SIZE  ( sizeof(MCP251XFD_CAN_TX_Message) + (size_t)MCP251XFD_PAYLOAD_MIN )
 
 //-----------------------------------------------------------------------------
 
@@ -3522,8 +3523,8 @@ struct MCP251XFD
 
 //-----------------------------------------------------------------------------
 
-#define MCP251XFD_NO_CANFD       (    0 ) //!< This value specify that the driver will not calculate CAN-FD bitrate
-#define MCP251XFD_CANFD_ENABLED  ( 0x80 ) //!< This value is used inside the driver (MCP251XFD.InternalConfig) to indicate if the CANFD is configured
+#define MCP251XFD_NO_CANFD       (    0u ) //!< This value specify that the driver will not calculate CAN-FD bitrate
+#define MCP251XFD_CANFD_ENABLED  ( 0x80u ) //!< This value is used inside the driver (MCP251XFD.InternalConfig) to indicate if the CANFD is configured
 
 //! CAN control configuration flags
 typedef enum
