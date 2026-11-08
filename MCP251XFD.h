@@ -51,7 +51,8 @@
  *          Initialize the temporary value of MCP251XFD_ReadSFR16(), MCP251XFD_ReadSFR32() and MCP251XFD_ReadRAM32() so that no uninitialized value is stored in *data when the read fails
  *          Lower the minimum nominal bitrate (MCP251XFD_NOMBITRATE_MIN) from 125 kbit/s to 10 kbit/s: the 10, 20, 50 and 100 kbit/s CAN bitrates can be calculated
  *          Fix the bitrate search that never tested the prescaler 256 (the loop started at 255)
- *          The nominal and data phases use a prescaler each (NBRP and DBRP) if no common prescaler gives a bitrate error as low (ex: 100 kbit/s nominal with 8 Mbit/s data at 40 MHz), else the same prescaler is kept for both phases
+ *          The nominal and data phases use a prescaler each (NBRP and DBRP) if no common prescaler gives a bitrate error as low (ex: 100 kbit/s nominal with 8 Mbit/s data at 40 MHz) or, with the same bitrate error, a nearer sample point (ex: 100 kbit/s nominal at 38.5 MHz), else the same prescaler is kept for both phases
+ *          The sample point of the bit time search is now the nearest possible to the target (87.5% up to 500 kbit/s, 80% up to 800 kbit/s, 75% above) and is part of the choice of the TQ counts and of the prescalers, with the same bitrate error: it gives for example 87.5% instead of 80% for 125 kbit/s at 40 MHz
  *          Fix MCP251XFD_ConfigureFilter() that did not check pComp before reading the filter configuration
  *          Fix MCP251XFD_ConfigureFIFOList() that cleared the FIFO being configured instead of the FIFO that are not in the list between two FIFO of the list
  *          Fix MCP251XFD_FlushFIFO() that wrote the FIFO number in CiTXREQ instead of the bit of the FIFO (it flushed another FIFO, and nothing for the TXQ)
@@ -4074,13 +4075,20 @@ eERRORRESULT MCP251XFD_SetGPIOPinsOutputLevel(MCP251XFD *pComp, uint8_t pinsLeve
 
 /*! @brief Calculate Bit Time for CAN2.0 or CAN-FD Configuration for the MCP251XFD device
  *
- * Calculate the best Bit Time configuration following desired bitrates for CAN-FD
- * This function call automatically the MCP251XFD_CalculateBitrateStatistics() function
+ * Calculate the best Bit Time configuration following desired bitrates for CAN2.0 or CAN-FD
+ * This function call automatically the MCP251XFD_CalculateBitrateStatistics() function if pConf->Stats is not NULL
+ * @details
+ *  - The nominal bitrate is from #MCP251XFD_NOMBITRATE_MIN (10 kbit/s) to #MCP251XFD_NOMBITRATE_MAX
+ *  - Each phase can use the TQ count just under or just over (SYSCLK / (bitrate x prescaler)); a bitrate error greater than #MCP251XFD_BITRATE_MAX_ERROR_PERMILLE (5.0% by default, like the Linux kernel) is refused
+ *  - The best configuration has the lowest sum of the bitrate errors, then the nearest sample points. The nominal and data phases share the same prescaler (identical TQ avoid the quantization errors during the bit rate switching),
+ *    unless a prescaler for each phase gives a lower bitrate error or, with the same bitrate error, nearer sample points (ex: 100 kbit/s nominal with 8 Mbit/s data at 40 MHz)
+ *  - The TDC is in automatic mode only if the data prescaler is 1 or 2 (ISO 11898-1 section 11.3.3, like the Linux kernel), else it is disabled
+ *  - The sample points are the CiA 601-3 targets: 87.5% up to 500 kbit/s, 80% up to 800 kbit/s, 75% above
  * @param[in] fsysclk Is the SYSCLK of the device
  * @param[in] desiredNominalBitrate Is the desired Nominal Bitrate of the CAN-FD configuration
  * @param[in] desiredDataBitrate Is the desired Data Bitrate of the CAN-FD configuration (If not CAN-FD set it to 0 or MCP251XFD_NO_CANFD)
  * @param[out] *pConf Is the pointed structure of the Bit Time configuration
- * @return Returns an #eERRORRESULT value enum
+ * @return Returns an #eERRORRESULT value enum: #ERR__BAUDRATE_ERROR if a bitrate is out of the driver limits, #ERR__PARAMETER_ERROR if fsysclk is out of limits, #ERR__BITTIME_ERROR if no configuration is possible
  */
 eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, const uint32_t desiredNominalBitrate, const uint32_t desiredDataBitrate, MCP251XFD_BitTimeConfig *pConf);
 

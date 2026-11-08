@@ -781,9 +781,93 @@ eERRORRESULT MCP251XFD_SetGPIOPinsOutputLevel(MCP251XFD *pComp, uint8_t pinsLeve
 
 
 //**********************************************************************************************************************************************************
-//=============================================================================
-// True if the bitrate of a TQ count (floor or ceil) is near enough of the wanted bitrate (MCP251XFD_BITRATE_MAX_ERROR_PERMILLE)
-//=============================================================================
+/*! @brief Split the TQ of a bit between SEG1 (PRSEG + PHSEG1) and SEG2 (PHSEG2) according to the wanted sample point
+ *
+ * The bit time (and so the bitrate) is kept: if SEG1 or SEG2 is out of range, the remaining TQ are given to the other segment.
+ * This gives the nearest sample point possible for this TQ count
+ * @param[in] TQbits Is the TQ count of the bit (SYNC + SEG1 + SEG2)
+ * @param[in] samplePoint Is the wanted sample point in per mille (limited to 1000)
+ * @param[in] isData Is 'true' for the data phase, 'false' for the nominal phase
+ * @param[out] *seg1 Receives SEG1 (PRSEG + PHSEG1) in TQ
+ * @param[out] *seg2 Receives SEG2 (PHSEG2) in TQ
+ */
+static void __MCP251XFD_SplitBitTime(uint32_t TQbits, uint32_t samplePoint, bool isData, uint32_t* const seg1, uint32_t* const seg2)
+{
+  const uint32_t Sync    = (isData ? MCP251XFD_DSYNC     : MCP251XFD_NSYNC    );
+  const uint32_t Seg1Min = (isData ? MCP251XFD_DTSEG1_MIN : MCP251XFD_NTSEG1_MIN);
+  const uint32_t Seg1Max = (isData ? MCP251XFD_DTSEG1_MAX : MCP251XFD_NTSEG1_MAX);
+  const uint32_t Seg2Min = (isData ? MCP251XFD_DTSEG2_MIN : MCP251XFD_NTSEG2_MIN);
+  const uint32_t Seg2Max = (isData ? MCP251XFD_DTSEG2_MAX : MCP251XFD_NTSEG2_MAX);
+  if (samplePoint > 1000u) samplePoint = 1000u;                           // A sample point cannot be > 100.0% (samplePoint is in per mille)
+  uint32_t SEG2 = ((TQbits * (1000u - samplePoint)) + 500u) / 1000u;      // Calculate and round the SEG2 from the wanted sample point
+  if (SEG2 < Seg2Min) SEG2 = Seg2Min;                                     // Correct SEG2 if < min
+  if (SEG2 > Seg2Max) SEG2 = Seg2Max;                                     // Correct SEG2 if > max
+  if (SEG2 > (TQbits - Sync - Seg1Min)) SEG2 = (TQbits - Sync - Seg1Min); // SEG2 cannot take the TQ needed by SYNC and the min SEG1
+  uint32_t SEG1 = TQbits - SEG2 - Sync;                                   // SEG1 = TQbits - SEG2 - SYNC
+  // If SEG1 is out of range, then the TQ are given to SEG2 to keep the bit time (and so the bitrate). This is the nearest sample point possible for this TQbits
+  if (SEG1 > Seg1Max) { SEG1 = Seg1Max; SEG2 = TQbits - SEG1 - Sync; }    // Correct SEG1 if > max and give the remaining TQ to SEG2
+  if (SEG1 < Seg1Min) { SEG1 = Seg1Min; SEG2 = TQbits - SEG1 - Sync; }    // Correct SEG1 if < min and give the remaining TQ to SEG2
+  *seg1 = SEG1;
+  *seg2 = SEG2;
+}
+
+
+/*! @brief Get the deviation between the wanted sample point and the nearest sample point possible with a TQ count
+ *
+ * @param[in] TQbits Is the TQ count of the bit (SYNC + SEG1 + SEG2)
+ * @param[in] samplePoint Is the wanted sample point in per mille (limited to 1000)
+ * @param[in] isData Is 'true' for the data phase, 'false' for the nominal phase
+ * @return Returns the deviation in per mille
+ */
+static uint32_t __MCP251XFD_SamplePointDeviation(uint32_t TQbits, uint32_t samplePoint, bool isData)
+{
+  uint32_t SEG1, SEG2;
+  __MCP251XFD_SplitBitTime(TQbits, samplePoint, isData, &SEG1, &SEG2);
+  const uint32_t Wanted = (samplePoint > 1000u ? 1000u : samplePoint);                              // Wanted sample point in per mille
+  const uint32_t Actual = (((isData ? MCP251XFD_DSYNC : MCP251XFD_NSYNC) + SEG1) * 1000u) / TQbits; // Actual sample point in per mille
+  return (Actual > Wanted ? Actual - Wanted : Wanted - Actual);
+}
+
+
+/*! @brief Tell if a bit time candidate is better than the best one
+ *
+ * A candidate is better if its bitrate error is lower or, with the same bitrate error, if its sample point is nearer of the wanted one.
+ * With a full equality the candidate is better too: the lower BRP (the last tested) is kept
+ * @param[in] error Is the bitrate error of the candidate in bit/s
+ * @param[in] spDeviation Is the sample point deviation of the candidate in per mille
+ * @param[in] bestError Is the bitrate error of the best candidate in bit/s
+ * @param[in] bestSPDeviation Is the sample point deviation of the best candidate in per mille
+ * @return Returns 'true' if the candidate is better
+ */
+static inline bool __MCP251XFD_IsBetterBitTime(uint32_t error, uint32_t spDeviation, uint32_t bestError, uint32_t bestSPDeviation)
+{
+  return ((error < bestError) || ((error == bestError) && (spDeviation <= bestSPDeviation))); // With a full equality, the lower BRP (the last tested) is kept
+}
+
+
+/*! @brief Get the sample point recommended by the CiA 601-3 and used by the Linux kernel according to the bitrate
+ *
+ * 87.5% up to 500 kbit/s, 80.0% up to 800 kbit/s and 75.0% above
+ * @param[in] bitrate Is the bitrate in bit/s
+ * @return Returns the sample point in per mille
+ */
+static inline uint32_t __MCP251XFD_DefaultSamplePoint(uint32_t bitrate)
+{
+  if (bitrate > 800000u) return 750u;                                                         // Above 800 kbit/s: 75.0%
+  if (bitrate > 500000u) return 800u;                                                         // Above 500 kbit/s: 80.0%
+  return 875u;                                                                                // Up to 500 kbit/s: 87.5%
+}
+
+
+/*! @brief Tell if the bitrate of a TQ count (floor or ceil) is near enough of the wanted bitrate
+ *
+ * The bitrate error must be at most #MCP251XFD_BITRATE_MAX_ERROR_PERMILLE of the wanted bitrate
+ * @param[in] fsysclk Is the SYSCLK of the device
+ * @param[in] wantedBitrate Is the wanted bitrate in bit/s
+ * @param[in] BRP Is the prescaler
+ * @param[in] TQbits Is the TQ count of the bit
+ * @return Returns 'true' if the bitrate of this TQ count is accepted
+ */
 static bool __MCP251XFD_BitrateIsNear(uint32_t fsysclk, uint32_t wantedBitrate, uint32_t BRP, uint32_t TQbits)
 {
   const uint32_t Actual = fsysclk / (TQbits * BRP);                                           // Actual bitrate of this TQ count
@@ -811,7 +895,7 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
   if (desiredDataBitrate    > MCP251XFD_DATABITRATE_MAX) return ERR__BAUDRATE_ERROR;
 
   //--- Declaration -----------------------------------------
-  uint32_t ErrorTQ;
+  uint32_t ErrorTQ, SPDev;
   uint32_t BestBRP = MCP251XFD_NBRP_MAX, BestNTQbits = MCP251XFD_NTQBIT_MAX, BestDTQbits = MCP251XFD_DTQBIT_MAX;
   uint32_t AloneNBRP = 0, AloneNTQbits = 0, AloneDBRP = 0, AloneDTQbits = 0;                   // Best configuration of each phase alone, used if no common BRP is as good
 
@@ -819,10 +903,12 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
   // Sweep all BRP values from max to min to find the best tuple (BRP, NTQbits, DTQbits).
   // Using the same BRP for both Nominal and Data phases prevents quantization errors during bit rate switching.
   // If no common BRP is as good as the best BRP of each phase alone, a BRP per phase is used (ex: 100 kbit/s nominal with 8 Mbit/s data at 40 MHz).
-  // Lower BRP values give finer TQ resolution, so '<=' in the comparison favors lower BRP when errors are equal.
-  uint32_t MinErrorBR = UINT32_MAX;
-  uint32_t MinErrNom = UINT32_MAX, MinErrData = UINT32_MAX;                                    // Lowest error of each phase alone
+  // With the same bitrate errors, the nearest sample point is chosen, then the lower BRP (finer TQ resolution) with '<=' in the comparison.
+  uint32_t MinErrorBR = UINT32_MAX, MinSPDev = UINT32_MAX;
+  uint32_t MinErrNom = UINT32_MAX, MinSPNom = UINT32_MAX, MinErrData = UINT32_MAX, MinSPData = UINT32_MAX; // Lowest error of each phase alone
   const bool IsCANFD = (desiredDataBitrate != MCP251XFD_NO_CANFD);
+  const uint32_t NomSP  = __MCP251XFD_DefaultSamplePoint(desiredNominalBitrate);               // Wanted Nominal sample point in per mille: 87.5% up to 500 kbit/s, 80% up to 800 kbit/s, 75% above (CiA 601-3 / Linux kernel)
+  const uint32_t DataSP = (IsCANFD ? __MCP251XFD_DefaultSamplePoint(desiredDataBitrate) : 0u); // Wanted Data sample point in per mille
   uint32_t BRP = (uint32_t)MCP251XFD_NBRP_MAX + 1u;                                            // The loop pre-decrements, so the first tested value is MCP251XFD_NBRP_MAX
   while (--BRP >= MCP251XFD_NBRP_MIN)
   {
@@ -841,18 +927,18 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
     // Error computation: we compare actual bitrates to desired bitrates. This avoids uint32 overflow and sign issues.
     // With the floor value the actual bitrate is >= the desired bitrate. With the ceil value (+1) the actual bitrate is < the desired bitrate, so all subtractions are >= 0
     // Combined error = sum of nominal and data bitrate errors (additive metric, no overflow risk)
-    uint32_t ENom[2] = { 0, 0 }, EData[2] = { 0, 0 };
-    if (NomOk[0]) ENom[0] = (fsysclk / (NTQfloor * BRP)) - desiredNominalBitrate;
-    if (NomOk[1]) ENom[1] = desiredNominalBitrate - (fsysclk / ((NTQfloor + 1u) * BRP));
+    uint32_t ENom[2] = { 0, 0 }, EData[2] = { 0, 0 }, SPNom[2] = { 0, 0 }, SPData[2] = { 0, 0 };
+    if (NomOk[0]) { ENom[0] = (fsysclk / (NTQfloor * BRP)) - desiredNominalBitrate;       SPNom[0] = __MCP251XFD_SamplePointDeviation(NTQfloor    , NomSP, false); }
+    if (NomOk[1]) { ENom[1] = desiredNominalBitrate - (fsysclk / ((NTQfloor + 1u) * BRP)); SPNom[1] = __MCP251XFD_SamplePointDeviation(NTQfloor + 1u, NomSP, false); }
     if (IsCANFD)
     {
-      if (DataOk[0]) EData[0] = (fsysclk / (DTQfloor * BRP)) - desiredDataBitrate;
-      if (DataOk[1]) EData[1] = desiredDataBitrate - (fsysclk / ((DTQfloor + 1u) * BRP));
+      if (DataOk[0]) { EData[0] = (fsysclk / (DTQfloor * BRP)) - desiredDataBitrate;       SPData[0] = __MCP251XFD_SamplePointDeviation(DTQfloor    , DataSP, true); }
+      if (DataOk[1]) { EData[1] = desiredDataBitrate - (fsysclk / ((DTQfloor + 1u) * BRP)); SPData[1] = __MCP251XFD_SamplePointDeviation(DTQfloor + 1u, DataSP, true); }
     }
 
     // Best candidate of each phase alone: used if the two phases cannot share the same prescaler (ex: 10 kbit/s needs a big prescaler and 8 Mbit/s needs a prescaler of 1)
-    for (uint32_t n = 0; n < 2u; n++) if (NomOk[n] && (ENom[n] <= MinErrNom)) { MinErrNom = ENom[n]; AloneNBRP = BRP; AloneNTQbits = NTQfloor + n; }
-    if (IsCANFD) for (uint32_t d = 0; d < 2u; d++) if (DataOk[d] && (EData[d] <= MinErrData)) { MinErrData = EData[d]; AloneDBRP = BRP; AloneDTQbits = DTQfloor + d; }
+    for (uint32_t n = 0; n < 2u; n++) if (NomOk[n] && __MCP251XFD_IsBetterBitTime(ENom[n], SPNom[n], MinErrNom, MinSPNom)) { MinErrNom = ENom[n]; MinSPNom = SPNom[n]; AloneNBRP = BRP; AloneNTQbits = NTQfloor + n; }
+    if (IsCANFD) for (uint32_t d = 0; d < 2u; d++) if (DataOk[d] && __MCP251XFD_IsBetterBitTime(EData[d], SPData[d], MinErrData, MinSPData)) { MinErrData = EData[d]; MinSPData = SPData[d]; AloneDBRP = BRP; AloneDTQbits = DTQfloor + d; }
 
     if (!NomOk[0] && !NomOk[1]) continue;                                                 // This TQbits count is not possible with this BRP, then do the next BRP value
     if (!DataOk[0] && !DataOk[1]) continue;
@@ -864,78 +950,42 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
       for (uint32_t n = 0; n < 2u; n++)
       {
         if (!NomOk[n]) continue;
-        ErrorTQ = ENom[n] + EData[d];
-        if (ErrorTQ <= MinErrorBR)
-        { MinErrorBR = ErrorTQ; BestBRP = BRP; BestNTQbits = NTQfloor + n; BestDTQbits = DTQfloor + d; }
+        ErrorTQ = ENom[n] + EData[d];  SPDev = SPNom[n] + SPData[d];
+        if (__MCP251XFD_IsBetterBitTime(ErrorTQ, SPDev, MinErrorBR, MinSPDev))
+        { MinErrorBR = ErrorTQ; MinSPDev = SPDev; BestBRP = BRP; BestNTQbits = NTQfloor + n; BestDTQbits = DTQfloor + d; }
       }
     }
   }
   uint32_t BestNBRP = BestBRP, BestDBRP = BestBRP;
-  if (IsCANFD && (MinErrNom != UINT32_MAX) && (MinErrData != UINT32_MAX) && ((MinErrorBR == UINT32_MAX) || ((MinErrNom + MinErrData) < MinErrorBR))) // No common BRP, or the two phases alone give a lower bitrate error
+  // A prescaler for each phase is used if no common BRP exists, or if it gives a lower bitrate error, or with the same bitrate error if it gives a nearer sample point
+  if (IsCANFD && (MinErrNom != UINT32_MAX) && (MinErrData != UINT32_MAX) && ((MinErrorBR == UINT32_MAX) || ((MinErrNom + MinErrData) < MinErrorBR) || (((MinErrNom + MinErrData) == MinErrorBR) && ((MinSPNom + MinSPData) < MinSPDev))))
   { BestNBRP = AloneNBRP; BestNTQbits = AloneNTQbits; BestDBRP = AloneDBRP; BestDTQbits = AloneDTQbits; }                                  // Use a prescaler for each phase
-  else if (MinErrorBR == UINT32_MAX) return ERR__BITTIME_ERROR;                // Impossible to find a good BRP
+  else if (MinErrorBR == UINT32_MAX) return ERR__BITTIME_ERROR;           // Impossible to find a good BRP
 
   //--- Calculate Nominal segments --------------------------
-  // Sample Point target tiers in permille, descending (CiA 601-3 / Linux kernel CAN conventions).
-  // Index 0 = <=500 kbps (87.5%), Index 1 = <=800 kbps (80.0%), Index 2 = >800 kbps (75.0%)
-  static const uint32_t MCP251XFD_SP_TIERS[] = { 875, 800, 750 };
-# define MCP251XFD_SP_TIERS_COUNT  ( sizeof(MCP251XFD_SP_TIERS) / sizeof(MCP251XFD_SP_TIERS[0]) )
-
   // All segment variables below are in "real" values (1-based). Conversion to register values (0-based) is done only when writing to pConf.
-  pConf->NBRP = BestNBRP - 1u;                                             // ** Save the best NBRP in the configuration ** (register = real - 1)
-  // Select starting SP tier based on nominal bitrate, then walk down tiers if NTSEG1 overflows
-  uint32_t NomTier = (desiredNominalBitrate > 800000ul) ? 2 : (desiredNominalBitrate > 500000ul) ? 1 : 0;
-  uint32_t NTSEG2 = 0, NTSEG1 = 0;
-  for (; NomTier < MCP251XFD_SP_TIERS_COUNT; NomTier++)
-  {
-    NTSEG2 = ((BestNTQbits * (1000u - MCP251XFD_SP_TIERS[NomTier])) + 500u) / 1000u;
-    if (NTSEG2 < MCP251XFD_NTSEG2_MIN) NTSEG2 = MCP251XFD_NTSEG2_MIN;
-    if (NTSEG2 > MCP251XFD_NTSEG2_MAX) NTSEG2 = MCP251XFD_NTSEG2_MAX;
-    NTSEG1 = BestNTQbits - NTSEG2 - MCP251XFD_NSYNC;
-    if (NTSEG1 <= MCP251XFD_NTSEG1_MAX) break;                            // This tier fits
-  }
-  if (NTSEG1 > MCP251XFD_NTSEG1_MAX)
-  {
-    NTSEG1 = MCP251XFD_NTSEG1_MAX;                                        // Last resort: clamp and redistribute
-    NTSEG2 = BestNTQbits - NTSEG1 - MCP251XFD_NSYNC;
-    if (NTSEG2 > MCP251XFD_NTSEG2_MAX) NTSEG2 = MCP251XFD_NTSEG2_MAX;
-  }
-  if (NTSEG1 < MCP251XFD_NTSEG1_MIN) NTSEG1 = MCP251XFD_NTSEG1_MIN;
+  pConf->NBRP = BestNBRP - 1u;                                            // ** Save the best NBRP in the configuration ** (register = real - 1)
+  uint32_t NTSEG1, NTSEG2;
+  __MCP251XFD_SplitBitTime(BestNTQbits, NomSP, false, &NTSEG1, &NTSEG2);  // Split the NTQbits in NTSEG1 and NTSEG2 with the nearest Nominal Sample Point and keep the bit time
   pConf->NTSEG2 = NTSEG2 - 1u;                                            // ** Save the NTSEG2 in the configuration ** (register = real - 1)
   pConf->NTSEG1 = NTSEG1 - 1u;                                            // ** Save the NTSEG1 in the configuration ** (register = real - 1)
   // NSJW = min(NPHSEG1, NPHSEG2). By construction PHSEG1 ~ PHSEG2 ~ NTSEG2 when SP target is met,
   // so NSJW ~ NTSEG2. However if clamping caused NTSEG1 < NTSEG2, then NPHSEG1 < NPHSEG2,
   // so we must take min(NTSEG1, NTSEG2) to satisfy the SJW constraint.
   uint32_t NSJW = NTSEG2;
-  if (NTSEG1 < NTSEG2) NSJW = NTSEG1;                                     // NSJW = min(NTSEG1, NTSEG2) = min(NPHSEG1, NPHSEG2) accounting for possible clamping
-  if (NSJW < MCP251XFD_NSJW_MIN) NSJW = MCP251XFD_NSJW_MIN;               // Correct NSJW if < 1
-  if (NSJW > MCP251XFD_NSJW_MAX) NSJW = MCP251XFD_NSJW_MAX;               // Correct NSJW if > 128
-  pConf->NSJW = NSJW - 1u;                                                // ** Save the NSJW in the configuration ** (register = real - 1)
+  if (NTSEG1 < NTSEG2) NSJW = NTSEG1;                                      // NSJW = min(NTSEG1, NTSEG2) = min(NPHSEG1, NPHSEG2) accounting for possible clamping
+  if (NSJW < MCP251XFD_NSJW_MIN) NSJW = MCP251XFD_NSJW_MIN;                // Correct NSJW if < 1
+  if (NSJW > MCP251XFD_NSJW_MAX) NSJW = MCP251XFD_NSJW_MAX;                // Correct NSJW if > 128
+  pConf->NSJW = NSJW - 1u;                                                 // ** Save the NSJW in the configuration ** (register = real - 1)
 
   //--- Calculate Data segments -----------------------------
   if (desiredDataBitrate != MCP251XFD_NO_CANFD)
   {
     pConf->DBRP = BestDBRP - 1u;                                           // ** Save the best DBRP in the configuration ** (register = real - 1)
-    // Select starting SP tier based on data bitrate, then walk down tiers if DTSEG1 overflows
-    uint32_t DataTier = (desiredDataBitrate > 800000ul) ? 2 : (desiredDataBitrate > 500000ul) ? 1 : 0;
-    uint32_t DTSEG2 = 0, DTSEG1 = 0;
-    for (; DataTier < MCP251XFD_SP_TIERS_COUNT; DataTier++)
-    {
-      DTSEG2 = ((BestDTQbits * (1000u - MCP251XFD_SP_TIERS[DataTier])) + 500u) / 1000u;
-      if (DTSEG2 < MCP251XFD_DTSEG2_MIN) DTSEG2 = MCP251XFD_DTSEG2_MIN;
-      if (DTSEG2 > MCP251XFD_DTSEG2_MAX) DTSEG2 = MCP251XFD_DTSEG2_MAX;
-      DTSEG1 = BestDTQbits - DTSEG2 - MCP251XFD_DSYNC;
-      if (DTSEG1 <= MCP251XFD_DTSEG1_MAX) break;                          // This tier fits
-    }
-    if (DTSEG1 > MCP251XFD_DTSEG1_MAX)
-    {
-      DTSEG1 = MCP251XFD_DTSEG1_MAX;                                      // Last resort: clamp and redistribute
-      DTSEG2 = BestDTQbits - DTSEG1 - MCP251XFD_DSYNC;
-      if (DTSEG2 > MCP251XFD_DTSEG2_MAX) DTSEG2 = MCP251XFD_DTSEG2_MAX;
-    }
-    if (DTSEG1 < MCP251XFD_DTSEG1_MIN) DTSEG1 = MCP251XFD_DTSEG1_MIN;
-    pConf->DTSEG2 = DTSEG2 - 1u;                                          // ** Save the DTSEG2 in the configuration ** (register = real - 1)
-    pConf->DTSEG1 = DTSEG1 - 1u;                                          // ** Save the DTSEG1 in the configuration ** (register = real - 1)
+    uint32_t DTSEG1, DTSEG2;
+    __MCP251XFD_SplitBitTime(BestDTQbits, DataSP, true, &DTSEG1, &DTSEG2); // Split the DTQbits in DTSEG1 and DTSEG2 with the nearest Data Sample Point and keep the bit time
+    pConf->DTSEG2 = DTSEG2 - 1u;                                           // ** Save the DTSEG2 in the configuration ** (register = real - 1)
+    pConf->DTSEG1 = DTSEG1 - 1u;                                           // ** Save the DTSEG1 in the configuration ** (register = real - 1)
     // DSJW = min(DPHSEG1, DPHSEG2), same reasoning as NSJW above
     uint32_t DSJW = DTSEG2;
     if (DTSEG1 < DTSEG2) DSJW = DTSEG1;                                   // DSJW = min(DTSEG1, DTSEG2) = min(DPHSEG1, DPHSEG2) accounting for possible clamping

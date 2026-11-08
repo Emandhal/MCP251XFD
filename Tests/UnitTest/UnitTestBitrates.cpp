@@ -77,10 +77,10 @@ namespace UnitTest_Bitrates
       Error = MCP251XFD_CalculateBitTimeConfiguration(40000000, 125000, MCP251XFD_NO_CANFD, &Conf);
       Assert::AreEqual(ERR_OK, Error, L"Test (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be ERR_OK");
       //--- Nominal Bit Times ---
-      Assert::AreEqual(  0u, Conf.NBRP, L"Test NBRP (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0");
-      Assert::AreEqual(254u, Conf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 254");
-      Assert::AreEqual( 63u, Conf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 63");
-      Assert::AreEqual( 63u, Conf.NSJW, L"Test NSJW (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 63");
+      Assert::AreEqual(  1u, Conf.NBRP, L"Test NBRP (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 1");
+      Assert::AreEqual(138u, Conf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 138");
+      Assert::AreEqual( 19u, Conf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 19");
+      Assert::AreEqual( 19u, Conf.NSJW, L"Test NSJW (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 19");
       //--- Data Bit Times ---
       Assert::AreEqual( 0u, Conf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0 (default)");
       Assert::AreEqual(14u, Conf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 14 (default)");
@@ -93,15 +93,15 @@ namespace UnitTest_Bitrates
       //--- Result Statistics ---
       Assert::AreEqual(125000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 125kbps");
       Assert::AreEqual(     0u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0");
-      Assert::AreEqual(   426u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 426m");
-      Assert::AreEqual(  8000u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 80.00%");
+      Assert::AreEqual(   544u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 544m");
+      Assert::AreEqual(  8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 87.00%");
       Assert::AreEqual(     0u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0");
-      Assert::AreEqual(   100u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 1.00%");
-      Assert::AreEqual(    78u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0.78%");
+      Assert::AreEqual(    62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0.62%");
+      Assert::AreEqual(    48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0.48%");
       Assert::AreEqual(     0u, Stats.OscTolC3, L"Test OscTolC3 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0");
       Assert::AreEqual(     0u, Stats.OscTolC4, L"Test OscTolC4 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0");
       Assert::AreEqual(     0u, Stats.OscTolC5, L"Test OscTolC5 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0");
-      Assert::AreEqual(    78u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0.78%");
+      Assert::AreEqual(    48u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0.48%");
     }
 
     TEST_METHOD(TestMethod_CAN20_40MHz_250kbps)
@@ -239,31 +239,31 @@ namespace UnitTest_Bitrates
       Error = MCP251XFD_CalculateBitTimeConfiguration(40000000, 125000, 500000, &Conf);
       Assert::AreEqual(ERR_OK, Error, L"Test (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be ERR_OK");
       //--- Nominal Bit Times ---
-      Assert::AreEqual(  1u, Conf.NBRP, L"Test NBRP (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 1");
-      Assert::AreEqual(138u, Conf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 138");
-      Assert::AreEqual( 19u, Conf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 19");
-      Assert::AreEqual( 19u, Conf.NSJW, L"Test NSJW (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 19");
+      Assert::AreEqual(  4u, Conf.NBRP, L"Test NBRP (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 4");
+      Assert::AreEqual( 54u, Conf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 54");
+      Assert::AreEqual(  7u, Conf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 7");
+      Assert::AreEqual(  7u, Conf.NSJW, L"Test NSJW (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 7");
       //--- Data Bit Times ---
-      Assert::AreEqual( 1u, Conf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 1");
-      Assert::AreEqual(30u, Conf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 30");
-      Assert::AreEqual( 7u, Conf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 7");
-      Assert::AreEqual( 7u, Conf.DSJW, L"Test DSJW (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 7");
+      Assert::AreEqual( 4u, Conf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 4");
+      Assert::AreEqual(12u, Conf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 12");
+      Assert::AreEqual( 1u, Conf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 1");
+      Assert::AreEqual( 1u, Conf.DSJW, L"Test DSJW (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 1");
       //--- Transmitter Delay Compensation ---
-      Assert::AreEqual(MCP251XFD_AUTO_MODE, Conf.TDCMOD, L"Test TDCMOD (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be AUTO_MODE");
-      Assert::AreEqual(                 63, Conf.TDCO, L"Test TDCO (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 63");
+      Assert::AreEqual(MCP251XFD_TDC_DISABLED, Conf.TDCMOD, L"Test TDCMOD (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be TDC_DISABLED");
+      Assert::AreEqual(                  0, Conf.TDCO, L"Test TDCO (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0");
       Assert::AreEqual(                 0u, Conf.TDCV, L"Test TDCV (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0");
       Assert::AreEqual(true, Conf.EDGE_FILTER, L"Test EDGE_FILTER (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be true");
       //--- Result Statistics ---
       Assert::AreEqual(125000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 125kbps");
       Assert::AreEqual(500000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 500kbps");
-      Assert::AreEqual(   544u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 544m");
+      Assert::AreEqual(   536u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 536m");
       Assert::AreEqual(  8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 87.00%");
-      Assert::AreEqual(  8000u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 80.00%");
+      Assert::AreEqual(  8700u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 87.00%");
       Assert::AreEqual(    62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.62%");
       Assert::AreEqual(    48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.48%");
-      Assert::AreEqual(   100u, Stats.OscTolC3, L"Test OscTolC3 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 1.00%");
+      Assert::AreEqual(    62u, Stats.OscTolC3, L"Test OscTolC3 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.62%");
       Assert::AreEqual(    73u, Stats.OscTolC4, L"Test OscTolC4 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.73%");
-      Assert::AreEqual(    85u, Stats.OscTolC5, L"Test OscTolC5 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.85%");
+      Assert::AreEqual(    53u, Stats.OscTolC5, L"Test OscTolC5 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.53%");
       Assert::AreEqual(    48u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.48%");
     }
 
@@ -465,10 +465,10 @@ namespace UnitTest_Bitrates
       Error = MCP251XFD_CalculateBitTimeConfiguration(40000000, 125000, 8000000, &Conf);
       Assert::AreEqual(ERR_OK, Error, L"Test (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be ERR_OK");
       //--- Nominal Bit Times ---
-      Assert::AreEqual(  0u, Conf.NBRP, L"Test NBRP (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0");
-      Assert::AreEqual(254u, Conf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 254");
-      Assert::AreEqual( 63u, Conf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 63");
-      Assert::AreEqual( 63u, Conf.NSJW, L"Test NSJW (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 63");
+      Assert::AreEqual(  1u, Conf.NBRP, L"Test NBRP (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 1");
+      Assert::AreEqual(138u, Conf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 138");
+      Assert::AreEqual( 19u, Conf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 19");
+      Assert::AreEqual( 19u, Conf.NSJW, L"Test NSJW (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 19");
       //--- Data Bit Times ---
       Assert::AreEqual( 0u, Conf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0");
       Assert::AreEqual( 2u, Conf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 2");
@@ -482,15 +482,15 @@ namespace UnitTest_Bitrates
       //--- Result Statistics ---
       Assert::AreEqual( 125000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 125kbps");
       Assert::AreEqual(8000000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 8Mbps");
-      Assert::AreEqual(    426u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 426m");
-      Assert::AreEqual(   8000u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 80.00%");
+      Assert::AreEqual(    544u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 544m");
+      Assert::AreEqual(   8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 87.00%");
       Assert::AreEqual(   8000u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 80.00%");
-      Assert::AreEqual(    100u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 1.00%");
-      Assert::AreEqual(     78u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.78%");
+      Assert::AreEqual(     62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.62%");
+      Assert::AreEqual(     48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.48%");
       Assert::AreEqual(    100u, Stats.OscTolC3, L"Test OscTolC3 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 1.00%");
-      Assert::AreEqual(    141u, Stats.OscTolC4, L"Test OscTolC4 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 1.41%");
-      Assert::AreEqual(      8u, Stats.OscTolC5, L"Test OscTolC5 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.08%");
-      Assert::AreEqual(      8u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.08%");
+      Assert::AreEqual(     88u, Stats.OscTolC4, L"Test OscTolC4 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.88%");
+      Assert::AreEqual(      0u, Stats.OscTolC5, L"Test OscTolC5 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.00%");
+      Assert::AreEqual(      0u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.00%");
     }
 
     TEST_METHOD(TestMethod_CANFD_40MHz_125kbps_2Mbps)
@@ -503,31 +503,31 @@ namespace UnitTest_Bitrates
       Error = MCP251XFD_CalculateBitTimeConfiguration(40000000, 125000, 2000000, &Conf);
       Assert::AreEqual(ERR_OK, Error, L"Test (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be ERR_OK");
       //--- Nominal Bit Times ---
-      Assert::AreEqual(  0u, Conf.NBRP, L"Test NBRP (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0");
-      Assert::AreEqual(254u, Conf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 254");
-      Assert::AreEqual( 63u, Conf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 63");
-      Assert::AreEqual( 63u, Conf.NSJW, L"Test NSJW (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 63");
+      Assert::AreEqual(  4u, Conf.NBRP, L"Test NBRP (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 4");
+      Assert::AreEqual( 54u, Conf.NTSEG1, L"Test NTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 54");
+      Assert::AreEqual(  7u, Conf.NTSEG2, L"Test NTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 7");
+      Assert::AreEqual(  7u, Conf.NSJW, L"Test NSJW (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 7");
       //--- Data Bit Times ---
-      Assert::AreEqual( 0u, Conf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0");
-      Assert::AreEqual(13u, Conf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 13");
-      Assert::AreEqual( 4u, Conf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 4");
-      Assert::AreEqual( 4u, Conf.DSJW, L"Test DSJW (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 4");
+      Assert::AreEqual( 4u, Conf.DBRP, L"Test DBRP (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 4");
+      Assert::AreEqual( 1u, Conf.DTSEG1, L"Test DTSEG1 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 1");
+      Assert::AreEqual( 0u, Conf.DTSEG2, L"Test DTSEG2 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0");
+      Assert::AreEqual( 0u, Conf.DSJW, L"Test DSJW (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0");
       //--- Transmitter Delay Compensation ---
-      Assert::AreEqual(MCP251XFD_AUTO_MODE, Conf.TDCMOD, L"Test TDCMOD (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be AUTO_MODE");
-      Assert::AreEqual(                 15, Conf.TDCO, L"Test TDCO (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 15");
+      Assert::AreEqual(MCP251XFD_TDC_DISABLED, Conf.TDCMOD, L"Test TDCMOD (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be TDC_DISABLED");
+      Assert::AreEqual(                  0, Conf.TDCO, L"Test TDCO (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0");
       Assert::AreEqual(                 0u, Conf.TDCV, L"Test TDCV (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0");
       //--- Result Statistics ---
       Assert::AreEqual( 125000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 125kbps");
       Assert::AreEqual(2000000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 2Mbps");
-      Assert::AreEqual(    426u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 426m");
-      Assert::AreEqual(   8000u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 80.00%");
+      Assert::AreEqual(    536u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 536m");
+      Assert::AreEqual(   8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 87.00%");
       Assert::AreEqual(   7500u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 75.00%");
-      Assert::AreEqual(    100u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 1.00%");
-      Assert::AreEqual(     78u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.78%");
+      Assert::AreEqual(     62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.62%");
+      Assert::AreEqual(     48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.48%");
       Assert::AreEqual(    125u, Stats.OscTolC3, L"Test OscTolC3 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 1.25%");
-      Assert::AreEqual(    135u, Stats.OscTolC4, L"Test OscTolC4 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 1.35%");
-      Assert::AreEqual(     37u, Stats.OscTolC5, L"Test OscTolC5 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.37%");
-      Assert::AreEqual(     37u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.37%");
+      Assert::AreEqual(     84u, Stats.OscTolC4, L"Test OscTolC4 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.84%");
+      Assert::AreEqual(     36u, Stats.OscTolC5, L"Test OscTolC5 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.36%");
+      Assert::AreEqual(     36u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.36%");
     }
 
     TEST_METHOD(TestMethod_CANFD_40MHz_250kbps_8Mbps)
