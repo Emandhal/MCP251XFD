@@ -1,0 +1,28 @@
+# Text files are stored with LF line endings in the repository
+# The working tree follows the platform settings (CRLF on Windows with core.autocrlf=true)
+* text=auto
+
+# Source files and documentation are always text
+*.c         text
+*.h         text
+*.cpp       text
+*.md        text
+.gitignore  text
+.gitattributes text
+
+# Projects and tools files are kept as they are
+*.sln                 -text
+*.atsln               -text
+*.vcxproj             -text
+*.filters             -text
+*.user                -text
+*.cproj               -text
+*.componentinfo.xml   -text
+Doxyfile              -text
+jlink.config          -text
+
+# Third-party code (Atmel Software Framework) is kept as it is
+Tests/src/ASF/**      -text
+
+# Binary files
+*.pdf                 binary
