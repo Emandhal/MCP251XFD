@@ -1,0 +1,102 @@
+name: Build
+
+# Compile-only checks of the driver with several compilers, in C and in C++, and the tests
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gcc-clang:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "GCC (C11)",     cc: gcc,     flags: "-x c -std=c11" }
+          - { name: "GCC (C++11)",   cc: g++,     flags: "-x c++ -std=c++11" }
+          - { name: "Clang (C11)",   cc: clang,   flags: "-x c -std=c11" }
+          - { name: "Clang (C++11)", cc: clang++, flags: "-x c++ -std=c++11" }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile the driver
+        run: |
+          for src in MCP251XFD.c CRC/CRC_CAN.c; do
+            ${{ matrix.cc }} ${{ matrix.flags }} -Wall -Wextra -I. -ITests/src/Config -c "$src" -o /dev/null
+          done
+
+  msvc:
+    name: MSVC (${{ matrix.lang }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [ C, C++ ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Compile the driver
+        shell: cmd
+        run: |
+          if "${{ matrix.lang }}"=="C" (set FLAGS=/std:c11) else (set FLAGS=/TP /EHsc)
+          cl /nologo /c /W3 %FLAGS% /I. /ITests\src\Config MCP251XFD.c CRC\CRC_CAN.c
+
+  unit-tests:
+    name: Unit tests (MSVC Debug)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x86
+      - name: Build and run the unit tests of Tests/UnitTest
+        shell: cmd
+        run: |
+          cl /nologo /TP /std:c++17 /EHsc /Od /RTC1 /MDd /W3 /D_DEBUG /DWIN32 /DCHECK_NULL_PARAM /DMCP251XFD_TRANS_BUF_SIZE=81 /DUSE_MCP251XFD_TOOLS /ITests\ConsoleTests /ITests\UnitTest /I. /ICRC /ITests\src\Config Tests\ConsoleTests\RunTests.cpp Tests\UnitTest\UnitTest.cpp Tests\UnitTest\UnitTestBitrates.cpp Tests\UnitTest\UnitTest_ReadWriteData.cpp Tests\UnitTest\UnitTestBitratesStandard.cpp Tests\UnitTest\UnitTestDriver.cpp MCP251XFD.c CRC\CRC16_CMS.c CRC\CRC16_USB.c CRC\CRC_CAN.c /Fe:run_tests.exe
+          if errorlevel 1 exit /b 1
+          run_tests.exe
+
+  bitrate-sweep:
+    name: Bitrate sweep (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "GCC",   cc: gcc,   cxx: g++ }
+          - { name: "Clang", cc: clang, cxx: clang++ }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run the exhaustive bitrate test (quick sweep and random cases)
+        run: |
+          ${{ matrix.cc }} -std=c11 -O2 -DMCP251XFD_TRANS_BUF_SIZE=81 -I. -ITests/src/Config -c MCP251XFD.c -o driver.o
+          ${{ matrix.cxx }} -std=c++17 -O2 -DMCP251XFD_TRANS_BUF_SIZE=81 -I. -ICRC -ITests/src/Config Tests/ConsoleTests/BitrateSweep.cpp driver.o -o bitrate_sweep
+          ./bitrate_sweep
+          ./bitrate_sweep --no-sweep --random 20000 --seed 1
+
+  sources:
+    name: Sources check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Only ASCII characters (micro and section signs are allowed)
+        run: |
+          python3 - <<'PY'
+          import pathlib, sys
+          files = sorted(pathlib.Path('.').glob('*.[ch]')) + sorted(pathlib.Path('CRC').glob('*.[ch]'))
+          allowed = 'µ§'
+          bad = 0
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              for number, line in enumerate(text.splitlines(), 1):
+                  for char in line:
+                      if ord(char) > 127 and char not in allowed:
+                          print(f'{path}:{number}: U+{ord(char):04X}')
+                          bad += 1
+          print(f'{len(files)} files checked, {bad} forbidden character(s)')
+          sys.exit(1 if bad else 0)
+          PY
