@@ -110,15 +110,15 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   }
 
   //--- Set desired SPI clock speed -------------------------
-  if (pComp->SPIClockSpeed > (((CompFreq >> 1) * 85) / 100)) return ERR__SPI_FREQUENCY_ERROR;            // Ensure that FSCK is less than or equal to 0.85*(FSYSCLK/2). Follows datasheets errata for: The SPI can write corrupted data to the RAM at fast SPI speeds
-  if ((pComp->DriverConfig & MCP251XFD_DRIVER_SAFE_RESET) > 0)
+  if (pComp->SPIClockSpeed > (((CompFreq >> 1) * 85u) / 100u)) return ERR__SPI_FREQUENCY_ERROR;          // Ensure that FSCK is less than or equal to 0.85*(FSYSCLK/2). Follows datasheets errata for: The SPI can write corrupted data to the RAM at fast SPI speeds
+  if (((uint32_t)pComp->DriverConfig & (uint32_t)MCP251XFD_DRIVER_SAFE_RESET) > 0u)
   {
     Error = pComp->fnSPI_Init(pComp->InterfaceDevice, pComp->SPI_ChipSelect, pComp->SPIClockSpeed);      // Set the SPI speed clock to desired clock speed
     if (Error != ERR_OK) return Error;                                                                   // If there is an error while changing SPI interface speed then return the error
   }
 
   //--- Configure CRC Interrupts ----------------------------
-  if ((pComp->DriverConfig & MCP251XFD_DRIVER_USE_READ_WRITE_CRC) > 0)                                   // If there is a DRIVER_USE_READ_WRITE_CRC flag then
+  if (((uint32_t)pComp->DriverConfig & (uint32_t)MCP251XFD_DRIVER_USE_READ_WRITE_CRC) > 0u)              // If there is a DRIVER_USE_READ_WRITE_CRC flag then
   {
     Error = MCP251XFD_ConfigureCRC(pComp, MCP251XFD_CRC_ALL_EVENTS);                                     // Configure the CRC and all interrupts related to CRC
     if (Error != ERR_NONE) return Error;                                                                 // If there is an error while calling MCP251XFD_ConfigureCRC() then return the error
@@ -133,7 +133,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   if (Error != ERR_NONE) return Error;                                                                   // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   //--- Test SPI connection and RAM Test --------------------
-  if ((pComp->DriverConfig & MCP251XFD_DRIVER_INIT_CHECK_RAM) > 0)                                       // If there is a DRIVER_INIT_CHECK_RAM flag then
+  if (((uint32_t)pComp->DriverConfig & (uint32_t)MCP251XFD_DRIVER_INIT_CHECK_RAM) > 0u)                  // If there is a DRIVER_INIT_CHECK_RAM flag then
   {
     Error = __MCP251XFD_TestRAM(pComp);                                                                  // Check the all the RAM only of the device
     if (Error != ERR_NONE) return Error;                                                                 // If there is an error while calling __MCP251XFD_TestRAM() then return the error
@@ -148,14 +148,14 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf)
   }
 
   //--- Configure RAM ECC -----------------------------------
-  if ((pComp->DriverConfig & MCP251XFD_DRIVER_ENABLE_ECC) > 0)                                           // If there is a DRIVER_ENABLE_ECC flag then
+  if (((uint32_t)pComp->DriverConfig & (uint32_t)MCP251XFD_DRIVER_ENABLE_ECC) > 0u)                      // If there is a DRIVER_ENABLE_ECC flag then
   {
     Error = MCP251XFD_ConfigureECC(pComp, true, MCP251XFD_ECC_ALL_EVENTS, 0x55);                         // Configure the ECC and enable all interrupts related to ECC
     if (Error != ERR_NONE) return Error;                                                                 // If there is an error while calling MCP251XFD_ConfigureECC() then return the error
   }
 
   //--- Initialize RAM if configured ------------------------
-  if ((pComp->DriverConfig & MCP251XFD_DRIVER_INIT_SET_RAM_AT_0) > 0)                                    // If there is a DRIVER_INIT_SET_RAM_AT_0 flag then
+  if (((uint32_t)pComp->DriverConfig & (uint32_t)MCP251XFD_DRIVER_INIT_SET_RAM_AT_0) > 0u)               // If there is a DRIVER_INIT_SET_RAM_AT_0 flag then
   {
     Error = MCP251XFD_InitRAM(pComp);                                                                    // Initialize all RAM addresses with 0x00000000
     if (Error != ERR_NONE) return Error;                                                                 // If there is an error while calling MCP251XFD_InitRAM() then return the error
@@ -246,7 +246,7 @@ eERRORRESULT MCP251XFD_ReadData(MCP251XFD *pComp, uint16_t address, uint8_t* dat
   if ((pComp == NULL) || (data == NULL))  return ERR__PARAMETER_ERROR;
   if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
 #endif
-  const bool UseCRC = ((pComp->DriverConfig & MCP251XFD_DRIVER_USE_READ_WRITE_CRC) > 0);
+  const bool UseCRC = (((uint32_t)pComp->DriverConfig & (uint32_t)MCP251XFD_DRIVER_USE_READ_WRITE_CRC) > 0u);
   const bool InRAM  = (address >= MCP251XFD_RAM_ADDR) && (address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE)); // True if address is in the RAM region ; False if address is in Controller SFR or CAN SFR region
   if (address > MCP251XFD_END_ADDR) return ERR__PARAMETER_ERROR;
   uint8_t Buffer[MCP251XFD_TRANS_BUF_SIZE];
@@ -276,7 +276,7 @@ eERRORRESULT MCP251XFD_ReadData(MCP251XFD *pComp, uint16_t address, uint8_t* dat
     ByteCount = (size > Increment ? Increment : size);                         // Define byte count to send
 
     //--- If needed, set 0x00 byte while reading data on SPI interface else send garbage data ---
-    if ((pComp->DriverConfig & MCP251XFD_DRIVER_CLEAR_BUFFER_BEFORE_READ) > 0)
+    if (((uint32_t)pComp->DriverConfig & (uint32_t)MCP251XFD_DRIVER_CLEAR_BUFFER_BEFORE_READ) > 0u)
     {
       const size_t BuffUsedSize = ByteCount + (UseCRC ? 2u + 1u - 2u : 2u);    // Here 2 for Command + 1 for Length - 2 for CRC (CRC on the SPI send is not checked by the controller thus will be set to 0 too), else just 2 for command
       for (size_t z = 2; z < BuffUsedSize; ++z) Buffer[z] = 0x00;              // Set to 0
@@ -339,8 +339,8 @@ eERRORRESULT MCP251XFD_WriteData(MCP251XFD *pComp, uint16_t address, const uint8
   if ((pComp == NULL) || (data == NULL))  return ERR__PARAMETER_ERROR;
   if (pComp->fnSPI_Transfer == NULL) return ERR__PARAMETER_ERROR;
 #endif
-  const bool UseCRC  = ((pComp->DriverConfig & (MCP251XFD_DRIVER_USE_READ_WRITE_CRC | MCP251XFD_DRIVER_USE_SAFE_WRITE)) > 0);
-  const bool UseSafe = ((pComp->DriverConfig & MCP251XFD_DRIVER_USE_SAFE_WRITE) > 0);
+  const bool UseCRC  = (((uint32_t)pComp->DriverConfig & ((uint32_t)MCP251XFD_DRIVER_USE_READ_WRITE_CRC | (uint32_t)MCP251XFD_DRIVER_USE_SAFE_WRITE)) > 0u);
+  const bool UseSafe = (((uint32_t)pComp->DriverConfig & (uint32_t)MCP251XFD_DRIVER_USE_SAFE_WRITE) > 0u);
   const bool InRAM   = (address >= MCP251XFD_RAM_ADDR) && (address < (MCP251XFD_RAM_ADDR + MCP251XFD_RAM_SIZE)); // True if address is in the RAM region ; False if address is in Controller SFR or CAN SFR region
   if (address > MCP251XFD_END_ADDR) return ERR__PARAMETER_ERROR;
   uint8_t Buffer[MCP251XFD_TRANS_BUF_SIZE];
@@ -472,18 +472,18 @@ eERRORRESULT MCP251XFD_TransmitMessageToFIFO(MCP251XFD *pComp, MCP251XFD_CANMess
   MCP251XFD_CAN_TX_Message* Message = (MCP251XFD_CAN_TX_Message*)Buffer; // The first 8 bytes represent the MCP251XFD_CAN_TX_Message struct
 
   //--- Fill message ID (T0) ---
-  bool Extended   = ((messageToSend->ControlFlags & MCP251XFD_EXTENDED_MESSAGE_ID) > 0);
-  bool CANFDframe = ((messageToSend->ControlFlags & MCP251XFD_CANFD_FRAME        ) > 0);
+  bool Extended   = (((uint32_t)messageToSend->ControlFlags & (uint32_t)MCP251XFD_EXTENDED_MESSAGE_ID) > 0u);
+  bool CANFDframe = (((uint32_t)messageToSend->ControlFlags & (uint32_t)MCP251XFD_CANFD_FRAME        ) > 0u);
   Message->T0.T0  = MCP251XFD_MessageIDtoObjectMessageIdentifier(messageToSend->MessageID, Extended, MCP251XFD_USE_SID11 && CANFDframe);
 
   //--- Fill message controls (T1) ---
   Message->T1.T1 = 0;                          // Initialize message Controls to 0
   Message->T1.SEQ = messageToSend->MessageSEQ; // Set message Sequence
   if (CANFDframe                                                          )      Message->T1.FDF = 1;
-  if ((messageToSend->ControlFlags & MCP251XFD_SWITCH_BITRATE             ) > 0) Message->T1.BRS = 1;
-  if ((messageToSend->ControlFlags & MCP251XFD_REMOTE_TRANSMISSION_REQUEST) > 0) Message->T1.RTR = 1;
-  if ((messageToSend->ControlFlags & MCP251XFD_EXTENDED_MESSAGE_ID        ) > 0) Message->T1.IDE = 1;
-  if ((messageToSend->ControlFlags & MCP251XFD_TRANSMIT_ERROR_PASSIVE     ) > 0) Message->T1.ESI = 1;
+  if (((uint32_t)messageToSend->ControlFlags & (uint32_t)MCP251XFD_SWITCH_BITRATE             ) > 0u) Message->T1.BRS = 1;
+  if (((uint32_t)messageToSend->ControlFlags & (uint32_t)MCP251XFD_REMOTE_TRANSMISSION_REQUEST) > 0u) Message->T1.RTR = 1;
+  if (((uint32_t)messageToSend->ControlFlags & (uint32_t)MCP251XFD_EXTENDED_MESSAGE_ID        ) > 0u) Message->T1.IDE = 1;
+  if (((uint32_t)messageToSend->ControlFlags & (uint32_t)MCP251XFD_TRANSMIT_ERROR_PASSIVE     ) > 0u) Message->T1.ESI = 1;
   Message->T1.DLC = (uint8_t)messageToSend->DLC;
 
   //--- Fill payload data ---
@@ -1207,22 +1207,22 @@ eERRORRESULT MCP251XFD_ConfigureCANController(MCP251XFD *pComp, setMCP251XFD_CAN
             | MCP251XFD_CAN_CiCON_OPMOD_Mask | MCP251XFD_CAN_CiCON_SERR2LOM | MCP251XFD_CAN_CiCON_ESIGM
             | MCP251XFD_CAN_CiCON_RTXAT | MCP251XFD_CAN_CiCON_BRSDIS | MCP251XFD_CAN_CiCON_PXEDIS
             | MCP251XFD_CAN_CiCON_ISOCRCEN);
-  Config |= MCP251XFD_CAN_CiCON_REQOP_SET(MCP251XFD_CONFIGURATION_MODE);                                   // Stay in configuration mode because these change are done in configuration mode only
-  Config |= MCP251XFD_CAN_CiCON_TXBWS_SET(bandwidth);                                                      // Set the delay between two consecutive transmissions (in arbitration bit times)
-  if ((flags & MCP251XFD_CAN_LISTEN_ONLY_MODE_ON_ERROR    ) > 0) Config |= MCP251XFD_CAN_CiCON_SERR2LOM;   // Set transition to Listen Only Mode on system error
-  if ((flags & MCP251XFD_CAN_GATEWAY_MODE_ESI_RECESSIVE   ) > 0) Config |= MCP251XFD_CAN_CiCON_ESIGM;      // Set transmit ESI in Gateway Mode, ESI is transmitted recessive when ESI of message is high or CAN controller error passive
-  if ((flags & MCP251XFD_CAN_RESTRICTED_RETRANS_ATTEMPTS  ) > 0) Config |= MCP251XFD_CAN_CiCON_RTXAT;      // Set restricted retransmission attempts, CiFIFOCONm.TXAT is used
-  if ((flags & MCP251XFD_CANFD_BITRATE_SWITCHING_DISABLE  ) > 0) Config |= MCP251XFD_CAN_CiCON_BRSDIS;     // Set Bit Rate Switching is Disabled, regardless of BRS in the Transmit Message Object
-  if ((flags & MCP251XFD_CAN_PROTOCOL_EXCEPT_AS_FORM_ERROR) > 0) Config |= MCP251XFD_CAN_CiCON_PXEDIS;     // Set Protocol Exception is treated as a Form Error. A recessive "res bit" following a recessive FDF bit is called a Protocol Exception
-  if ((flags & MCP251XFD_CANFD_USE_ISO_CRC                ) > 0) Config |= MCP251XFD_CAN_CiCON_ISOCRCEN;   // Set Include Stuff Bit Count in CRC Field and use Non-Zero CRC Initialization Vector according to ISO 11898-1:2015
-  Error = MCP251XFD_WriteSFR32(pComp, RegMCP251XFD_CiCON, Config);                                         // Write new configuration to the CiTDC register (Last byte only)
-  if (Error != ERR_NONE) return Error;                                                                     // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
+  Config |= MCP251XFD_CAN_CiCON_REQOP_SET(MCP251XFD_CONFIGURATION_MODE);                                                      // Stay in configuration mode because these change are done in configuration mode only
+  Config |= MCP251XFD_CAN_CiCON_TXBWS_SET(bandwidth);                                                                         // Set the delay between two consecutive transmissions (in arbitration bit times)
+  if (((uint32_t)flags & (uint32_t)MCP251XFD_CAN_LISTEN_ONLY_MODE_ON_ERROR    ) > 0u) Config |= MCP251XFD_CAN_CiCON_SERR2LOM; // Set transition to Listen Only Mode on system error
+  if (((uint32_t)flags & (uint32_t)MCP251XFD_CAN_GATEWAY_MODE_ESI_RECESSIVE   ) > 0u) Config |= MCP251XFD_CAN_CiCON_ESIGM;    // Set transmit ESI in Gateway Mode, ESI is transmitted recessive when ESI of message is high or CAN controller error passive
+  if (((uint32_t)flags & (uint32_t)MCP251XFD_CAN_RESTRICTED_RETRANS_ATTEMPTS  ) > 0u) Config |= MCP251XFD_CAN_CiCON_RTXAT;    // Set restricted retransmission attempts, CiFIFOCONm.TXAT is used
+  if (((uint32_t)flags & (uint32_t)MCP251XFD_CANFD_BITRATE_SWITCHING_DISABLE  ) > 0u) Config |= MCP251XFD_CAN_CiCON_BRSDIS;   // Set Bit Rate Switching is Disabled, regardless of BRS in the Transmit Message Object
+  if (((uint32_t)flags & (uint32_t)MCP251XFD_CAN_PROTOCOL_EXCEPT_AS_FORM_ERROR) > 0u) Config |= MCP251XFD_CAN_CiCON_PXEDIS;   // Set Protocol Exception is treated as a Form Error. A recessive "res bit" following a recessive FDF bit is called a Protocol Exception
+  if (((uint32_t)flags & (uint32_t)MCP251XFD_CANFD_USE_ISO_CRC                ) > 0u) Config |= MCP251XFD_CAN_CiCON_ISOCRCEN; // Set Include Stuff Bit Count in CRC Field and use Non-Zero CRC Initialization Vector according to ISO 11898-1:2015
+  Error = MCP251XFD_WriteSFR32(pComp, RegMCP251XFD_CiCON, Config);                                                            // Write new configuration to the CiTDC register (Last byte only)
+  if (Error != ERR_NONE) return Error;                                                                                        // If there is an error while calling MCP251XFD_WriteSFR8() then return the error
 
   uint8_t TConfig;
-  Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiTDC_CONFIG, &TConfig); // Read actual configuration of the CiTDC register (Last byte only)
-  if (Error != ERR_NONE) return Error;                                    // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
-  TConfig &= ~MCP251XFD_CAN_CiTDC8_SID11EN;                               // Clear the flag
-  if ((flags & MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11) > 0)                 // Use SID11?
+  Error = MCP251XFD_ReadSFR8(pComp, RegMCP251XFD_CiTDC_CONFIG, &TConfig);      // Read actual configuration of the CiTDC register (Last byte only)
+  if (Error != ERR_NONE) return Error;                                         // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
+  TConfig &= ~MCP251XFD_CAN_CiTDC8_SID11EN;                                    // Clear the flag
+  if (((uint32_t)flags & (uint32_t)MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11) > 0u) // Use SID11?
   {
     TConfig |= MCP251XFD_CAN_CiTDC8_SID11EN;                                   // Add use SID11 flag
     pComp->InternalConfig |= MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11;             // Add use SID11 to the internal configuration
@@ -1463,12 +1463,12 @@ eERRORRESULT MCP251XFD_ConfigureTEF(MCP251XFD *pComp, bool enableTEF, MCP251XFD_
     MCP251XFD_CiTEFCON_Register Reg;
     uint8_t Size = MCP251XFD_CAN_TX_EVENTOBJECT_SIZE;                                                              // By default 1 element is 2x4-bytes in RAM
     Reg.CiTEFCON = MCP251XFD_CAN_CiTEFCON_FSIZE_SET(confTEF->Size);                                                // Add FIFO Size
-    if ((confTEF->ControlFlags   & MCP251XFD_FIFO_ADD_TIMESTAMP_ON_OBJ    ) > 0)                                   // Transmit Event FIFO Time Stamp Enable
-    { Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFTSEN; Size += 4; }
-    if ((confTEF->InterruptFlags & MCP251XFD_FIFO_OVERFLOW_INT            ) > 0) Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFOVIE; // Add Transmit Event FIFO Overflow Interrupt Enable
-    if ((confTEF->InterruptFlags & MCP251XFD_FIFO_EVENT_FIFO_FULL_INT     ) > 0) Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFFIE;  // Add Transmit Event FIFO Full Interrupt Enable
-    if ((confTEF->InterruptFlags & MCP251XFD_FIFO_EVENT_FIFO_HALF_FULL_INT) > 0) Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFHIE;  // Add Transmit Event FIFO Half Full Interrupt Enable
-    if ((confTEF->InterruptFlags & MCP251XFD_FIFO_EVENT_FIFO_NOT_EMPTY_INT) > 0) Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFNEIE; // Add Transmit Event FIFO Not Empty Interrupt Enable
+    if (((uint32_t)confTEF->ControlFlags   & (uint32_t)MCP251XFD_FIFO_ADD_TIMESTAMP_ON_OBJ    ) > 0u)              // Transmit Event FIFO Time Stamp Enable
+    { Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFTSEN; Size += 4u; }
+    if (((uint32_t)confTEF->InterruptFlags & (uint32_t)MCP251XFD_FIFO_OVERFLOW_INT            ) > 0u) Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFOVIE; // Add Transmit Event FIFO Overflow Interrupt Enable
+    if (((uint32_t)confTEF->InterruptFlags & (uint32_t)MCP251XFD_FIFO_EVENT_FIFO_FULL_INT     ) > 0u) Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFFIE;  // Add Transmit Event FIFO Full Interrupt Enable
+    if (((uint32_t)confTEF->InterruptFlags & (uint32_t)MCP251XFD_FIFO_EVENT_FIFO_HALF_FULL_INT) > 0u) Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFHIE;  // Add Transmit Event FIFO Half Full Interrupt Enable
+    if (((uint32_t)confTEF->InterruptFlags & (uint32_t)MCP251XFD_FIFO_EVENT_FIFO_NOT_EMPTY_INT) > 0u) Reg.CiTEFCON |= MCP251XFD_CAN_CiTEFCON_TEFNEIE; // Add Transmit Event FIFO Not Empty Interrupt Enable
 
     Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiTEFCON, &Reg.Bytes[0], sizeof(MCP251XFD_CiTEFCON_Register)); // Write TEF configuration
     if (Error != ERR_NONE) return Error;                                                                           // If there is an error while calling MCP251XFD_WriteData() then return the error
@@ -1574,12 +1574,12 @@ eERRORRESULT MCP251XFD_ConfigureFIFO(MCP251XFD *pComp, MCP251XFD_FIFO *confFIFO)
   }
   else
   {
-    if ((confFIFO->ControlFlags   & MCP251XFD_FIFO_ADD_TIMESTAMP_ON_RX         ) > 0)                                                      // Receive FIFO Time Stamp Enable
-    { Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_RXTSEN; Size += 4; }
-    if ((confFIFO->InterruptFlags & MCP251XFD_FIFO_OVERFLOW_INT                ) > 0) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_RXOVIE;   // Add Transmit Attempts Exhausted Interrupt Enable
-    if ((confFIFO->InterruptFlags & MCP251XFD_FIFO_RECEIVE_FIFO_FULL_INT       ) > 0) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFERFFIE; // Add Receive FIFO Full Interrupt Enable
-    if ((confFIFO->InterruptFlags & MCP251XFD_FIFO_RECEIVE_FIFO_HALF_FULL_INT  ) > 0) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFHRFHIE; // Add Receive FIFO Half Full Interrupt Enable
-    if ((confFIFO->InterruptFlags & MCP251XFD_FIFO_RECEIVE_FIFO_NOT_EMPTY_INT  ) > 0) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFNRFNIE; // Add Receive FIFO Not Empty Interrupt Enable
+    if (((uint32_t)confFIFO->ControlFlags   & (uint32_t)MCP251XFD_FIFO_ADD_TIMESTAMP_ON_RX         ) > 0u)                                                      // Receive FIFO Time Stamp Enable
+    { Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_RXTSEN; Size += 4u; }
+    if (((uint32_t)confFIFO->InterruptFlags & (uint32_t)MCP251XFD_FIFO_OVERFLOW_INT                ) > 0u) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_RXOVIE;   // Add Transmit Attempts Exhausted Interrupt Enable
+    if (((uint32_t)confFIFO->InterruptFlags & (uint32_t)MCP251XFD_FIFO_RECEIVE_FIFO_FULL_INT       ) > 0u) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFERFFIE; // Add Receive FIFO Full Interrupt Enable
+    if (((uint32_t)confFIFO->InterruptFlags & (uint32_t)MCP251XFD_FIFO_RECEIVE_FIFO_HALF_FULL_INT  ) > 0u) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFHRFHIE; // Add Receive FIFO Half Full Interrupt Enable
+    if (((uint32_t)confFIFO->InterruptFlags & (uint32_t)MCP251XFD_FIFO_RECEIVE_FIFO_NOT_EMPTY_INT  ) > 0u) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFNRFNIE; // Add Receive FIFO Not Empty Interrupt Enable
   }
 
   uint16_t Address = (uint16_t)RegMCP251XFD_CiFIFOCONm + (MCP251XFD_FIFO_REG_SIZE * ((uint16_t)confFIFO->Name - 1u)); // Select the address of the FIFO
@@ -2310,7 +2310,7 @@ eERRORRESULT MCP251XFD_ResetDevice(MCP251XFD *pComp)
   uint8_t Buffer[2] = { (MCP251XFD_SPI_INSTRUCTION_RESET << 4), 0 };
 
   //--- Do DRIVER_SAFE_RESET flag implementation before reset ---------------
-  if ((pComp->DriverConfig & MCP251XFD_DRIVER_SAFE_RESET) > 0)
+  if (((uint32_t)pComp->DriverConfig & (uint32_t)MCP251XFD_DRIVER_SAFE_RESET) > 0u)
   {
 #ifdef CHECK_NULL_PARAM
     if (pComp->fnSPI_Init == NULL) return ERR__PARAMETER_ERROR;
