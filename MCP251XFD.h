@@ -36,8 +36,12 @@
  *****************************************************************************/
 
 /* Revision history:
- * 1.0.11   Replace typographic characters by ASCII ones in the source files
+ * 1.0.11   Fix the packed enum macro with MSVC in C: MSVC does not accept an enum with an underlying type in C, even in C23 mode
+ *          Fix the deprecated warning of RegMCP251XFD_IOCON with MSVC in C (the GCC attribute was selected for any C compiler)
+ *          Replace typographic characters by ASCII ones in the source files
  *          Add .gitattributes to normalize the line endings (LF in the repository)
+ *          Fix the structures and enums size with Clang using the MSVC ABI (clang-cl): it now uses the GCC/Clang branch of the packed macros, with an underlying type for the enums in C
+ *          Fix MCP251XFD_CiBDIAG1_Register that was 6 bytes instead of 4 with MSVC in C (an enum can not be packed in C with MSVC), and make the size controls effective with MSVC (negative array size instead of a division by 0)
  * 1.0.10   Fix MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO() and MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO() that called the Receive function [Thanks to ceckelman]
  *          Fix parameter names in functions documentation [Thanks to ceckelman]
  *          Add per-controller eMCP251XFD_WakeUpFilter identifiers (MCP2517FD_/MCP2518FD_) with precise timings, old names kept for compatibility [Thanks to ceckelman]
@@ -91,16 +95,17 @@
 //-----------------------------------------------------------------------------
 // Packed structures and enums definitions
 //-----------------------------------------------------------------------------
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(__clang__) // clang-cl is handled by the GCC/Clang branch: it supports the packed attribute on structures and enums
   // Microsoft Visual C++
 # define __MCP251XFD_PACKED__
 # define MCP251XFD_PACKITEM               __pragma(pack(push, 1))
 # define MCP251XFD_UNPACKITEM             __pragma(pack(pop))
-# if defined(__cplusplus) || (_MSC_VER >= 1936)
+# if defined(__cplusplus) // MSVC accepts an enum with an underlying type only in C++ (not in C, even in C23 mode)
 #   define MCP251XFD_PACKENUM(name,type)  typedef enum name : type
 #   define MCP251XFD_UNPACKENUM(name)     name
 # else
 #   define MCP251XFD_PACKENUM(name,type)  typedef enum
+#   define MCP251XFD_ENUM_NOT_PACKED
 #   define MCP251XFD_UNPACKENUM(name)     name
 # endif
 
@@ -122,7 +127,7 @@
 # define __MCP251XFD_PACKED__             __attribute__((__packed__))
 # define MCP251XFD_PACKITEM
 # define MCP251XFD_UNPACKITEM
-# if defined(__cplusplus) && (__cplusplus >= 201103L)
+# if (defined(__cplusplus) && (__cplusplus >= 201103L)) || (defined(__clang__) && defined(_MSC_VER)) // clang with the MSVC ABI (clang-cl) ignores the packed attribute on enums but accepts an underlying type
 #   define MCP251XFD_PACKENUM(name,type)  typedef enum name : type
 #   define MCP251XFD_UNPACKENUM(name)     name
 # else
@@ -132,8 +137,8 @@
 #endif
 //-----------------------------------------------------------------------------
 
-//! This macro is used to check the size of an object. If not, it will raise a "divide by 0" error at compile time
-#define MCP251XFD_CONTROL_ITEM_SIZE(item, size)  enum { item##_size_must_be_##size##_bytes = 1 / (int)(!!(sizeof(item) == size)) }
+//! This macro is used to check the size of an object. If not, it will raise a "negative array size" error at compile time
+#define MCP251XFD_CONTROL_ITEM_SIZE(item, size)  typedef char item##_size_must_be_##size##_bytes[(sizeof(item) == (size_t)(size)) ? 1 : -1]
 
 //-----------------------------------------------------------------------------
 
@@ -637,11 +642,11 @@ typedef enum
 } eMCP251XFD_Registers;
 
 //-----------------------------------------------------------------------------
-#if defined(__GNUC__) && !(defined(__cplusplus) && (__cplusplus >= 201103L/*C++11*/)) || (!defined(__cplusplus))
+#if defined(_MSC_VER) && !defined(__clang__)
+#  pragma deprecated(RegMCP251XFD_IOCON) // MSVC (C and C++): raise a deprecated warning for the use of this register
+#elif defined(__GNUC__) && !(defined(__cplusplus) && (__cplusplus >= 201103L/*C++11*/)) || (!defined(__cplusplus))
    typedef __attribute__((deprecated)) eMCP251XFD_Registers eMCP251XFD_Registers_deprecated; //!< Create a new type for deprecated registers
 #  define RegMCP251XFD_IOCON ((eMCP251XFD_Registers_deprecated)RegMCP251XFD_IOCON) //!< Override RegMCP251XFD_IOCON definition to force deprecated warning for the use of this register
-#elif defined _MSC_VER
-#  pragma deprecated(RegMCP251XFD_IOCON)
 #endif
 //-----------------------------------------------------------------------------
 
@@ -2307,7 +2312,9 @@ MCP251XFD_PACKENUM(eMCP251XFD_DiagStatus, uint16_t)
   MCP251XFD_DIAG_ESI_SET      = 0x4000, //!< ESI flag of a received CAN FD message was set
   MCP251XFD_DIAG_DLC_MISMATCH = 0x8000, //!< DLC Mismatch bit. During a transmission or reception, the specified DLC is larger than the PLSIZE of the FIFO element
 } MCP251XFD_UNPACKENUM(eMCP251XFD_DiagStatus);
+#if !defined(MCP251XFD_ENUM_NOT_PACKED) // An enum is 4 bytes in C with MSVC (it can not be packed)
 MCP251XFD_CONTROL_ITEM_SIZE(eMCP251XFD_DiagStatus, 2);
+#endif
 
 //-----------------------------------------------------------------------------
 
@@ -2321,7 +2328,11 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiBDIAG1_Register
   struct
   {
     uint16_t ErrorFreeCounter;   //!< Error Free Message Counter
+#if defined(MCP251XFD_ENUM_NOT_PACKED) // An enum is 4 bytes in C with MSVC, so keep the size of the register with a uint16_t
+    uint16_t Flags;              //!< Transmit and Receive Error status (eMCP251XFD_DiagStatus flags)
+#else
     eMCP251XFD_DiagStatus Flags; //!< Transmit and Receive Error status
+#endif
   } Reg;
   struct
   {
