@@ -53,6 +53,7 @@
  *          Fix the bitrate search that never tested the prescaler 256 (the loop started at 255)
  *          The nominal and data phases use a prescaler each (NBRP and DBRP) if no common prescaler gives a bitrate error as low (ex: 100 kbit/s nominal with 8 Mbit/s data at 40 MHz) or, with the same bitrate error, a nearer sample point (ex: 100 kbit/s nominal at 38.5 MHz), else the same prescaler is kept for both phases
  *          The sample point of the bit time search is now the nearest possible to the target (87.5% up to 500 kbit/s, 80% up to 800 kbit/s, 75% above) and is part of the choice of the TQ counts and of the prescalers, with the same bitrate error: it gives for example 87.5% instead of 80% for 125 kbit/s at 40 MHz
+ *          Fix the sample points of the statistics (MCP251XFD_BitTimeStats.NSamplePoint and DSamplePoint): they are now in 100th of percent as documented (87.50% was given as 87.00%)
  *          Fix MCP251XFD_ConfigureFilter() that did not check pComp before reading the filter configuration
  *          Fix MCP251XFD_ConfigureFIFOList() that cleared the FIFO being configured instead of the FIFO that are not in the list between two FIFO of the list
  *          Fix MCP251XFD_FlushFIFO() that wrote the FIFO number in CiTXREQ instead of the bit of the FIFO (it flushed another FIFO, and nothing for the TXQ)
@@ -1392,8 +1393,8 @@ typedef struct MCP251XFD_BitTimeStats
   uint32_t NominalBitrate;   //!< This is the actual nominal bitrate
   uint32_t DataBitrate;      //!< This is the actual data bitrate
   uint32_t MaxBusLength;     //!< This is the maximum bus length according to parameters
-  uint32_t NSamplePoint;     //!< Nominal Sample Point. Should be as close as possible to 80%
-  uint32_t DSamplePoint;     //!< Data Sample Point. Should be as close as possible to 80%
+  uint32_t NSamplePoint;     //!< Nominal Sample Point in 100th of percent (divide by 100 to get the percentage). Should be as close as possible to the wanted sample point
+  uint32_t DSamplePoint;     //!< Data Sample Point in 100th of percent (divide by 100 to get the percentage). Should be as close as possible to the wanted sample point
   uint32_t OscTolC1;         //!< Condition 1 for the maximum tolerance of the oscillator (Equation 3-12 of MCP25XXFD Family Reference Manual)
   uint32_t OscTolC2;         //!< Condition 2 for the maximum tolerance of the oscillator (Equation 3-13 of MCP25XXFD Family Reference Manual)
   uint32_t OscTolC3;         //!< Condition 3 for the maximum tolerance of the oscillator (Equation 3-14 of MCP25XXFD Family Reference Manual)

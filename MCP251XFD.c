@@ -1068,26 +1068,26 @@ eERRORRESULT MCP251XFD_CalculateBitrateStatistics(const uint32_t fsysclk, MCP251
   const uint32_t PropBudget = NTQ * NPRSEG;                            // Available propagation time budget in ns
   const uint32_t TransceiverDelay = 2 * MCP251XFD_tTXDtRXD_MAX;        // Round-trip transceiver delay in ns
   if (PropBudget > TransceiverDelay)
-       pConf->Stats->MaxBusLength = (PropBudget - TransceiverDelay) / (2 * MCP251XFD_tBUS_CONV); // BusLen = ((NTQ*NPRSEG)-(2*tTXD))/(2*5) in meter (Equation 3-9 of MCP25XXFD Family Reference Manual)
-  else pConf->Stats->MaxBusLength = 0;                                 // Propagation budget exhausted by transceiver delay alone, no bus length margin
-  uint32_t SamplePoint = ((MCP251XFD_NSYNC + NTSEG1) * 100) / NTQbits; // Calculate actual nominal sample point
-  pConf->Stats->NSamplePoint = (uint32_t)(SamplePoint * 100);          // ** Save actual Nominal sample point with 2 digits after the decimal point (divide by 100 to get percentage)
-  pConf->Stats->NominalBitrate = (fsysclk / NBRP / NTQbits);           // ** Save actual Nominal Bitrate
+       pConf->Stats->MaxBusLength = (PropBudget - TransceiverDelay) / (2u * MCP251XFD_tBUS_CONV); // BusLen = ((NTQ*NPRSEG)-(2*tTXD))/(2*5) in meter (Equation 3-9 of MCP25XXFD Family Reference Manual)
+  else pConf->Stats->MaxBusLength = 0;                                  // Propagation budget exhausted by transceiver delay alone, no bus length margin
+  uint32_t SamplePoint = ((MCP251XFD_NSYNC + NTSEG1) * 10000u) / NTQbits; // Calculate actual nominal sample point in 100th of percent
+  pConf->Stats->NSamplePoint = SamplePoint;                             // ** Save actual Nominal sample point with 2 digits after the decimal point (divide by 100 to get percentage)
+  pConf->Stats->NominalBitrate = (fsysclk / NBRP / NTQbits);            // ** Save actual Nominal Bitrate
 
   //--- Calculate Data Sample Point -------------------------
   uint32_t DTQbits = 0;
   if (can20only == false)
   {
-    DTQbits = MCP251XFD_DSYNC + DTSEG1 + DTSEG2;                       // DTQ per bits = DSYNC + DTSEG1 + DTSEG2 (Equation 3-6 of MCP25XXFD Family Reference Manual)
-    if (DTQbits == 0) return ERR__PARAMETER_ERROR;                     // Guard against division by zero (should not happen with valid config)
-    SamplePoint = ((MCP251XFD_DSYNC + DTSEG1) * 100) / DTQbits;        // Calculate actual data sample point
-    pConf->Stats->DSamplePoint = (uint32_t)(SamplePoint * 100);        // ** Save actual Data sample point with 2 digits after the decimal point (divide by 100 to get percentage) [FIX: was 100.0f]
-    pConf->Stats->DataBitrate  = (fsysclk / DBRP / DTQbits);           // ** Save actual Data Bitrate
+    DTQbits = MCP251XFD_DSYNC + DTSEG1 + DTSEG2;                        // DTQ per bits = DSYNC + DTSEG1 + DTSEG2 (Equation 3-6 of MCP25XXFD Family Reference Manual)
+    if (DTQbits == 0u) return ERR__PARAMETER_ERROR;                     // Guard against division by zero (should not happen with valid config)
+    SamplePoint = ((MCP251XFD_DSYNC + DTSEG1) * 10000u) / DTQbits;      // Calculate actual data sample point in 100th of percent
+    pConf->Stats->DSamplePoint = SamplePoint;                           // ** Save actual Data sample point with 2 digits after the decimal point (divide by 100 to get percentage) [FIX: was 100.0f]
+    pConf->Stats->DataBitrate  = (fsysclk / DBRP / DTQbits);            // ** Save actual Data Bitrate
   }
   else
   {
-    pConf->Stats->DSamplePoint = 0;                                    // ** Set actual Data sample point
-    pConf->Stats->DataBitrate  = 0;                                    // ** Set actual Data Bitrate
+    pConf->Stats->DSamplePoint = 0;                                     // ** Set actual Data sample point
+    pConf->Stats->DataBitrate  = 0;                                     // ** Set actual Data Bitrate
   }
 
   //--- Calculate oscillator tolerance ----------------------

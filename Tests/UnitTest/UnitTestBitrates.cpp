@@ -94,7 +94,7 @@ namespace UnitTest_Bitrates
       Assert::AreEqual(125000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 125kbps");
       Assert::AreEqual(     0u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0");
       Assert::AreEqual(   544u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 544m");
-      Assert::AreEqual(  8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 87.00%");
+      Assert::AreEqual(  8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 87.50%");
       Assert::AreEqual(     0u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0");
       Assert::AreEqual(    62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0.62%");
       Assert::AreEqual(    48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, NO_CANFD), should be 0.48%");
@@ -123,7 +123,7 @@ namespace UnitTest_Bitrates
       //--- Result Statistics ---
       Assert::AreEqual(250000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_250kbps, NO_CANFD), should be 250kbps");
       Assert::AreEqual(   246u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_250kbps, NO_CANFD), should be 246m");
-      Assert::AreEqual(  8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_250kbps, NO_CANFD), should be 87.00%");
+      Assert::AreEqual(  8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_250kbps, NO_CANFD), should be 87.50%");
       Assert::AreEqual(    62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_250kbps, NO_CANFD), should be 0.62%");
       Assert::AreEqual(    48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_250kbps, NO_CANFD), should be 0.48%");
       Assert::AreEqual(    48u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_40MHz, NBR_250kbps, NO_CANFD), should be 0.48%");
@@ -148,7 +148,7 @@ namespace UnitTest_Bitrates
       //--- Result Statistics ---
       Assert::AreEqual(500000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_500kbps, NO_CANFD), should be 500kbps");
       Assert::AreEqual(    96u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_500kbps, NO_CANFD), should be 96m");
-      Assert::AreEqual(  8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_500kbps, NO_CANFD), should be 87.00%");
+      Assert::AreEqual(  8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_500kbps, NO_CANFD), should be 87.50%");
       Assert::AreEqual(    62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_500kbps, NO_CANFD), should be 0.62%");
       Assert::AreEqual(    48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_500kbps, NO_CANFD), should be 0.48%");
       Assert::AreEqual(    48u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_40MHz, NBR_500kbps, NO_CANFD), should be 0.48%");
@@ -200,7 +200,7 @@ namespace UnitTest_Bitrates
       //--- Result Statistics ---
       Assert::AreEqual(125000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_20MHz, NBR_125kbps, NO_CANFD), should be 125kbps");
       Assert::AreEqual(   544u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_20MHz, NBR_125kbps, NO_CANFD), should be 544m");
-      Assert::AreEqual(  8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_20MHz, NBR_125kbps, NO_CANFD), should be 87.00%");
+      Assert::AreEqual(  8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_20MHz, NBR_125kbps, NO_CANFD), should be 87.50%");
       Assert::AreEqual(    48u, Stats.OscTolerance, L"Test OscTolerance (SYSCLK_20MHz, NBR_125kbps, NO_CANFD), should be 0.48%");
     }
 
@@ -257,8 +257,8 @@ namespace UnitTest_Bitrates
       Assert::AreEqual(125000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 125kbps");
       Assert::AreEqual(500000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 500kbps");
       Assert::AreEqual(   536u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 536m");
-      Assert::AreEqual(  8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 87.00%");
-      Assert::AreEqual(  8700u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 87.00%");
+      Assert::AreEqual(  8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 87.50%");
+      Assert::AreEqual(  8750u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 87.50%");
       Assert::AreEqual(    62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.62%");
       Assert::AreEqual(    48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.48%");
       Assert::AreEqual(    62u, Stats.OscTolC3, L"Test OscTolC3 (SYSCLK_40MHz, NBR_125kbps, DBR_500kbps), should be 0.62%");
@@ -294,7 +294,7 @@ namespace UnitTest_Bitrates
       Assert::AreEqual( 250000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 250kbps");
       Assert::AreEqual(1000000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 1Mbps");
       Assert::AreEqual(    246u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 246m");
-      Assert::AreEqual(   8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 87.00%");
+      Assert::AreEqual(   8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 87.50%");
       Assert::AreEqual(   7500u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 75.00%");
       Assert::AreEqual(     62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 0.62%");
       Assert::AreEqual(     48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_250kbps, DBR_1Mbps), should be 0.48%");
@@ -331,7 +331,7 @@ namespace UnitTest_Bitrates
       Assert::AreEqual( 500000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_500kbps, DBR_2Mbps), should be 500kbps");
       Assert::AreEqual(2000000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_500kbps, DBR_2Mbps), should be 2Mbps");
       Assert::AreEqual(     96u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_500kbps, DBR_2Mbps), should be 96m");
-      Assert::AreEqual(   8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_500kbps, DBR_2Mbps), should be 87.00%");
+      Assert::AreEqual(   8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_500kbps, DBR_2Mbps), should be 87.50%");
       Assert::AreEqual(   7500u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_500kbps, DBR_2Mbps), should be 75.00%");
       Assert::AreEqual(     62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_500kbps, DBR_2Mbps), should be 0.62%");
       Assert::AreEqual(     48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_500kbps, DBR_2Mbps), should be 0.48%");
@@ -368,7 +368,7 @@ namespace UnitTest_Bitrates
       Assert::AreEqual( 500000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_500kbps, DBR_5Mbps), should be 500kbps");
       Assert::AreEqual(5000000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_500kbps, DBR_5Mbps), should be 5Mbps");
       Assert::AreEqual(     96u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_500kbps, DBR_5Mbps), should be 96m");
-      Assert::AreEqual(   8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_500kbps, DBR_5Mbps), should be 87.00%");
+      Assert::AreEqual(   8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_500kbps, DBR_5Mbps), should be 87.50%");
       Assert::AreEqual(   7500u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_500kbps, DBR_5Mbps), should be 75.00%");
       Assert::AreEqual(     62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_500kbps, DBR_5Mbps), should be 0.62%");
       Assert::AreEqual(     48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_500kbps, DBR_5Mbps), should be 0.48%");
@@ -442,7 +442,7 @@ namespace UnitTest_Bitrates
       Assert::AreEqual( 500000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_20MHz, NBR_500kbps, DBR_2Mbps), should be 500kbps");
       Assert::AreEqual(2000000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_20MHz, NBR_500kbps, DBR_2Mbps), should be 2Mbps");
       Assert::AreEqual(     94u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_20MHz, NBR_500kbps, DBR_2Mbps), should be 94m");
-      Assert::AreEqual(   8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_20MHz, NBR_500kbps, DBR_2Mbps), should be 87.00%");
+      Assert::AreEqual(   8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_20MHz, NBR_500kbps, DBR_2Mbps), should be 87.50%");
       Assert::AreEqual(   7000u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_20MHz, NBR_500kbps, DBR_2Mbps), should be 70.00%");
       Assert::AreEqual(     62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_20MHz, NBR_500kbps, DBR_2Mbps), should be 0.62%");
       Assert::AreEqual(     48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_20MHz, NBR_500kbps, DBR_2Mbps), should be 0.48%");
@@ -483,7 +483,7 @@ namespace UnitTest_Bitrates
       Assert::AreEqual( 125000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 125kbps");
       Assert::AreEqual(8000000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 8Mbps");
       Assert::AreEqual(    544u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 544m");
-      Assert::AreEqual(   8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 87.00%");
+      Assert::AreEqual(   8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 87.50%");
       Assert::AreEqual(   8000u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 80.00%");
       Assert::AreEqual(     62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.62%");
       Assert::AreEqual(     48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, DBR_8Mbps), should be 0.48%");
@@ -520,7 +520,7 @@ namespace UnitTest_Bitrates
       Assert::AreEqual( 125000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 125kbps");
       Assert::AreEqual(2000000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 2Mbps");
       Assert::AreEqual(    536u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 536m");
-      Assert::AreEqual(   8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 87.00%");
+      Assert::AreEqual(   8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 87.50%");
       Assert::AreEqual(   7500u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 75.00%");
       Assert::AreEqual(     62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.62%");
       Assert::AreEqual(     48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_125kbps, DBR_2Mbps), should be 0.48%");
@@ -557,7 +557,7 @@ namespace UnitTest_Bitrates
       Assert::AreEqual( 250000u, Stats.NominalBitrate, L"Test NominalBitrate (SYSCLK_40MHz, NBR_250kbps, DBR_8Mbps), should be 250kbps");
       Assert::AreEqual(8000000u, Stats.DataBitrate, L"Test DataBitrate (SYSCLK_40MHz, NBR_250kbps, DBR_8Mbps), should be 8Mbps");
       Assert::AreEqual(    246u, Stats.MaxBusLength, L"Test MaxBusLength (SYSCLK_40MHz, NBR_250kbps, DBR_8Mbps), should be 246m");
-      Assert::AreEqual(   8700u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_250kbps, DBR_8Mbps), should be 87.00%");
+      Assert::AreEqual(   8750u, Stats.NSamplePoint, L"Test NSamplePoint (SYSCLK_40MHz, NBR_250kbps, DBR_8Mbps), should be 87.50%");
       Assert::AreEqual(   8000u, Stats.DSamplePoint, L"Test DSamplePoint (SYSCLK_40MHz, NBR_250kbps, DBR_8Mbps), should be 80.00%");
       Assert::AreEqual(     62u, Stats.OscTolC1, L"Test OscTolC1 (SYSCLK_40MHz, NBR_250kbps, DBR_8Mbps), should be 0.62%");
       Assert::AreEqual(     48u, Stats.OscTolC2, L"Test OscTolC2 (SYSCLK_40MHz, NBR_250kbps, DBR_8Mbps), should be 0.48%");
