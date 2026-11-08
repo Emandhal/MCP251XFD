@@ -41,7 +41,7 @@ extern "C" {
  * @param[in] size Is the size of the pointed byte stream
  * @return The CRC computed
  */
-uint16_t ComputeCRC16CMS(const uint8_t* data, uint32_t size);
+uint16_t ComputeCRC16CMS(const uint8_t* data, size_t size);
 
 #else
 
@@ -51,7 +51,7 @@ uint16_t ComputeCRC16CMS(const uint8_t* data, uint32_t size);
  * @param[in] size Is the size of the pointed byte stream
  * @return The CRC computed
  */
-uint16_t ComputeCRC16CMS(const uint8_t* data, uint16_t size);
+uint16_t ComputeCRC16CMS(const uint8_t* data, size_t size);
 
 #endif
 

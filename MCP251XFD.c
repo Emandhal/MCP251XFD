@@ -1045,8 +1045,8 @@ eERRORRESULT MCP251XFD_CalculateBitrateStatistics(const uint32_t fsysclk, MCP251
     pConf->Stats->OscTolerance = (pConf->Stats->OscTolC3 < pConf->Stats->OscTolerance ? pConf->Stats->OscTolC3 : pConf->Stats->OscTolerance); // Oscillator Tolerance, minimum of conditions 1-5 (Equation 3-11 of MCP25XXFD Family Reference Manual)
     pConf->Stats->OscTolC4     = ((MinNPHSEG * 10000) / (2 * ((((6 * DTQbits - DTSEG2) * DBRP) / NBRP) + (7 * NTQbits))));                    // Condition 4 for the maximum tolerance of the oscillator with 2 digits after the decimal point (Equation 3-15 of MCP25XXFD Family Reference Manual)
     pConf->Stats->OscTolerance = (pConf->Stats->OscTolC4 < pConf->Stats->OscTolerance ? pConf->Stats->OscTolC4 : pConf->Stats->OscTolerance); // Oscillator Tolerance, minimum of conditions 1-5 (Equation 3-11 of MCP25XXFD Family Reference Manual)
-    const int32_t NBRP_DBRP    = ((NBRP * 10000) / DBRP), MaxBRP = ((NBRP_DBRP - 10000) > 0 ? (NBRP_DBRP - 10000) : 0);                       // NBRP/DBRP and max(0,(NBRP/DBRP-1)). The use of 10000 is to set 2 digits on the C5 result
-    pConf->Stats->OscTolC5     = (((DSJW * 10000) - MaxBRP) / (2 * (((2 * NTQbits - NTSEG2) * NBRP) / DBRP + DTSEG2 + 4 * DTQbits)));         // Condition 5 for the maximum tolerance of the oscillator with 2 digits after the decimal point (Equation 3-16 of MCP25XXFD Family Reference Manual) [WARNING: An error seems to be present in the original formula]
+    const uint32_t NBRP_DBRP   = ((NBRP * 10000u) / DBRP), MaxBRP = (NBRP_DBRP > 10000u ? (NBRP_DBRP - 10000u) : 0u);                     // NBRP/DBRP and max(0,(NBRP/DBRP-1)). The use of 10000 is to set 2 digits on the C5 result
+    pConf->Stats->OscTolC5     = ((((DSJW * 10000u) > MaxBRP ? ((DSJW * 10000u) - MaxBRP) : 0u)) / (2u * (((2u * NTQbits - NTSEG2) * NBRP) / DBRP + DTSEG2 + 4u * DTQbits)));   // Condition 5 for the maximum tolerance of the oscillator with 2 digits after the decimal point (Equation 3-16 of MCP25XXFD Family Reference Manual) [WARNING: An error seems to be present in the original formula]
     pConf->Stats->OscTolerance = (pConf->Stats->OscTolC5 < pConf->Stats->OscTolerance ? pConf->Stats->OscTolC5 : pConf->Stats->OscTolerance); // Oscillator Tolerance, minimum of conditions 1-5 (Equation 3-11 of MCP25XXFD Family Reference Manual)
   }
   return ERR_NONE;
@@ -1517,9 +1517,9 @@ eERRORRESULT MCP251XFD_ConfigureTXQ(MCP251XFD *pComp, bool enableTXQ, MCP251XFD_
     Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_FSIZE_SET(confTXQ->Size);                                               // Add FIFO Size
     Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_TXAT_SET(confTXQ->Attempts);                                            // Add Retransmission Attempts
     Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_TXPRI_SET(confTXQ->Priority);                                           // Add Message transmit priority
-    if ((confTXQ->InterruptFlags & MCP251XFD_FIFO_TX_ATTEMPTS_EXHAUSTED_INT ) > 0) Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_TXATIE; // Add Transmit Attempts Exhausted Interrupt Enable
-    if ((confTXQ->InterruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_EMPTY_INT   ) > 0) Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_TXQEIE; // Add Transmit FIFO Empty Interrupt Enable
-    if ((confTXQ->InterruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_NOT_FULL_INT) > 0) Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_TXQNIE; // Add Transmit FIFO Not Full Interrupt Enable
+    if (((uint32_t)confTXQ->InterruptFlags & (uint32_t)MCP251XFD_FIFO_TX_ATTEMPTS_EXHAUSTED_INT ) > 0u) Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_TXATIE; // Add Transmit Attempts Exhausted Interrupt Enable
+    if (((uint32_t)confTXQ->InterruptFlags & (uint32_t)MCP251XFD_FIFO_TRANSMIT_FIFO_EMPTY_INT   ) > 0u) Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_TXQEIE; // Add Transmit FIFO Empty Interrupt Enable
+    if (((uint32_t)confTXQ->InterruptFlags & (uint32_t)MCP251XFD_FIFO_TRANSMIT_FIFO_NOT_FULL_INT) > 0u) Reg.CiTXQCON |= MCP251XFD_CAN_CiTXQCON_TXQNIE; // Add Transmit FIFO Not Full Interrupt Enable
 
     Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiTXQCON, &Reg.Bytes[0], sizeof(MCP251XFD_CiTXQCON_Register)); // Write TXQ configuration
     if (Error != ERR_NONE) return Error;                                                                           // If there is an error while calling MCP251XFD_WriteData() then return the error
@@ -1566,11 +1566,11 @@ eERRORRESULT MCP251XFD_ConfigureFIFO(MCP251XFD *pComp, MCP251XFD_FIFO *confFIFO)
   if (confFIFO->Direction == MCP251XFD_TRANSMIT_FIFO)
   {
     Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TXEN;                                                        // Transmit Event FIFO Time Stamp Enable
-    if ((confFIFO->InterruptFlags & MCP251XFD_FIFO_TX_ATTEMPTS_EXHAUSTED_INT   ) > 0) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TXATIE;   // Add Transmit Attempts Exhausted Interrupt Enable
-    if ((confFIFO->ControlFlags   & MCP251XFD_FIFO_AUTO_RTR_RESPONSE           ) > 0) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_RTREN;    // When a remote transmit is received, Transmit Request (TXREQ) of the FIFO will be set
-    if ((confFIFO->InterruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_EMPTY_INT     ) > 0) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFERFFIE; // Add Transmit FIFO Empty Interrupt Enable
-    if ((confFIFO->InterruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_HALF_EMPTY_INT) > 0) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFHRFHIE; // Add Transmit FIFO Half Empty Interrupt Enable
-    if ((confFIFO->InterruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_NOT_FULL_INT  ) > 0) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFNRFNIE; // Add Transmit FIFO Not Full Interrupt Enable
+    if (((uint32_t)confFIFO->InterruptFlags & (uint32_t)MCP251XFD_FIFO_TX_ATTEMPTS_EXHAUSTED_INT   ) > 0u) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TXATIE;   // Add Transmit Attempts Exhausted Interrupt Enable
+    if (((uint32_t)confFIFO->ControlFlags   & (uint32_t)MCP251XFD_FIFO_AUTO_RTR_RESPONSE           ) > 0u) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_RTREN;    // When a remote transmit is received, Transmit Request (TXREQ) of the FIFO will be set
+    if (((uint32_t)confFIFO->InterruptFlags & (uint32_t)MCP251XFD_FIFO_TRANSMIT_FIFO_EMPTY_INT     ) > 0u) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFERFFIE; // Add Transmit FIFO Empty Interrupt Enable
+    if (((uint32_t)confFIFO->InterruptFlags & (uint32_t)MCP251XFD_FIFO_TRANSMIT_FIFO_HALF_EMPTY_INT) > 0u) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFHRFHIE; // Add Transmit FIFO Half Empty Interrupt Enable
+    if (((uint32_t)confFIFO->InterruptFlags & (uint32_t)MCP251XFD_FIFO_TRANSMIT_FIFO_NOT_FULL_INT  ) > 0u) Reg.CiFIFOCONm |= MCP251XFD_CAN_CiFIFOCONm_TFNRFNIE; // Add Transmit FIFO Not Full Interrupt Enable
   }
   else
   {
@@ -1867,14 +1867,11 @@ eERRORRESULT MCP251XFD_SetFIFOinterruptConfiguration(MCP251XFD *pComp, eMCP251XF
 
   //--- Set interrupts flags ---
   Config &= ~MCP251XFD_CAN_CiFIFOCONm8_INT_Mask;                                                         // Force interrupts bits to 0
-  if (((interruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_NOT_FULL_INT  ) > 0)
-   || ((interruptFlags & MCP251XFD_FIFO_RECEIVE_FIFO_NOT_EMPTY_INT  ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_TFNRFNIE; // Transmit/Receive FIFO Not Full/Not Empty Interrupt Enable
-  if (((interruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_HALF_EMPTY_INT) > 0)
-   || ((interruptFlags & MCP251XFD_FIFO_RECEIVE_FIFO_HALF_FULL_INT  ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_TFHRFHIE; // Transmit/Receive FIFO Half Empty/Half Full Interrupt Enable
-  if (((interruptFlags & MCP251XFD_FIFO_TRANSMIT_FIFO_EMPTY_INT     ) > 0)
-   || ((interruptFlags & MCP251XFD_FIFO_RECEIVE_FIFO_FULL_INT       ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_TFERFFIE; // Transmit/Receive FIFO Empty/Full Interrupt Enable
-  if (((interruptFlags & MCP251XFD_FIFO_OVERFLOW_INT                ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_RXOVIE;   // Overflow Interrupt Enable
-  if (((interruptFlags & MCP251XFD_FIFO_TX_ATTEMPTS_EXHAUSTED_INT   ) > 0)) Config |= MCP251XFD_CAN_CiFIFOCONm8_TXATIE;   // Transmit Attempts Exhausted Interrupt Enable
+  if (((uint32_t)interruptFlags & ((uint32_t)MCP251XFD_FIFO_TRANSMIT_FIFO_NOT_FULL_INT | (uint32_t)MCP251XFD_FIFO_RECEIVE_FIFO_NOT_EMPTY_INT)) > 0u) Config |= MCP251XFD_CAN_CiFIFOCONm8_TFNRFNIE; // Transmit/Receive FIFO Not Full/Not Empty Interrupt Enable
+  if (((uint32_t)interruptFlags & ((uint32_t)MCP251XFD_FIFO_TRANSMIT_FIFO_HALF_EMPTY_INT | (uint32_t)MCP251XFD_FIFO_RECEIVE_FIFO_HALF_FULL_INT)) > 0u) Config |= MCP251XFD_CAN_CiFIFOCONm8_TFHRFHIE; // Transmit/Receive FIFO Half Empty/Half Full Interrupt Enable
+  if (((uint32_t)interruptFlags & ((uint32_t)MCP251XFD_FIFO_TRANSMIT_FIFO_EMPTY_INT | (uint32_t)MCP251XFD_FIFO_RECEIVE_FIFO_FULL_INT)) > 0u) Config |= MCP251XFD_CAN_CiFIFOCONm8_TFERFFIE; // Transmit/Receive FIFO Empty/Full Interrupt Enable
+  if ((((uint32_t)interruptFlags & (uint32_t)MCP251XFD_FIFO_OVERFLOW_INT                ) > 0u)) Config |= MCP251XFD_CAN_CiFIFOCONm8_RXOVIE; // Overflow Interrupt Enable
+  if ((((uint32_t)interruptFlags & (uint32_t)MCP251XFD_FIFO_TX_ATTEMPTS_EXHAUSTED_INT   ) > 0u)) Config |= MCP251XFD_CAN_CiFIFOCONm8_TXATIE; // Transmit Attempts Exhausted Interrupt Enable
   return MCP251XFD_WriteSFR8(pComp, Address, Config);                                                    // Write new configuration to the FIFO's register
 }
 
@@ -1991,11 +1988,11 @@ eERRORRESULT MCP251XFD_ConfigureFilterList(MCP251XFD *pComp, eMCP251XFD_DNETFilt
 
   //--- Configure filters ---
   bool Modified = false;
-  for (int32_t zFilter = 0; zFilter < MCP251XFD_FILTER_COUNT; zFilter++)
+  for (int32_t zFilter = 0; zFilter < (int32_t)MCP251XFD_FILTER_COUNT; zFilter++)
   {
     for (size_t z = 0; z < count; z++)
     {
-      if (listFilter[z].Filter == zFilter)
+      if ((int32_t)listFilter[z].Filter == zFilter)
       {
         Modified = true;
         Error = MCP251XFD_ConfigureFilter(pComp, &listFilter[z]);         // Configure the filter
@@ -2433,7 +2430,7 @@ uint8_t MCP251XFD_PayloadToByte(eMCP251XFD_PayloadSize payload)
     case MCP251XFD_PAYLOAD_32BYTE: return 32; // Payload 32 data bytes
     case MCP251XFD_PAYLOAD_48BYTE: return 48; // Payload 48 data bytes
     case MCP251XFD_PAYLOAD_64BYTE: return 64; // Payload 64 data bytes
-    default: return 0;
+    default: break;   // Not a valid payload: the final return gives 0
   }
   return 0;
 }
@@ -2447,10 +2444,10 @@ uint8_t MCP251XFD_DLCToByte(eMCP251XFD_DataLength dlc, bool isCANFD)
 {
   const uint8_t CAN20_DLC_TO_VALUE[MCP251XFD_DLC_COUNT] = {0, 1, 2, 3, 4, 5, 6, 7, 8,  8,  8,  8,  8,  8,  8,  8};
   const uint8_t CANFD_DLC_TO_VALUE[MCP251XFD_DLC_COUNT] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64};
-  if ((dlc >= MCP251XFD_DLC_COUNT) || (dlc < (eMCP251XFD_DataLength)0)) return 0;
-  if (isCANFD) return CANFD_DLC_TO_VALUE[dlc & 0xF];
-  return CAN20_DLC_TO_VALUE[dlc & 0xF];
-  }
+  if ((uint32_t)dlc >= (uint32_t)MCP251XFD_DLC_COUNT) return 0; // Unsigned test: a negative value of a signed enum is refused too
+  if (isCANFD) return CANFD_DLC_TO_VALUE[(uint32_t)dlc & 0xFu];
+  return CAN20_DLC_TO_VALUE[(uint32_t)dlc & 0xFu];
+}
 
 
 

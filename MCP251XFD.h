@@ -40,6 +40,10 @@
  *          Fix the deprecated warning of RegMCP251XFD_IOCON with MSVC in C (the GCC attribute was selected for any C compiler)
  *          Replace typographic characters by ASCII ones in the source files
  *          Add .gitattributes to normalize the line endings (LF in the repository)
+ *          Fix the compiler warnings: redundant tests of flags pairs, uninitialized segments, 32 to 16 bits conversions and unreachable code
+ *          Fix GCC warning: sign compare in MCP251XFD_ConfigureFilterList()
+ *          Update CRC16_CMS (size parameter is a size_t like the ComputeCRC16_Func type)
+ *          Fix the oscillator tolerance condition 5 in statistics: use unsigned values for max(0,NBRP/DBRP-1) and avoid an unsigned wrap
  *          Fix the structures and enums size with Clang using the MSVC ABI (clang-cl): it now uses the GCC/Clang branch of the packed macros, with an underlying type for the enums in C
  *          Fix MCP251XFD_CiBDIAG1_Register that was 6 bytes instead of 4 with MSVC in C (an enum can not be packed in C with MSVC), and make the size controls effective with MSVC (negative array size instead of a division by 0)
  * 1.0.10   Fix MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO() and MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO() that called the Receive function [Thanks to ceckelman]

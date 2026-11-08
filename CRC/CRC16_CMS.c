@@ -58,7 +58,7 @@ const uint16_t CRC16CMS_Table[256] = {
 //=============================================================================
 // Compute the CRC16-CMS from the byte stream in parameter (with reverse table)
 //=============================================================================
-uint16_t ComputeCRC16CMS(const uint8_t* data, uint32_t size)
+uint16_t ComputeCRC16CMS(const uint8_t* data, size_t size)
 {
   if (data == NULL) return 0;
   uint16_t crc = 0xFFFF; // Start value
@@ -99,7 +99,7 @@ uint16_t ComputeCRC16CMS(const uint8_t* data, uint32_t size)
 //=============================================================================
 // Compute the CRC16-CMS from the byte stream in parameter (with reverse Polynome)
 //=============================================================================
-uint16_t ComputeCRC16CMS(const uint8_t* data, uint16_t size)
+uint16_t ComputeCRC16CMS(const uint8_t* data, size_t size)
 {
   if (data == NULL) return 0;
   const uint16_t Polynome = 0x8005;
@@ -126,7 +126,7 @@ uint16_t ComputeCRC16CMS(const uint8_t* data, uint16_t size)
 // Compute the CRC16-CMS from the byte stream in parameter (with normal Polynome)
 //=============================================================================
 // Base code : https://pythonhosted.org/crccheck/_modules/crccheck/crc.html#Crc16
-/*uint16_t ComputeCRC16CMS(const uint8_t* data, uint32_t size)
+/*uint16_t ComputeCRC16CMS(const uint8_t* data, size_t size)
 {
   if (data == NULL) return 0;
   const uint16_t Polynome = 0x8005;
