@@ -169,6 +169,8 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="UnitTest.cpp" />
     <ClCompile Include="UnitTestBitrates.cpp" />
+    <ClCompile Include="UnitTestBitratesStandard.cpp" />
+    <ClCompile Include="UnitTestDriver.cpp" />
     <ClCompile Include="UnitTest_ReadWriteData.cpp" />
   </ItemGroup>
   <ItemGroup>

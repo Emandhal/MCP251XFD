@@ -45,6 +45,12 @@
     <ClCompile Include="UnitTestBitrates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTestBitratesStandard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitTestDriver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\CRC\CRC_CAN.c">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>

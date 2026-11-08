@@ -29,19 +29,19 @@ uint8_t RxTestBuf[TEST_BUF_COUNT]; // Data receive through SPI when transfering 
 
 
 
-eERRORRESULT InterfaceTransferReadWrite(void *pIntDev, uint8_t, uint8_t *txData, uint8_t *rxData, uint32_t size)
+eERRORRESULT InterfaceTransferReadWrite(void *pIntDev, uint8_t, uint8_t *txData, uint8_t *rxData, size_t size)
 {
   memcpy(&TxTestBuf[TestBufPos], txData, size);   // Copy what is send to SPI to TxTestBuf
   if (rxData != NULL)
     memcpy(rxData, &RxTestBuf[TestBufPos], size); // Copy what is receive from SPI to RxTestBuf
   TransferCounter++;                              // Increment buffer
-  BytesTransfered += size;                        // Add the count of byte transfered to the previous number of bytes transfered
-  TestBufPos += size;
+  BytesTransfered += (uint32_t)size;                        // Add the count of byte transfered to the previous number of bytes transfered
+  TestBufPos += (uint32_t)size;
 
   return ERR_OK;
 }
 
-eERRORRESULT InterfaceTransferError(void*, uint8_t, uint8_t*, uint8_t*, uint32_t)
+eERRORRESULT InterfaceTransferError(void*, uint8_t, uint8_t*, uint8_t*, size_t)
 {
   return ERR__TEST_ERROR;
 }
@@ -357,7 +357,7 @@ namespace UnitTest_BufSize81
       Assert::AreEqual(ERR_OK, Error, L"Test {size=1; SFR}, should be ERR_OK");                                                                             // Check the return value
       Assert::AreEqual(1u, TransferCounter, L"Test {size=1; SFR}, TransferCounter should be 1");                                                            // Should go 1 time in the InterfaceTransfer function
       Assert::AreEqual(3u, BytesTransfered, L"Test {size=1; SFR}, BytesTransfered should be 3");                                                            // Should have transfer 3 bytes in the InterfaceTransfer function
-      Assert::IsTrue(ArraysAreEqual(&TxTestBuf[0], &TransmitBuf[0], 3), L"Test {size=1; SFR}, Wrong data sent by SPI");                                     // Check commands that have been send trough SPI (Check only SPI instruction : CAAA)
+      Assert::IsTrue(ArraysAreEqual(&TxTestBuf[0], &TransmitBuf[0], 2), L"Test {size=1; SFR}, Wrong data sent by SPI");                                     // Check commands that have been send trough SPI (Check only SPI instruction : CAAA)
       Assert::AreEqual((uint8_t)0xAA, ReceiveBuf[0], L"Test {size=1; SFR}, Wrong data received by SPI");                                                    // Check what have been read by MCP251XFD_ReadData
 
       //--- Test (size = BUF limit) ---
@@ -368,7 +368,7 @@ namespace UnitTest_BufSize81
       Assert::AreEqual(ERR_OK, Error, L"Test {size=BUFlimit; SFR}, should be ERR_OK");                                                                                                 // Check the return value
       Assert::AreEqual(1u, TransferCounter, L"Test {size=BUFlimit; SFR}, TransferCounter should be 1");                                                                                // Should go 1 time in the InterfaceTransfer function
       Assert::AreEqual(81u, BytesTransfered, L"Test {size=BUFlimit; SFR}, BytesTransfered should be BUF");                                                                             // Should have transfer full buffer bytes in the InterfaceTransfer function
-      Assert::IsTrue(ArraysAreEqual(&TxTestBuf[0], &TransmitBuf[0], TEST_BUF_COUNT), L"Test {size=BUFlimit; SFR}, Wrong data sent by SPI");                                            // Check commands that have been send trough SPI (Check only SPI instruction : CAAA)
+      Assert::IsTrue(ArraysAreEqual(&TxTestBuf[0], &TransmitBuf[0], 2), L"Test {size=BUFlimit; SFR}, Wrong data sent by SPI");                                            // Check commands that have been send trough SPI (Check only SPI instruction : CAAA)
       Assert::IsTrue(ArraysAreEqual(&DataToReceive[0], &ReceiveBuf[0], (81 - 2)), L"Test {size=BUFlimit; SFR}, Wrong data received by SPI");                                           // Check what have been read by MCP251XFD_ReadData
 
       //--- Test (size = BUF limit + 1) ---
