@@ -50,6 +50,8 @@
  *          Initialize the temporary value of MCP251XFD_ReadSFR16(), MCP251XFD_ReadSFR32() and MCP251XFD_ReadRAM32() so that no uninitialized value is stored in *data when the read fails
  *          Fix MCP251XFD_ConfigureFilter() that did not check pComp before reading the filter configuration
  *          Fix MCP251XFD_ConfigureFIFOList() that cleared the FIFO being configured instead of the FIFO that are not in the list between two FIFO of the list
+ *          Fix MCP251XFD_FlushFIFO() that wrote the FIFO number in CiTXREQ instead of the bit of the FIFO (it flushed another FIFO, and nothing for the TXQ)
+ *          Fix MCP251XFD_ClearFIFOEvents() that cleared the Message Aborted flag (TXABT) with any transmit event instead of the abort event only
  *          Fix the structures and enums size with Clang using the MSVC ABI (clang-cl): it now uses the GCC/Clang branch of the packed macros, with an underlying type for the enums in C
  *          Fix MCP251XFD_CiBDIAG1_Register that was 6 bytes instead of 4 with MSVC in C (an enum can not be packed in C with MSVC), and make the size controls effective with MSVC (negative array size instead of a division by 0)
  * 1.0.10   Fix MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO() and MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO() that called the Receive function [Thanks to ceckelman]

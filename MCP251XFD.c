@@ -1798,8 +1798,8 @@ eERRORRESULT MCP251XFD_FlushFIFO(MCP251XFD *pComp, eMCP251XFD_FIFO name)
   if (name >= MCP251XFD_FIFO_COUNT) return ERR__PARAMETER_ERROR;
 
   //--- Set the flush ---
-  uint16_t Address = RegMCP251XFD_CiTXREQ + ((uint16_t)name >> 3);    // Select the good address of the TXREQ register
-  return MCP251XFD_WriteSFR8(pComp, Address, ((uint8_t)name & 0xFF)); // Write FIFO flush by selecting the good bit
+  uint16_t Address = (uint16_t)RegMCP251XFD_CiTXREQ + ((uint16_t)name >> 3);           // Select the good address of the TXREQ register
+  return MCP251XFD_WriteSFR8(pComp, Address, (uint8_t)(1u << ((uint8_t)name & 0x7u))); // Write FIFO flush by selecting the good bit (the bit n of CiTXREQ is the FIFO n, bit 0 is the TXQ)
 }
 
 
@@ -2197,16 +2197,16 @@ eERRORRESULT MCP251XFD_ClearFIFOEvents(MCP251XFD *pComp, eMCP251XFD_FIFO name, u
   if (Error != ERR_NONE) return Error;                                                                    // If there is an error while calling MCP251XFD_ReadSFR8() then return the error
 
   //--- Clear selected flags ---
-  if (((events & MCP251XFD_TEF_FIFO_OVERFLOW         ) > 0)
-   || ((events & MCP251XFD_RX_FIFO_OVERFLOW          ) > 0)) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_RXOVIF; // Receive & TEF: Clear Overflow event
-  if (((events & MCP251XFD_TXQ_ATTEMPTS_EXHAUSTED    ) > 0)
-   || ((events & MCP251XFD_TX_FIFO_ATTEMPTS_EXHAUSTED) > 0)) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_TXATIF; // Transmit & TXQ: Clear Attempts Exhausted event
-  if (((events & MCP251XFD_TXQ_BUS_ERROR             ) > 0)
-   || ((events & MCP251XFD_TX_FIFO_BUS_ERROR         ) > 0)) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_TXERR;  // Transmit & TXQ: Clear Error Detected During Transmission event
-  if (((events & MCP251XFD_TXQ_ARBITRATION_LOST      ) > 0)
-   || ((events & MCP251XFD_TX_FIFO_ARBITRATION_LOST  ) > 0)) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_TXLARB; // Transmit & TXQ: Clear Message Lost Arbitration event
-  if (((events & MCP251XFD_TXQ_STATUS_MASK           ) > 0)
-   || ((events & MCP251XFD_TX_FIFO_STATUS_MASK       ) > 0)) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_TXABT;  // Transmit & TXQ: Clear Message Aborted event
+  if ((events & ((uint32_t)MCP251XFD_TEF_FIFO_OVERFLOW
+    | (uint32_t)MCP251XFD_RX_FIFO_OVERFLOW)          ) > 0u) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_RXOVIF; // Receive & TEF: Clear Overflow event
+  if ((events & ((uint32_t)MCP251XFD_TXQ_ATTEMPTS_EXHAUSTED
+    | (uint32_t)MCP251XFD_TX_FIFO_ATTEMPTS_EXHAUSTED)) > 0u) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_TXATIF; // Transmit & TXQ: Clear Attempts Exhausted event
+  if ((events & ((uint32_t)MCP251XFD_TXQ_BUS_ERROR
+   | (uint32_t)MCP251XFD_TX_FIFO_BUS_ERROR)          ) > 0u) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_TXERR;  // Transmit & TXQ: Clear Error Detected During Transmission event
+  if ((events & ((uint32_t)MCP251XFD_TXQ_ARBITRATION_LOST
+    | (uint32_t)MCP251XFD_TX_FIFO_ARBITRATION_LOST)  ) > 0u) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_TXLARB; // Transmit & TXQ: Clear Message Lost Arbitration event
+  if ((events & ((uint32_t)MCP251XFD_TXQ_ABORTED
+   | (uint32_t)MCP251XFD_TX_FIFO_ABORTED)            ) > 0u) Status &= ~MCP251XFD_CAN_CiFIFOSTAm8_TXABT;  // Transmit & TXQ: Clear Message Aborted event
   return MCP251XFD_WriteSFR8(pComp, Address, Status);                                                     // Write new FIFO status flags
 }
 
