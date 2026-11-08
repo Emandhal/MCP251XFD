@@ -327,13 +327,13 @@ void CheckDeviceINTOnEXT1(void)
         MCP251XFD_ClearInterruptEvents(CANEXT1, MCP251XFD_INT_TIME_BASE_COUNTER_EVENT);
         break;
 
-      case MCP251XFD_OPMODE_CHANGE_OCCURED:   // Operation Mode Change Occurred
+      case MCP251XFD_OPMODE_CHANGE_OCCURRED:   // Operation Mode Change Occurred
         MCP251XFD_GetActualOperationMode(CANEXT1, &OpMode);
         LOGINFO("Ext1: Operation mode change to %s", OpModeStr[(size_t)OpMode]);
         MCP251XFD_ClearInterruptEvents(CANEXT1, MCP251XFD_INT_OPERATION_MODE_CHANGE_EVENT);
         break;
 
-      case MCP251XFD_INVALID_MESSAGE_OCCURED: // Invalid Message Occurred
+      case MCP251XFD_INVALID_MESSAGE_OCCURRED: // Invalid Message Occurred
         LOGWARN("Ext1: Invalid Message Occurred");
         MCP251XFD_ClearInterruptEvents(CANEXT1, MCP251XFD_INT_RX_INVALID_MESSAGE_EVENT);
         break;
@@ -730,13 +730,13 @@ void CheckDeviceINTOnEXT2(void)
         MCP251XFD_ClearInterruptEvents(CANEXT2, MCP251XFD_INT_TIME_BASE_COUNTER_EVENT);
         break;
 
-      case MCP251XFD_OPMODE_CHANGE_OCCURED:   // Operation Mode Change Occurred
+      case MCP251XFD_OPMODE_CHANGE_OCCURRED:   // Operation Mode Change Occurred
         MCP251XFD_GetActualOperationMode(CANEXT2, &OpMode);
         LOGINFO("Ext2: Operation mode change to %s", OpModeStr[(size_t)OpMode]);
         MCP251XFD_ClearInterruptEvents(CANEXT2, MCP251XFD_INT_OPERATION_MODE_CHANGE_EVENT);
         break;
 
-      case MCP251XFD_INVALID_MESSAGE_OCCURED: // Invalid Message Occurred
+      case MCP251XFD_INVALID_MESSAGE_OCCURRED: // Invalid Message Occurred
         LOGWARN("Ext2: Invalid Message Occurred");
         MCP251XFD_ClearInterruptEvents(CANEXT2, MCP251XFD_INT_RX_INVALID_MESSAGE_EVENT);
         break;

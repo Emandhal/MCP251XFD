@@ -37,6 +37,8 @@
 
 /* Revision history:
  * 1.0.11   Fix the packed enum macro with MSVC in C: MSVC does not accept an enum with an underlying type in C, even in C23 mode
+ *          Fix the typo of MCP251XFD_OPMODE_CHANGE_OCCURED and MCP251XFD_INVALID_MESSAGE_OCCURED: the identifiers are now MCP251XFD_OPMODE_CHANGE_OCCURRED and MCP251XFD_INVALID_MESSAGE_OCCURRED, the old names are kept for compatibility
+ *          Fix the typo of MCP251XFD_DISABLE_ATTEMPS: the identifier is now MCP251XFD_DISABLE_ATTEMPTS, the old name is kept for compatibility. Fix some typos and grammar errors in the comments
  *          Fix the deprecated warning of RegMCP251XFD_IOCON with MSVC in C (the GCC attribute was selected for any C compiler)
  *          Replace typographic characters by ASCII ones in the source files
  *          Add .gitattributes to normalize the line endings (LF in the repository)
@@ -259,7 +261,7 @@
 // MCP251XFD's RAM definitions
 //********************************************************************************************************************
 
-//! MCP251XFD RAM FIFO Informations structure
+//! MCP251XFD RAM FIFO Information structure
 typedef struct MCP251XFD_RAMInfos
 {
   uint16_t ByteInFIFO;      //!< Total number of bytes that FIFO takes in RAM
@@ -1531,49 +1533,53 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiVEC_Register, 4);
 //! Interrupt Flag Code bits for the CiVEC.ICODE
 typedef enum
 {
-  MCP251XFD_TXQ_INTERRUPT           = 0b0000000, //!< TXQ Interrupt (TFIF<0> set). If for RXCODE, FIFO 0 can't receive so this flag code is reserved
-  MCP251XFD_FIFO1_INTERRUPT         = 0b0000001, //!< FIFO  1 Interrupt (TFIF< 1> or RFIF< 1> set)
-  MCP251XFD_FIFO2_INTERRUPT         = 0b0000010, //!< FIFO  2 Interrupt (TFIF< 2> or RFIF< 2> set)
-  MCP251XFD_FIFO3_INTERRUPT         = 0b0000011, //!< FIFO  3 Interrupt (TFIF< 3> or RFIF< 3> set)
-  MCP251XFD_FIFO4_INTERRUPT         = 0b0000100, //!< FIFO  4 Interrupt (TFIF< 4> or RFIF< 4> set)
-  MCP251XFD_FIFO5_INTERRUPT         = 0b0000101, //!< FIFO  5 Interrupt (TFIF< 5> or RFIF< 5> set)
-  MCP251XFD_FIFO6_INTERRUPT         = 0b0000110, //!< FIFO  6 Interrupt (TFIF< 6> or RFIF< 6> set)
-  MCP251XFD_FIFO7_INTERRUPT         = 0b0000111, //!< FIFO  7 Interrupt (TFIF< 7> or RFIF< 7> set)
-  MCP251XFD_FIFO8_INTERRUPT         = 0b0001000, //!< FIFO  8 Interrupt (TFIF< 8> or RFIF< 8> set)
-  MCP251XFD_FIFO9_INTERRUPT         = 0b0001001, //!< FIFO  9 Interrupt (TFIF< 9> or RFIF< 9> set)
-  MCP251XFD_FIFO10_INTERRUPT        = 0b0001010, //!< FIFO 10 Interrupt (TFIF<10> or RFIF<10> set)
-  MCP251XFD_FIFO11_INTERRUPT        = 0b0001011, //!< FIFO 11 Interrupt (TFIF<11> or RFIF<11> set)
-  MCP251XFD_FIFO12_INTERRUPT        = 0b0001100, //!< FIFO 12 Interrupt (TFIF<12> or RFIF<12> set)
-  MCP251XFD_FIFO13_INTERRUPT        = 0b0001101, //!< FIFO 13 Interrupt (TFIF<13> or RFIF<13> set)
-  MCP251XFD_FIFO14_INTERRUPT        = 0b0001110, //!< FIFO 14 Interrupt (TFIF<14> or RFIF<14> set)
-  MCP251XFD_FIFO15_INTERRUPT        = 0b0001111, //!< FIFO 15 Interrupt (TFIF<15> or RFIF<15> set)
-  MCP251XFD_FIFO16_INTERRUPT        = 0b0010000, //!< FIFO 16 Interrupt (TFIF<16> or RFIF<16> set)
-  MCP251XFD_FIFO17_INTERRUPT        = 0b0010001, //!< FIFO 17 Interrupt (TFIF<17> or RFIF<17> set)
-  MCP251XFD_FIFO18_INTERRUPT        = 0b0010010, //!< FIFO 18 Interrupt (TFIF<18> or RFIF<18> set)
-  MCP251XFD_FIFO19_INTERRUPT        = 0b0010011, //!< FIFO 19 Interrupt (TFIF<19> or RFIF<19> set)
-  MCP251XFD_FIFO20_INTERRUPT        = 0b0010100, //!< FIFO 20 Interrupt (TFIF<20> or RFIF<20> set)
-  MCP251XFD_FIFO21_INTERRUPT        = 0b0010101, //!< FIFO 21 Interrupt (TFIF<21> or RFIF<21> set)
-  MCP251XFD_FIFO22_INTERRUPT        = 0b0010110, //!< FIFO 22 Interrupt (TFIF<22> or RFIF<22> set)
-  MCP251XFD_FIFO23_INTERRUPT        = 0b0010111, //!< FIFO 23 Interrupt (TFIF<23> or RFIF<23> set)
-  MCP251XFD_FIFO24_INTERRUPT        = 0b0011000, //!< FIFO 24 Interrupt (TFIF<24> or RFIF<24> set)
-  MCP251XFD_FIFO25_INTERRUPT        = 0b0011001, //!< FIFO 25 Interrupt (TFIF<25> or RFIF<25> set)
-  MCP251XFD_FIFO26_INTERRUPT        = 0b0011010, //!< FIFO 26 Interrupt (TFIF<26> or RFIF<26> set)
-  MCP251XFD_FIFO27_INTERRUPT        = 0b0011011, //!< FIFO 27 Interrupt (TFIF<27> or RFIF<27> set)
-  MCP251XFD_FIFO28_INTERRUPT        = 0b0011100, //!< FIFO 28 Interrupt (TFIF<28> or RFIF<28> set)
-  MCP251XFD_FIFO29_INTERRUPT        = 0b0011101, //!< FIFO 29 Interrupt (TFIF<29> or RFIF<29> set)
-  MCP251XFD_FIFO30_INTERRUPT        = 0b0011110, //!< FIFO 30 Interrupt (TFIF<30> or RFIF<30> set)
-  MCP251XFD_FIFO31_INTERRUPT        = 0b0011111, //!< FIFO 31 Interrupt (TFIF<31> or RFIF<31> set)
-  MCP251XFD_NO_INTERRUPT            = 0b1000000, //!< No interrupt
-  MCP251XFD_ERROR_INTERRUPT         = 0b1000001, //!< Error Interrupt (CERRIF/IE)
-  MCP251XFD_WAKEUP_INTERRUPT        = 0b1000010, //!< Wake-up interrupt (WAKIF/WAKIE)
-  MCP251XFD_RECEIVE_FIFO_OVF        = 0b1000011, //!< Receive FIFO Overflow Interrupt (any bit in CiRXOVIF set)
-  MCP251XFD_ADDRESS_ERROR_INTERRUPT = 0b1000100, //!< Address Error Interrupt (illegal FIFO address presented to system) (SERRIF/IE)
-  MCP251XFD_RXTX_MAB_OVF_UVF        = 0b1000101, //!< RX/TX MAB Overflow/Underflow (RX: message received before previous message was saved to memory; TX: can't feed TX MAB fast enough to transmit consistent data) (SERRIF/IE)
-  MCP251XFD_TBC_OVF_INTERRUPT       = 0b1000110, //!< TBC Overflow (TBCIF/IE)
-  MCP251XFD_OPMODE_CHANGE_OCCURED   = 0b1000111, //!< Operation Mode Change Occurred (MODIF/IE)
-  MCP251XFD_INVALID_MESSAGE_OCCURED = 0b1001000, //!< Invalid Message Occurred (IVMIF/IE)
-  MCP251XFD_TRANSMIT_EVENT_FIFO     = 0b1001001, //!< Transmit Event FIFO Interrupt (any bit in CiTEFIF set)
-  MCP251XFD_TRANSMIT_ATTEMPT        = 0b1001010, //!< Transmit Attempt Interrupt (any bit in CiTXATIF set)
+  MCP251XFD_TXQ_INTERRUPT            = 0b0000000, //!< TXQ Interrupt (TFIF<0> set). If for RXCODE, FIFO 0 can't receive so this flag code is reserved
+  MCP251XFD_FIFO1_INTERRUPT          = 0b0000001, //!< FIFO  1 Interrupt (TFIF< 1> or RFIF< 1> set)
+  MCP251XFD_FIFO2_INTERRUPT          = 0b0000010, //!< FIFO  2 Interrupt (TFIF< 2> or RFIF< 2> set)
+  MCP251XFD_FIFO3_INTERRUPT          = 0b0000011, //!< FIFO  3 Interrupt (TFIF< 3> or RFIF< 3> set)
+  MCP251XFD_FIFO4_INTERRUPT          = 0b0000100, //!< FIFO  4 Interrupt (TFIF< 4> or RFIF< 4> set)
+  MCP251XFD_FIFO5_INTERRUPT          = 0b0000101, //!< FIFO  5 Interrupt (TFIF< 5> or RFIF< 5> set)
+  MCP251XFD_FIFO6_INTERRUPT          = 0b0000110, //!< FIFO  6 Interrupt (TFIF< 6> or RFIF< 6> set)
+  MCP251XFD_FIFO7_INTERRUPT          = 0b0000111, //!< FIFO  7 Interrupt (TFIF< 7> or RFIF< 7> set)
+  MCP251XFD_FIFO8_INTERRUPT          = 0b0001000, //!< FIFO  8 Interrupt (TFIF< 8> or RFIF< 8> set)
+  MCP251XFD_FIFO9_INTERRUPT          = 0b0001001, //!< FIFO  9 Interrupt (TFIF< 9> or RFIF< 9> set)
+  MCP251XFD_FIFO10_INTERRUPT         = 0b0001010, //!< FIFO 10 Interrupt (TFIF<10> or RFIF<10> set)
+  MCP251XFD_FIFO11_INTERRUPT         = 0b0001011, //!< FIFO 11 Interrupt (TFIF<11> or RFIF<11> set)
+  MCP251XFD_FIFO12_INTERRUPT         = 0b0001100, //!< FIFO 12 Interrupt (TFIF<12> or RFIF<12> set)
+  MCP251XFD_FIFO13_INTERRUPT         = 0b0001101, //!< FIFO 13 Interrupt (TFIF<13> or RFIF<13> set)
+  MCP251XFD_FIFO14_INTERRUPT         = 0b0001110, //!< FIFO 14 Interrupt (TFIF<14> or RFIF<14> set)
+  MCP251XFD_FIFO15_INTERRUPT         = 0b0001111, //!< FIFO 15 Interrupt (TFIF<15> or RFIF<15> set)
+  MCP251XFD_FIFO16_INTERRUPT         = 0b0010000, //!< FIFO 16 Interrupt (TFIF<16> or RFIF<16> set)
+  MCP251XFD_FIFO17_INTERRUPT         = 0b0010001, //!< FIFO 17 Interrupt (TFIF<17> or RFIF<17> set)
+  MCP251XFD_FIFO18_INTERRUPT         = 0b0010010, //!< FIFO 18 Interrupt (TFIF<18> or RFIF<18> set)
+  MCP251XFD_FIFO19_INTERRUPT         = 0b0010011, //!< FIFO 19 Interrupt (TFIF<19> or RFIF<19> set)
+  MCP251XFD_FIFO20_INTERRUPT         = 0b0010100, //!< FIFO 20 Interrupt (TFIF<20> or RFIF<20> set)
+  MCP251XFD_FIFO21_INTERRUPT         = 0b0010101, //!< FIFO 21 Interrupt (TFIF<21> or RFIF<21> set)
+  MCP251XFD_FIFO22_INTERRUPT         = 0b0010110, //!< FIFO 22 Interrupt (TFIF<22> or RFIF<22> set)
+  MCP251XFD_FIFO23_INTERRUPT         = 0b0010111, //!< FIFO 23 Interrupt (TFIF<23> or RFIF<23> set)
+  MCP251XFD_FIFO24_INTERRUPT         = 0b0011000, //!< FIFO 24 Interrupt (TFIF<24> or RFIF<24> set)
+  MCP251XFD_FIFO25_INTERRUPT         = 0b0011001, //!< FIFO 25 Interrupt (TFIF<25> or RFIF<25> set)
+  MCP251XFD_FIFO26_INTERRUPT         = 0b0011010, //!< FIFO 26 Interrupt (TFIF<26> or RFIF<26> set)
+  MCP251XFD_FIFO27_INTERRUPT         = 0b0011011, //!< FIFO 27 Interrupt (TFIF<27> or RFIF<27> set)
+  MCP251XFD_FIFO28_INTERRUPT         = 0b0011100, //!< FIFO 28 Interrupt (TFIF<28> or RFIF<28> set)
+  MCP251XFD_FIFO29_INTERRUPT         = 0b0011101, //!< FIFO 29 Interrupt (TFIF<29> or RFIF<29> set)
+  MCP251XFD_FIFO30_INTERRUPT         = 0b0011110, //!< FIFO 30 Interrupt (TFIF<30> or RFIF<30> set)
+  MCP251XFD_FIFO31_INTERRUPT         = 0b0011111, //!< FIFO 31 Interrupt (TFIF<31> or RFIF<31> set)
+  MCP251XFD_NO_INTERRUPT             = 0b1000000, //!< No interrupt
+  MCP251XFD_ERROR_INTERRUPT          = 0b1000001, //!< Error Interrupt (CERRIF/IE)
+  MCP251XFD_WAKEUP_INTERRUPT         = 0b1000010, //!< Wake-up interrupt (WAKIF/WAKIE)
+  MCP251XFD_RECEIVE_FIFO_OVF         = 0b1000011, //!< Receive FIFO Overflow Interrupt (any bit in CiRXOVIF set)
+  MCP251XFD_ADDRESS_ERROR_INTERRUPT  = 0b1000100, //!< Address Error Interrupt (illegal FIFO address presented to system) (SERRIF/IE)
+  MCP251XFD_RXTX_MAB_OVF_UVF         = 0b1000101, //!< RX/TX MAB Overflow/Underflow (RX: message received before previous message was saved to memory; TX: can't feed TX MAB fast enough to transmit consistent data) (SERRIF/IE)
+  MCP251XFD_TBC_OVF_INTERRUPT        = 0b1000110, //!< TBC Overflow (TBCIF/IE)
+  MCP251XFD_OPMODE_CHANGE_OCCURRED   = 0b1000111, //!< Operation Mode Change Occurred (MODIF/IE)
+  MCP251XFD_INVALID_MESSAGE_OCCURRED = 0b1001000, //!< Invalid Message Occurred (IVMIF/IE)
+  MCP251XFD_TRANSMIT_EVENT_FIFO      = 0b1001001, //!< Transmit Event FIFO Interrupt (any bit in CiTEFIF set)
+  MCP251XFD_TRANSMIT_ATTEMPT         = 0b1001010, //!< Transmit Attempt Interrupt (any bit in CiTXATIF set)
+
+  // Deprecated identifiers kept for backward compatibility, use the identifiers above instead
+  MCP251XFD_OPMODE_CHANGE_OCCURED    = MCP251XFD_OPMODE_CHANGE_OCCURRED,   //!< Deprecated (typo), use MCP251XFD_OPMODE_CHANGE_OCCURRED
+  MCP251XFD_INVALID_MESSAGE_OCCURED  = MCP251XFD_INVALID_MESSAGE_OCCURRED, //!< Deprecated (typo), use MCP251XFD_INVALID_MESSAGE_OCCURRED
 } eMCP251XFD_InterruptFlagCode;
 
 #define MCP251XFD_CAN_CiVEC_ICODE_Pos          0
@@ -2692,9 +2698,12 @@ typedef enum
 //! Retransmission Attempts for the CiTXQCON.TXAT and CiFIFOCONm.TXAT
 typedef enum
 {
-  MCP251XFD_DISABLE_ATTEMPS    = 0b00, //!< Disable retransmission attempts
+  MCP251XFD_DISABLE_ATTEMPTS   = 0b00, //!< Disable retransmission attempts
   MCP251XFD_THREE_ATTEMPTS     = 0b01, //!< Three retransmission attempts
   MCP251XFD_UNLIMITED_ATTEMPTS = 0b10, //!< Unlimited number of retransmission attempts
+
+  // Deprecated identifier kept for backward compatibility, use the identifier above instead
+  MCP251XFD_DISABLE_ATTEMPS    = MCP251XFD_DISABLE_ATTEMPTS, //!< Deprecated (typo), use MCP251XFD_DISABLE_ATTEMPTS
 } eMCP251XFD_Attempts;
 
 #define MCP251XFD_CAN_CiTXQCON_TXAT_Pos          21
@@ -3426,7 +3435,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CAN_RX_Message
   {
     MCP251XFD_CAN_RX_Message_Identifier R0; //!< CAN Receive Message Identifier (R0)
     MCP251XFD_CAN_RX_Message_Control    R1; //!< CAN Receive Message Control Field (R1)
-    uint32_t TimeStamp;                     //!< Transmit Message Time Stamp. R2 (RXMSGTS) only exits in objects where CiFIFOCONm.RXTSEN is set
+    uint32_t TimeStamp;                     //!< Transmit Message Time Stamp. R2 (RXMSGTS) only exists in objects where CiFIFOCONm.RXTSEN is set
   };
 } MCP251XFD_CAN_RX_Message;
 MCP251XFD_UNPACKITEM;
@@ -3639,7 +3648,7 @@ typedef struct MCP251XFD_FIFO
   eMCP251XFD_FIFOIntFlags InterruptFlags; //!< FIFO interrupt flags to configure interrupts of the FIFO
 
   //--- FIFO RAM Infos ---
-  MCP251XFD_RAMInfos *RAMInfos;           //!< RAM Informations of the FIFO (Can be NULL)
+  MCP251XFD_RAMInfos *RAMInfos;           //!< RAM information of the FIFO (Can be NULL)
 } MCP251XFD_FIFO;
 
 //-----------------------------------------------------------------------------
@@ -3686,7 +3695,7 @@ eERRORRESULT Init_MCP251XFD(MCP251XFD *pComp, const MCP251XFD_Config *pConf);
 /*! @brief RAM initialization of the MCP251XFD
  *
  * This function initialize all the RAM addresses with 0x00000000
- * @param[in] *pComp Is the pointed structure of the device where the RAM will be initialize
+ * @param[in] *pComp Is the pointed structure of the device where the RAM will be initialized
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_InitRAM(MCP251XFD *pComp);
@@ -3852,8 +3861,8 @@ static inline eERRORRESULT MCP251XFD_WriteRAM32(MCP251XFD *pComp, uint16_t addre
 /*! @brief Transmit a message object (with data) to a FIFO of the MCP251XFD
  *
  * Transmit the message to the specified FIFO. This function uses the specific format of the component (T0, T1, Ti).
- * This function gets the next address where to put the message object on, send it and update the head pointer
- * @warning This function does not check if the FIFO have a room for the message or if the FIFO is actually a transmit FIFO or the actual state of the FIFO
+ * This function gets the next address where to put the message object, sends it and updates the head pointer
+ * @warning This function does not check if the FIFO has room for the message or if the FIFO is actually a transmit FIFO or the actual state of the FIFO
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[in] *messageObjectToSend Is the message object to send with all its data
  * @param[in] objectSize Is the size of the message object (with its data). This value needs to be modulo 4
@@ -3866,8 +3875,8 @@ eERRORRESULT MCP251XFD_TransmitMessageObjectToFIFO(MCP251XFD *pComp, uint8_t* me
 /*! @brief Transmit a message object (with data) to the TXQ of the MCP251XFD
  *
  * Transmit the message to the TXQ. This function uses the specific format of the component (T0, T1, Ti).
- * This function gets the next address where to put the message object on, send it and update the head pointer
- * @warning This function do not not check if the TXQ have a room for the message or the actual state of the TXQ
+ * This function gets the next address where to put the message object, sends it and updates the head pointer
+ * @warning This function does not check if the TXQ has room for the message or the actual state of the TXQ
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[in] *messageObjectToSend Is the message object to send with all its data
  * @param[in] objectSize Is the size of the message object (with its data). This value need to be modulo 4
@@ -3882,8 +3891,8 @@ static inline eERRORRESULT MCP251XFD_TransmitMessageObjectToTXQ(MCP251XFD *pComp
 /*! @brief Transmit a message to a FIFO of the MCP251XFD
  *
  * Transmit the message to the specified FIFO
- * This function gets the next address where to put the message object on, send it and update the head pointer
- * @warning This function does not check if the FIFO have a room for the message or if the FIFO is actually a transmit FIFO or the actual state of the FIFO
+ * This function gets the next address where to put the message object, sends it and updates the head pointer
+ * @warning This function does not check if the FIFO has room for the message or if the FIFO is actually a transmit FIFO or the actual state of the FIFO
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[in] *messageToSend Is the message to send with all the data attached with
  * @param[in] toFIFO Is the name of the FIFO to fill
@@ -3895,8 +3904,8 @@ eERRORRESULT MCP251XFD_TransmitMessageToFIFO(MCP251XFD *pComp, MCP251XFD_CANMess
 /*! @brief Transmit a message to the TXQ of the MCP251XFD
  *
  * Transmit the message to the TXQ
- * This function gets the next address where to put the message object on, send it and update the head pointer
- * @warning This function does not check if the TXQ have a room for the message or the actual state of the TXQ
+ * This function gets the next address where to put the message object, sends it and updates the head pointer
+ * @warning This function does not check if the TXQ has room for the message or the actual state of the TXQ
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[in] *messageToSend Is the message to send with all the data attached with
  * @param[in] andFlush Indicate if the TXQ will be flush to the CAN bus right after this message
@@ -3910,8 +3919,8 @@ static inline eERRORRESULT MCP251XFD_TransmitMessageToTXQ(MCP251XFD *pComp, MCP2
 /*! @brief Receive a message object (with data) to the FIFO of the MCP251XFD
  *
  * Receive the message from the specified FIFO. This function uses the specific format of the component (R0, R1, (R2,) Ri).
- * This function gets the next address where to get the message object from, get it and update the tail pointer
- * @warning This function does not check if the FIFO have a message pending or if the FIFO is actually a receive FIFO or the actual state of the FIFO or if the TimeStamp is set or not
+ * This function gets the next address from where to get the message object, gets it and updates the tail pointer
+ * @warning This function does not check if the FIFO has a message pending or if the FIFO is actually a receive FIFO or the actual state of the FIFO or if the TimeStamp is set or not
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[out] *messageObjectGet Is the message object retrieve with all its data
  * @param[in] objectSize Is the size of the message object (with its data). This value needs to be modulo 4
@@ -3923,8 +3932,8 @@ eERRORRESULT MCP251XFD_ReceiveMessageObjectFromFIFO(MCP251XFD *pComp, uint8_t* m
 /*! @brief Receive a message object (with data) to the TEF of the MCP251XFD
  *
  * Receive a message from the TEF. This function uses the specific format of the component (TE0, TE1 (,TE2)).
- * This function gets the next address where to get the message object from, get it and update the tail pointer
- * @warning This function does not check if the TEF have a message pending or the actual state of the TEF or if the TimeStamp is set or not
+ * This function gets the next address from where to get the message object, gets it and updates the tail pointer
+ * @warning This function does not check if the TEF has a message pending or the actual state of the TEF or if the TimeStamp is set or not
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[out] *messageObjectGet Is the message object retrieve with all its data
  * @param[in] objectSize Is the size of the message object (with its data). This value needs to be modulo 4
@@ -3938,8 +3947,8 @@ static inline eERRORRESULT MCP251XFD_ReceiveMessageObjectFromTEF(MCP251XFD *pCom
 /*! @brief Receive a message from a FIFO of the MCP251XFD
  *
  * Receive a message from the specified FIFO
- * This function gets the next address where to get the message object from, get it and update the tail pointer
- * @warning This function does not check if the FIFO have a message pending or if the FIFO is actually a receive FIFO or the actual state of the FIFO or if the TimeStamp is set or not
+ * This function gets the next address from where to get the message object, gets it and updates the tail pointer
+ * @warning This function does not check if the FIFO has a message pending or if the FIFO is actually a receive FIFO or the actual state of the FIFO or if the TimeStamp is set or not
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[out] *messageGet Is the message retrieve with all the data attached with
  * @param[in] payloadSize Indicate the payload of the FIFO (8, 12, 16, 20, 24, 32, 48 or 64)
@@ -3952,8 +3961,8 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
 /*! @brief Receive a message from the TEF of the MCP251XFD
  *
  * Receive a message from the TEF
- * This function gets the next address where to get the message object from, get it and update the tail pointer
- * @warning This function does not check if the TEF have a message pending or the actual state of the TEF or if the TimeStamp is set or not
+ * This function gets the next address from where to get the message object, gets it and updates the tail pointer
+ * @warning This function does not check if the TEF has a message pending or the actual state of the TEF or if the TimeStamp is set or not
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[out] *messageGet Is the message retrieve with all the data attached with
  * @param[out] *timeStamp Is the returned TimeStamp of the message (can be set to NULL if the TimeStamp is not set in the TEF)
@@ -4000,7 +4009,7 @@ static inline eERRORRESULT MCP251XFD_ClearCRCEvents(MCP251XFD *pComp)
 
 /*! @brief ECC Configuration of the MCP251XFD device
  *
- * At initialization if the driver has the flag DRIVER_ENABLE_ECC then ECC is enable and all ECC interrupts are enable.
+ * At initialization if the driver has the flag DRIVER_ENABLE_ECC then ECC is enabled and all ECC interrupts are enabled.
  * @warning If the ECC is configured after use of the device without reset, ECC interrupts can occur if the RAM is not fully initialize (with MCP251XFD_InitRAM())
  * @param[in] *pComp Is the pointed structure of the device where the ECC will be configured
  * @param[in] enableECC Is at 'true' to enable ECC or 'false' to disable ECC
@@ -4507,7 +4516,7 @@ eERRORRESULT MCP251XFD_ClearFIFOConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFO 
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
  * @param[in] name Is the name of the FIFO where the configuration will be changed
- * @param[in] interruptFlags Is the interrupt flags to change (mentionned flags will be set and the others will be cleared)
+ * @param[in] interruptFlags Is the interrupt flags to change (mentioned flags will be set and the others will be cleared)
  * @return Returns an #eERRORRESULT value enum
  */
 eERRORRESULT MCP251XFD_SetFIFOinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFO name, eMCP251XFD_FIFOIntFlags interruptFlags);
@@ -4515,7 +4524,7 @@ eERRORRESULT MCP251XFD_SetFIFOinterruptConfiguration(MCP251XFD *pComp, eMCP251XF
 /*! @brief Set a TEF interrupt configuration of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
- * @param[in] interruptFlags Is the interrupt flags to change (mentionned flags will be set and the others will be cleared)
+ * @param[in] interruptFlags Is the interrupt flags to change (mentioned flags will be set and the others will be cleared)
  * @return Returns an #eERRORRESULT value enum
  */
 static inline eERRORRESULT MCP251XFD_SetTEFinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFOIntFlags interruptFlags)
@@ -4526,7 +4535,7 @@ static inline eERRORRESULT MCP251XFD_SetTEFinterruptConfiguration(MCP251XFD *pCo
 /*! @brief Set a TXQ interrupt configuration of the MCP251XFD device
  *
  * @param[in] *pComp Is the pointed structure of the device to be used
- * @param[in] interruptFlags Is the interrupt flags to change (mentionned flags will be set and the others will be cleared)
+ * @param[in] interruptFlags Is the interrupt flags to change (mentioned flags will be set and the others will be cleared)
  * @return Returns an #eERRORRESULT value enum
  */
 static inline eERRORRESULT MCP251XFD_SetTXQinterruptConfiguration(MCP251XFD *pComp, eMCP251XFD_FIFOIntFlags interruptFlags)

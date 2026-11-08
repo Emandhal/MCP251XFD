@@ -1151,7 +1151,7 @@ eERRORRESULT MCP251XFD_SetBitTimeConfiguration(MCP251XFD *pComp, MCP251XFD_BitTi
     if (pConf->EDGE_FILTER) TConfig.CiTDC |= MCP251XFD_CAN_CiTDC_EDGFLTEN;                                             // Enable Edge Filter if asked
     Error = MCP251XFD_WriteData(pComp, RegMCP251XFD_CiTDC, &TConfig.Bytes[0], sizeof(MCP251XFD_CiTDC_Register));       // Write configuration to the CiDBTCFG register
     if (Error != ERR_NONE) return Error;                                                                               // If there is an error while calling MCP251XFD_WriteData()
-    pComp->InternalConfig |= MCP251XFD_CANFD_ENABLED;                                                                  // CAN-FD is enable if Data Bitrate is set
+    pComp->InternalConfig |= MCP251XFD_CANFD_ENABLED;                                                                  // CAN-FD is enabled if Data Bitrate is set
   }
   else pComp->InternalConfig &= ~MCP251XFD_CANFD_ENABLED;                                                              // Set no CAN-FD
 

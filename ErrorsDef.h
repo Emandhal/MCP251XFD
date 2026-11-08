@@ -42,7 +42,7 @@ extern "C" {
 
 /*! @defgroup ErrorsContexts Errors and contexts
  * @details These defines sets contexts on errors
- * To do this, create a file named 'Specific_Target.c' and 'Specific_Target.h' with target a revelant name for the target platform (example 'Specific_MC_STM32G4.c' and 'Specific_MC_STM32G4.h')
+ * To do this, create a file named 'Specific_Target.c' and 'Specific_Target.h' with a name relevant to the target platform (example 'Specific_MC_STM32G4.c' and 'Specific_MC_STM32G4.h')
  *
  * Use in a '.c' file like this:
  * @code {.c}
@@ -186,10 +186,10 @@ static const char* const ERRCONTEXT_ContextStrings[] =
     X(ERR__PERIPHERAL_NOT_VALID,      , "Peripheral not valid"                                  ) \
     X(ERR__UNKNOWN_COMMAND     ,      , "Unknown command"                                       ) \
     X(ERR__BAD_ADDRESS         ,      , "Bad start address or end address"                      ) \
-    X(ERR__BAD_DESTINATAIRE    ,      , "Bad destinataire of the frame"                         ) \
+    X(ERR__BAD_RECIPIENT       ,      , "Bad recipient of the frame"                            ) \
     X(ERR__BAD_DATA_SIZE       ,      , "Bad data size"                                         ) \
     X(ERR__BAD_FRAME_TYPE      ,      , "Bad frame type"                                        ) \
-    X(ERR__NO_REPONSE          ,      , "No response"                                           ) \
+    X(ERR__NO_RESPONSE         ,      , "No response"                                           ) \
     X(ERR__TIMEOUT             ,      , "General timeout"                                       ) \
     X(ERR__BUFFER_FULL         ,      , "Buffer full"                                           ) \
     X(ERR__UNKNOWN_DEVICE      ,      , "Unknown device error"                                  ) \
@@ -285,6 +285,8 @@ static const char* const ERRCONTEXT_ContextStrings[] =
     X(ERR__TEST_ERROR          , = 255, "Test error"                                            )
 
 #define ERR_OK  ERR_NONE //!< For backward compatibility
+#define ERR__BAD_DESTINATAIRE  ERR__BAD_RECIPIENT //!< For backward compatibility (typo)
+#define ERR__NO_REPONSE        ERR__NO_RESPONSE  //!< For backward compatibility (typo)
 
 //------------------------------------------------------------------------------
 

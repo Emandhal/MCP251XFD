@@ -137,12 +137,12 @@ uint16_t ComputeCRC16USB(const uint8_t* data, uint32_t size)
 
 
 //=============================================================================
-// Compute the CRC16-USB from the byte stream in parameter (with reverse Polynome)
+// Compute the CRC16-USB from the byte stream in parameter (with reverse Polynomial)
 //=============================================================================
 uint16_t ComputeCRC16USB(const uint8_t* data, uint16_t size)
 {
   if (data == NULL) return 0;
-  const uint16_t Polynome = 0xA001;
+  const uint16_t Polynomial = 0xA001;
   uint16_t crc = 0xFFFF; // Start value
 
   uint16_t bit = 0;
@@ -153,7 +153,7 @@ uint16_t ComputeCRC16USB(const uint8_t* data, uint16_t size)
     {
       bit = (crc & 0x0001);
       crc >>= 1;
-      if (bit != 0) crc ^= Polynome;
+      if (bit != 0) crc ^= Polynomial;
     }
   }
 
@@ -163,13 +163,13 @@ uint16_t ComputeCRC16USB(const uint8_t* data, uint16_t size)
 
 
 //=============================================================================
-// Compute the CRC16-USB from the byte stream in parameter (with normal Polynome)
+// Compute the CRC16-USB from the byte stream in parameter (with normal Polynomial)
 //=============================================================================
 // Base code : https://pythonhosted.org/crccheck/_modules/crccheck/crc.html#Crc16
 /*uint16_t ComputeCRC16USB(const uint8_t* data, uint32_t size)
 {
   if (data == NULL) return 0;
-  const uint16_t Polynome = 0x8005;
+  const uint16_t Polynomial = 0x8005;
   uint16_t crc = 0xFFFF; // Start value
 
   uint16_t bit = 0;
@@ -180,7 +180,7 @@ uint16_t ComputeCRC16USB(const uint8_t* data, uint16_t size)
     {
       bit = (crc & 0x8000);
       crc <<= 1;
-      if (bit != 0) crc ^= Polynome;
+      if (bit != 0) crc ^= Polynomial;
     }
   }
 

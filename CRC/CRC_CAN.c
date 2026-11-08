@@ -40,7 +40,7 @@ uint16_t ComputeCRC15CAN(const uint8_t* data, size_t bitSize)
 #define CRC_nCRC  15
   if (data == NULL) return 0;
   if (bitSize == 0) return 0;
-  const uint16_t Polynome = 0xC599;
+  const uint16_t Polynomial = 0xC599;
   uint16_t crc = 0x0000; // Shift register start value
 
   uint16_t DataNextBit = 8;
@@ -57,7 +57,7 @@ uint16_t ComputeCRC15CAN(const uint8_t* data, size_t bitSize)
     crc <<= 1;            // Shift register left by 1 position
     if (CRCnext == 1)     // Compute register with polynomial
     {
-      crc ^= Polynome;
+      crc ^= Polynomial;
     }
   }
 
@@ -74,7 +74,7 @@ uint16_t PartialComputeCRC15CAN(uint16_t crc, const uint8_t* data, size_t bitSiz
   #define CRC_nCRC  15
   if (data == NULL) return 0;
   if (bitSize == 0) return 0;
-  const uint16_t Polynome = 0xC599;
+  const uint16_t Polynomial = 0xC599;
 
   uint16_t DataNextBit = 8;
   uint16_t CRCnext = 0;
@@ -90,7 +90,7 @@ uint16_t PartialComputeCRC15CAN(uint16_t crc, const uint8_t* data, size_t bitSiz
     crc <<= 1;            // Shift register left by 1 position
     if (CRCnext == 1)     // Compute register with polynomial
     {
-      crc ^= Polynome;
+      crc ^= Polynomial;
     }
   }
 
@@ -110,7 +110,7 @@ uint32_t ComputeCRC17CAN(const uint8_t* data, size_t bitSize)
 #define CRC_nCRC  17
   if (data == NULL) return 0;
   if (bitSize == 0) return 0;
-  const uint32_t Polynome = 0x3685B;
+  const uint32_t Polynomial = 0x3685B;
   uint32_t crc = 0x00000000; // Shift register start value
 
   uint32_t DataNextBit = 8;
@@ -127,7 +127,7 @@ uint32_t ComputeCRC17CAN(const uint8_t* data, size_t bitSize)
     crc <<= 1;            // Shift register left by 1 position
     if (CRCnext == 1)     // Compute register with polynomial
     {
-      crc ^= Polynome;
+      crc ^= Polynomial;
     }
   }
 
@@ -144,7 +144,7 @@ uint32_t PartialComputeCRC17CAN(uint32_t crc, const uint8_t* data, size_t bitSiz
   #define CRC_nCRC  17
   if (data == NULL) return 0;
   if (bitSize == 0) return 0;
-  const uint32_t Polynome = 0x3685B;
+  const uint32_t Polynomial = 0x3685B;
 
   uint32_t DataNextBit = 8;
   uint32_t CRCnext = 0;
@@ -160,7 +160,7 @@ uint32_t PartialComputeCRC17CAN(uint32_t crc, const uint8_t* data, size_t bitSiz
     crc <<= 1;            // Shift register left by 1 position
     if (CRCnext == 1)     // Compute register with polynomial
     {
-      crc ^= Polynome;
+      crc ^= Polynomial;
     }
   }
 
@@ -180,7 +180,7 @@ uint32_t ComputeCRC21CAN(const uint8_t* data, size_t bitSize)
 #define CRC_nCRC  21
   if (data == NULL) return 0;
   if (bitSize == 0) return 0;
-  const uint32_t Polynome = 0x302899;
+  const uint32_t Polynomial = 0x302899;
   uint32_t crc = 0x00000000; // Shift register start value
 
   uint32_t DataNextBit = 8;
@@ -197,7 +197,7 @@ uint32_t ComputeCRC21CAN(const uint8_t* data, size_t bitSize)
     crc <<= 1;            // Shift register left by 1 position
     if (CRCnext == 1)     // Compute register with polynomial
     {
-      crc ^= Polynome;
+      crc ^= Polynomial;
     }
   }
 
@@ -214,7 +214,7 @@ uint32_t PartialComputeCRC21CAN(uint32_t crc, const uint8_t* data, size_t bitSiz
   #define CRC_nCRC  21
   if (data == NULL) return 0;
   if (bitSize == 0) return 0;
-  const uint32_t Polynome = 0x302899;
+  const uint32_t Polynomial = 0x302899;
 
   uint32_t DataNextBit = 8;
   uint32_t CRCnext = 0;
@@ -230,7 +230,7 @@ uint32_t PartialComputeCRC21CAN(uint32_t crc, const uint8_t* data, size_t bitSiz
     crc <<= 1;            // Shift register left by 1 position
     if (CRCnext == 1)     // Compute register with polynomial
     {
-      crc ^= Polynome;
+      crc ^= Polynomial;
     }
   }
 
