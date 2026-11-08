@@ -41,6 +41,7 @@
  *          Replace typographic characters by ASCII ones in the source files
  *          Add .gitattributes to normalize the line endings (LF in the repository)
  *          Fix the compiler warnings: redundant tests of flags pairs, uninitialized segments, 32 to 16 bits conversions and unreachable code
+ *          Fix the bitrate search: the floor and the ceil TQ counts are each possible on their own, so the lowest bitrate error is always found (ex: a floor of 3 TQ is too low but the ceil of 4 TQ is possible), if its bitrate error is lower than MCP251XFD_BITRATE_MAX_ERROR_PERMILLE (5.0% by default like the Linux kernel, 0 accepts only the exact bitrates). This limit is applied to all the candidates, floor and ceil
  *          Fix GCC warning: sign compare in MCP251XFD_ConfigureFilterList()
  *          Update CRC16_CMS (size parameter is a size_t like the ComputeCRC16_Func type)
  *          Fix the oscillator tolerance condition 5 in statistics: use unsigned values for max(0,NBRP/DBRP-1) and avoid an unsigned wrap
@@ -48,6 +49,9 @@
  *          Fix MISRA C:2012 rule 10.4 (operands of the same essential type category): unsigned suffixes, unsigned limit macros, and explicit casts of the flags and of the registers enums
  *          Fix the strict aliasing warning (GCC -Wstrict-aliasing) in MCP251XFD_TransmitMessageToFIFO() and MCP251XFD_ReceiveMessageFromFIFO(): the buffer is now a union of bytes and message structures
  *          Initialize the temporary value of MCP251XFD_ReadSFR16(), MCP251XFD_ReadSFR32() and MCP251XFD_ReadRAM32() so that no uninitialized value is stored in *data when the read fails
+ *          Lower the minimum nominal bitrate (MCP251XFD_NOMBITRATE_MIN) from 125 kbit/s to 10 kbit/s: the 10, 20, 50 and 100 kbit/s CAN bitrates can be calculated
+ *          Fix the bitrate search that never tested the prescaler 256 (the loop started at 255)
+ *          The nominal and data phases use a prescaler each (NBRP and DBRP) if no common prescaler gives a bitrate error as low (ex: 100 kbit/s nominal with 8 Mbit/s data at 40 MHz), else the same prescaler is kept for both phases
  *          Fix MCP251XFD_ConfigureFilter() that did not check pComp before reading the filter configuration
  *          Fix MCP251XFD_ConfigureFIFOList() that cleared the FIFO being configured instead of the FIFO that are not in the list between two FIFO of the list
  *          Fix MCP251XFD_FlushFIFO() that wrote the FIFO number in CiTXREQ instead of the bit of the FIFO (it flushed another FIFO, and nothing for the TXQ)
@@ -177,10 +181,13 @@
 #define MCP251XFD_SYSCLK_MIN       (  2000000u ) //!< Min SYSCLK frequency
 #define MCP251XFD_SYSCLK_MAX       ( 40000000u ) //!< Max SYSCLK frequency
 #define MCP251XFD_CLKINPLL_MAX     ( 40000000u ) //!< Max CLKIN+PLL frequency
-#define MCP251XFD_NOMBITRATE_MIN   (   125000u ) //!< Min Nominal bitrate
+#define MCP251XFD_NOMBITRATE_MIN   (    10000u ) //!< Min Nominal bitrate
 #define MCP251XFD_NOMBITRATE_MAX   (  1000000u ) //!< Max Nominal bitrate
 #define MCP251XFD_DATABITRATE_MIN  (   500000u ) //!< Min Data bitrate
 #define MCP251XFD_DATABITRATE_MAX  (  8000000u ) //!< Max Data bitrate
+#ifndef MCP251XFD_BITRATE_MAX_ERROR_PERMILLE
+#  define MCP251XFD_BITRATE_MAX_ERROR_PERMILLE  ( 50u ) //!< Max bitrate error, in per mille of the wanted bitrate (50 = 5.0%, like the Linux kernel). A bit time with a TQ count that gives a bigger bitrate error is refused (ex: 8Mbit/s with a 20MHz SYSCLK is refused, 3 TQ would give 6.67Mbit/s). Set it to 0 to accept only the exact bitrates
+#endif
 #define MCP251XFD_SPICLOCK_MAX     ( 17000000u ) //!< Max SPI clock frequency for MCP251XFD (Ensure that FSCK is less than or equal to 0.85 * (FSYSCLK/2))
 
 //-----------------------------------------------------------------------------

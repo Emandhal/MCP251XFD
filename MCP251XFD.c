@@ -782,6 +782,18 @@ eERRORRESULT MCP251XFD_SetGPIOPinsOutputLevel(MCP251XFD *pComp, uint8_t pinsLeve
 
 //**********************************************************************************************************************************************************
 //=============================================================================
+// True if the bitrate of a TQ count (floor or ceil) is near enough of the wanted bitrate (MCP251XFD_BITRATE_MAX_ERROR_PERMILLE)
+//=============================================================================
+static bool __MCP251XFD_BitrateIsNear(uint32_t fsysclk, uint32_t wantedBitrate, uint32_t BRP, uint32_t TQbits)
+{
+  const uint32_t Actual = fsysclk / (TQbits * BRP);                                           // Actual bitrate of this TQ count
+  const uint32_t Error  = (Actual > wantedBitrate ? Actual - wantedBitrate : wantedBitrate - Actual);
+  const uint32_t MaxErr = ((wantedBitrate / 1000u) * MCP251XFD_BITRATE_MAX_ERROR_PERMILLE) + (((wantedBitrate % 1000u) * MCP251XFD_BITRATE_MAX_ERROR_PERMILLE) / 1000u); // Max error in bit/s (uint32 only)
+  return (Error <= MaxErr);
+}
+
+
+//=============================================================================
 // Calculate Bit Time for CAN2.0 or CAN-FD configuration for the MCP251XFD device
 //=============================================================================
 eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, const uint32_t desiredNominalBitrate, const uint32_t desiredDataBitrate, MCP251XFD_BitTimeConfig *pConf)
@@ -799,111 +811,84 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
   if (desiredDataBitrate    > MCP251XFD_DATABITRATE_MAX) return ERR__BAUDRATE_ERROR;
 
   //--- Declaration -----------------------------------------
-  uint32_t ErrorTQ, DTQbits = 0;
+  uint32_t ErrorTQ;
   uint32_t BestBRP = MCP251XFD_NBRP_MAX, BestNTQbits = MCP251XFD_NTQBIT_MAX, BestDTQbits = MCP251XFD_DTQBIT_MAX;
+  uint32_t AloneNBRP = 0, AloneNTQbits = 0, AloneDBRP = 0, AloneDTQbits = 0;                   // Best configuration of each phase alone, used if no common BRP is as good
 
   //--- Calculate Nominal & Data Bit Time parameter ---------
   // Sweep all BRP values from max to min to find the best tuple (BRP, NTQbits, DTQbits).
   // Using the same BRP for both Nominal and Data phases prevents quantization errors during bit rate switching.
+  // If no common BRP is as good as the best BRP of each phase alone, a BRP per phase is used (ex: 100 kbit/s nominal with 8 Mbit/s data at 40 MHz).
   // Lower BRP values give finer TQ resolution, so '<=' in the comparison favors lower BRP when errors are equal.
   uint32_t MinErrorBR = UINT32_MAX;
-  uint32_t BRP = MCP251XFD_NBRP_MAX;
+  uint32_t MinErrNom = UINT32_MAX, MinErrData = UINT32_MAX;                                    // Lowest error of each phase alone
+  const bool IsCANFD = (desiredDataBitrate != MCP251XFD_NO_CANFD);
+  uint32_t BRP = (uint32_t)MCP251XFD_NBRP_MAX + 1u;                                            // The loop pre-decrements, so the first tested value is MCP251XFD_NBRP_MAX
   while (--BRP >= MCP251XFD_NBRP_MIN)
   {
-    // Compute NTQbits. NomBrp fits uint32: max 1,000,000 * 256 = 256,000,000
-    uint32_t NomBrp = desiredNominalBitrate * BRP;
-    uint32_t NTQbits = fsysclk / NomBrp;                                                  // NTQbits = floor(fsysclk / (desiredNominalBitrate * BRP))
-    if ((NTQbits < MCP251XFD_NTQBIT_MIN) || (NTQbits > MCP251XFD_NTQBIT_MAX)) continue;   // This TQbits count is not possible with this BRP, then do the next BRP value
-    if (desiredDataBitrate != MCP251XFD_NO_CANFD)
-    {
-      // Compute DTQbits. DataBrp fits uint32: max 8,000,000 * 256 = 2,048,000,000
-      uint32_t DataBrp = desiredDataBitrate * BRP;
-      DTQbits = fsysclk / DataBrp;                                                        // DTQbits = floor(fsysclk / (desiredDataBitrate * BRP))
-      if ((DTQbits < MCP251XFD_DTQBIT_MIN) || (DTQbits > MCP251XFD_DTQBIT_MAX)) continue; // This TQbits count is not possible with this BRP, then do the next BRP value
-    }
+    // Each phase has two candidates, the floor and the ceil of (fsysclk / (bitrate * BRP)). A candidate is possible only if its TQ count is inside the limits
+    // (ex: a floor of 3 TQ is too low but the ceil of 4 TQ is possible). NomBrp fits uint32 (max 1,000,000 * 256) and DataBrp too (max 8,000,000 * 256)
+    const uint32_t NTQfloor = fsysclk / (desiredNominalBitrate * BRP);
+    const uint32_t DTQfloor = (IsCANFD ? (fsysclk / (desiredDataBitrate * BRP)) : 0u);
+    bool NomOk[2]  = { ((NTQfloor >= MCP251XFD_NTQBIT_MIN) && (NTQfloor <= MCP251XFD_NTQBIT_MAX)), (((NTQfloor + 1u) >= MCP251XFD_NTQBIT_MIN) && ((NTQfloor + 1u) <= MCP251XFD_NTQBIT_MAX)) };
+    bool DataOk[2] = { (!IsCANFD || ((DTQfloor >= MCP251XFD_DTQBIT_MIN) && (DTQfloor <= MCP251XFD_DTQBIT_MAX))), (IsCANFD && (((DTQfloor + 1u) >= MCP251XFD_DTQBIT_MIN) && ((DTQfloor + 1u) <= MCP251XFD_DTQBIT_MAX))) };
+    // A candidate is accepted only if its bitrate is near the wanted one (ex: 8Mbit/s with a 20MHz SYSCLK would give 6.67Mbit/s with 3 TQ)
+    if (NomOk[0]) NomOk[0] = __MCP251XFD_BitrateIsNear(fsysclk, desiredNominalBitrate, BRP, NTQfloor);
+    if (NomOk[1]) NomOk[1] = __MCP251XFD_BitrateIsNear(fsysclk, desiredNominalBitrate, BRP, NTQfloor + 1u);
+    if (IsCANFD && DataOk[0]) DataOk[0] = __MCP251XFD_BitrateIsNear(fsysclk, desiredDataBitrate, BRP, DTQfloor);
+    if (IsCANFD && DataOk[1]) DataOk[1] = __MCP251XFD_BitrateIsNear(fsysclk, desiredDataBitrate, BRP, DTQfloor + 1u);
 
-    // Error computation: we compare actual bitrates to desired bitrates.
-    // This avoids uint32 overflow (NTQbits*BRP max = 385*256 = 98,560) and sign issues.
-    // For NTQbits (floor): actual nominal BR >= desired (the subtraction is always >= 0)
-    // For NTQbits+1 (ceil):  actual nominal BR < desired  (the subtraction is always >= 1)
+    // Error computation: we compare actual bitrates to desired bitrates. This avoids uint32 overflow and sign issues.
+    // With the floor value the actual bitrate is >= the desired bitrate. With the ceil value (+1) the actual bitrate is < the desired bitrate, so all subtractions are >= 0
     // Combined error = sum of nominal and data bitrate errors (additive metric, no overflow risk)
-
-    // --- Candidate: NTQ, DTQ (floor of both) ---
-    uint32_t ActNomBR = fsysclk / (NTQbits * BRP);
-    uint32_t ENom = ActNomBR - desiredNominalBitrate;                     // >= 0 by construction (NTQbits is floor)
-    if (desiredDataBitrate != MCP251XFD_NO_CANFD)
+    uint32_t ENom[2] = { 0, 0 }, EData[2] = { 0, 0 };
+    if (NomOk[0]) ENom[0] = (fsysclk / (NTQfloor * BRP)) - desiredNominalBitrate;
+    if (NomOk[1]) ENom[1] = desiredNominalBitrate - (fsysclk / ((NTQfloor + 1u) * BRP));
+    if (IsCANFD)
     {
-      uint32_t ActDataBR = fsysclk / (DTQbits * BRP);
-      uint32_t EData = ActDataBR - desiredDataBitrate;                    // >= 0 by construction (DTQbits is floor)
-      ErrorTQ = ENom + EData;
-    }
-    else ErrorTQ = ENom;
-    if (ErrorTQ <= MinErrorBR)
-    { MinErrorBR = ErrorTQ; BestBRP = BRP; BestNTQbits = NTQbits; BestDTQbits = DTQbits; }
-
-    // --- Candidate: NTQ+1, DTQ ---
-    if ((NTQbits + 1) <= MCP251XFD_NTQBIT_MAX)
-    {
-      ActNomBR = fsysclk / ((NTQbits + 1) * BRP);
-      ENom = desiredNominalBitrate - ActNomBR;                            // >= 1 by construction (NTQbits+1 is ceil)
-      if (desiredDataBitrate != MCP251XFD_NO_CANFD)
-      {
-        uint32_t ActDataBR = fsysclk / (DTQbits * BRP);
-        uint32_t EData = ActDataBR - desiredDataBitrate;
-        ErrorTQ = ENom + EData;
-      }
-      else ErrorTQ = ENom;
-      if (ErrorTQ <= MinErrorBR)
-      { MinErrorBR = ErrorTQ; BestBRP = BRP; BestNTQbits = NTQbits + 1; BestDTQbits = DTQbits; }
+      if (DataOk[0]) EData[0] = (fsysclk / (DTQfloor * BRP)) - desiredDataBitrate;
+      if (DataOk[1]) EData[1] = desiredDataBitrate - (fsysclk / ((DTQfloor + 1u) * BRP));
     }
 
-    // --- Candidates with DTQ+1 (CAN-FD only) ---
-    if (desiredDataBitrate != MCP251XFD_NO_CANFD)
+    // Best candidate of each phase alone: used if the two phases cannot share the same prescaler (ex: 10 kbit/s needs a big prescaler and 8 Mbit/s needs a prescaler of 1)
+    for (uint32_t n = 0; n < 2u; n++) if (NomOk[n] && (ENom[n] <= MinErrNom)) { MinErrNom = ENom[n]; AloneNBRP = BRP; AloneNTQbits = NTQfloor + n; }
+    if (IsCANFD) for (uint32_t d = 0; d < 2u; d++) if (DataOk[d] && (EData[d] <= MinErrData)) { MinErrData = EData[d]; AloneDBRP = BRP; AloneDTQbits = DTQfloor + d; }
+
+    if (!NomOk[0] && !NomOk[1]) continue;                                                 // This TQbits count is not possible with this BRP, then do the next BRP value
+    if (!DataOk[0] && !DataOk[1]) continue;
+
+    // Test the 4 candidates: (NTQ, DTQ), (NTQ+1, DTQ), (NTQ, DTQ+1) and (NTQ+1, DTQ+1) when they are possible
+    for (uint32_t d = 0; d < 2u; d++)
     {
-      uint32_t ActDataBR_ceil = 0, EData_ceil = 0;
-      if ((DTQbits + 1) <= MCP251XFD_DTQBIT_MAX)
+      if (!DataOk[d]) continue;
+      for (uint32_t n = 0; n < 2u; n++)
       {
-        ActDataBR_ceil = fsysclk / ((DTQbits + 1) * BRP);
-        EData_ceil = desiredDataBitrate - ActDataBR_ceil;                 // >= 1 by construction (DTQbits+1 is ceil)
-      }
-
-      // --- Candidate: NTQ, DTQ+1 ---
-      if ((DTQbits + 1) <= MCP251XFD_DTQBIT_MAX)
-      {
-        ActNomBR = fsysclk / (NTQbits * BRP);
-        ENom = ActNomBR - desiredNominalBitrate;
-        ErrorTQ = ENom + EData_ceil;
+        if (!NomOk[n]) continue;
+        ErrorTQ = ENom[n] + EData[d];
         if (ErrorTQ <= MinErrorBR)
-        { MinErrorBR = ErrorTQ; BestBRP = BRP; BestNTQbits = NTQbits; BestDTQbits = DTQbits + 1; }
-      }
-
-      // --- Candidate: NTQ+1, DTQ+1 ---
-      if (((NTQbits + 1) <= MCP251XFD_NTQBIT_MAX) && ((DTQbits + 1) <= MCP251XFD_DTQBIT_MAX))
-      {
-        ActNomBR = fsysclk / ((NTQbits + 1) * BRP);
-        ENom = desiredNominalBitrate - ActNomBR;
-        ErrorTQ = ENom + EData_ceil;
-        if (ErrorTQ <= MinErrorBR)
-        { MinErrorBR = ErrorTQ; BestBRP = BRP; BestNTQbits = NTQbits + 1; BestDTQbits = DTQbits + 1; }
+        { MinErrorBR = ErrorTQ; BestBRP = BRP; BestNTQbits = NTQfloor + n; BestDTQbits = DTQfloor + d; }
       }
     }
   }
-  if (MinErrorBR == UINT32_MAX) return ERR__BITTIME_ERROR;                // Impossible to find a good BRP
+  uint32_t BestNBRP = BestBRP, BestDBRP = BestBRP;
+  if (IsCANFD && (MinErrNom != UINT32_MAX) && (MinErrData != UINT32_MAX) && ((MinErrorBR == UINT32_MAX) || ((MinErrNom + MinErrData) < MinErrorBR))) // No common BRP, or the two phases alone give a lower bitrate error
+  { BestNBRP = AloneNBRP; BestNTQbits = AloneNTQbits; BestDBRP = AloneDBRP; BestDTQbits = AloneDTQbits; }                                  // Use a prescaler for each phase
+  else if (MinErrorBR == UINT32_MAX) return ERR__BITTIME_ERROR;                // Impossible to find a good BRP
 
   //--- Calculate Nominal segments --------------------------
   // Sample Point target tiers in permille, descending (CiA 601-3 / Linux kernel CAN conventions).
-  // Index 0 = ≤500 kbps (87.5%), Index 1 = ≤800 kbps (80.0%), Index 2 = >800 kbps (75.0%)
+  // Index 0 = <=500 kbps (87.5%), Index 1 = <=800 kbps (80.0%), Index 2 = >800 kbps (75.0%)
   static const uint32_t MCP251XFD_SP_TIERS[] = { 875, 800, 750 };
 # define MCP251XFD_SP_TIERS_COUNT  ( sizeof(MCP251XFD_SP_TIERS) / sizeof(MCP251XFD_SP_TIERS[0]) )
 
   // All segment variables below are in "real" values (1-based). Conversion to register values (0-based) is done only when writing to pConf.
-  pConf->NBRP = BestBRP - 1;                                              // ** Save the best NBRP in the configuration ** (register = real - 1)
+  pConf->NBRP = BestNBRP - 1u;                                             // ** Save the best NBRP in the configuration ** (register = real - 1)
   // Select starting SP tier based on nominal bitrate, then walk down tiers if NTSEG1 overflows
   uint32_t NomTier = (desiredNominalBitrate > 800000ul) ? 2 : (desiredNominalBitrate > 500000ul) ? 1 : 0;
-  uint32_t NTSEG2, NTSEG1;
+  uint32_t NTSEG2 = 0, NTSEG1 = 0;
   for (; NomTier < MCP251XFD_SP_TIERS_COUNT; NomTier++)
   {
-    NTSEG2 = ((BestNTQbits * (1000 - MCP251XFD_SP_TIERS[NomTier])) + 500) / 1000;
+    NTSEG2 = ((BestNTQbits * (1000u - MCP251XFD_SP_TIERS[NomTier])) + 500u) / 1000u;
     if (NTSEG2 < MCP251XFD_NTSEG2_MIN) NTSEG2 = MCP251XFD_NTSEG2_MIN;
     if (NTSEG2 > MCP251XFD_NTSEG2_MAX) NTSEG2 = MCP251XFD_NTSEG2_MAX;
     NTSEG1 = BestNTQbits - NTSEG2 - MCP251XFD_NSYNC;
@@ -916,27 +901,27 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
     if (NTSEG2 > MCP251XFD_NTSEG2_MAX) NTSEG2 = MCP251XFD_NTSEG2_MAX;
   }
   if (NTSEG1 < MCP251XFD_NTSEG1_MIN) NTSEG1 = MCP251XFD_NTSEG1_MIN;
-  pConf->NTSEG2 = NTSEG2 - 1;                                             // ** Save the NTSEG2 in the configuration ** (register = real - 1)
-  pConf->NTSEG1 = NTSEG1 - 1;                                             // ** Save the NTSEG1 in the configuration ** (register = real - 1)
-  // NSJW = min(NPHSEG1, NPHSEG2). By construction PHSEG1 ≈ PHSEG2 ≈ NTSEG2 when SP target is met,
-  // so NSJW ≈ NTSEG2. However if clamping caused NTSEG1 < NTSEG2, then NPHSEG1 < NPHSEG2,
+  pConf->NTSEG2 = NTSEG2 - 1u;                                            // ** Save the NTSEG2 in the configuration ** (register = real - 1)
+  pConf->NTSEG1 = NTSEG1 - 1u;                                            // ** Save the NTSEG1 in the configuration ** (register = real - 1)
+  // NSJW = min(NPHSEG1, NPHSEG2). By construction PHSEG1 ~ PHSEG2 ~ NTSEG2 when SP target is met,
+  // so NSJW ~ NTSEG2. However if clamping caused NTSEG1 < NTSEG2, then NPHSEG1 < NPHSEG2,
   // so we must take min(NTSEG1, NTSEG2) to satisfy the SJW constraint.
   uint32_t NSJW = NTSEG2;
   if (NTSEG1 < NTSEG2) NSJW = NTSEG1;                                     // NSJW = min(NTSEG1, NTSEG2) = min(NPHSEG1, NPHSEG2) accounting for possible clamping
   if (NSJW < MCP251XFD_NSJW_MIN) NSJW = MCP251XFD_NSJW_MIN;               // Correct NSJW if < 1
   if (NSJW > MCP251XFD_NSJW_MAX) NSJW = MCP251XFD_NSJW_MAX;               // Correct NSJW if > 128
-  pConf->NSJW = NSJW - 1;                                                 // ** Save the NSJW in the configuration ** (register = real - 1)
+  pConf->NSJW = NSJW - 1u;                                                // ** Save the NSJW in the configuration ** (register = real - 1)
 
   //--- Calculate Data segments -----------------------------
   if (desiredDataBitrate != MCP251XFD_NO_CANFD)
   {
-    pConf->DBRP = BestBRP - 1;                                            // ** Save the best DBRP in the configuration ** (register = real - 1)
+    pConf->DBRP = BestDBRP - 1u;                                           // ** Save the best DBRP in the configuration ** (register = real - 1)
     // Select starting SP tier based on data bitrate, then walk down tiers if DTSEG1 overflows
     uint32_t DataTier = (desiredDataBitrate > 800000ul) ? 2 : (desiredDataBitrate > 500000ul) ? 1 : 0;
-    uint32_t DTSEG2, DTSEG1;
+    uint32_t DTSEG2 = 0, DTSEG1 = 0;
     for (; DataTier < MCP251XFD_SP_TIERS_COUNT; DataTier++)
     {
-      DTSEG2 = ((BestDTQbits * (1000 - MCP251XFD_SP_TIERS[DataTier])) + 500) / 1000;
+      DTSEG2 = ((BestDTQbits * (1000u - MCP251XFD_SP_TIERS[DataTier])) + 500u) / 1000u;
       if (DTSEG2 < MCP251XFD_DTSEG2_MIN) DTSEG2 = MCP251XFD_DTSEG2_MIN;
       if (DTSEG2 > MCP251XFD_DTSEG2_MAX) DTSEG2 = MCP251XFD_DTSEG2_MAX;
       DTSEG1 = BestDTQbits - DTSEG2 - MCP251XFD_DSYNC;
@@ -949,24 +934,24 @@ eERRORRESULT MCP251XFD_CalculateBitTimeConfiguration(const uint32_t fsysclk, con
       if (DTSEG2 > MCP251XFD_DTSEG2_MAX) DTSEG2 = MCP251XFD_DTSEG2_MAX;
     }
     if (DTSEG1 < MCP251XFD_DTSEG1_MIN) DTSEG1 = MCP251XFD_DTSEG1_MIN;
-    pConf->DTSEG2 = DTSEG2 - 1;                                           // ** Save the DTSEG2 in the configuration ** (register = real - 1)
-    pConf->DTSEG1 = DTSEG1 - 1;                                           // ** Save the DTSEG1 in the configuration ** (register = real - 1)
+    pConf->DTSEG2 = DTSEG2 - 1u;                                          // ** Save the DTSEG2 in the configuration ** (register = real - 1)
+    pConf->DTSEG1 = DTSEG1 - 1u;                                          // ** Save the DTSEG1 in the configuration ** (register = real - 1)
     // DSJW = min(DPHSEG1, DPHSEG2), same reasoning as NSJW above
     uint32_t DSJW = DTSEG2;
     if (DTSEG1 < DTSEG2) DSJW = DTSEG1;                                   // DSJW = min(DTSEG1, DTSEG2) = min(DPHSEG1, DPHSEG2) accounting for possible clamping
     if (DSJW < MCP251XFD_DSJW_MIN) DSJW = MCP251XFD_DSJW_MIN;             // Correct DSJW if < 1
     if (DSJW > MCP251XFD_DSJW_MAX) DSJW = MCP251XFD_DSJW_MAX;             // Correct DSJW if > 16
-    pConf->DSJW = DSJW - 1;                                               // ** Save the DSJW in the configuration ** (register = real - 1)
+    pConf->DSJW = DSJW - 1u;                                              // ** Save the DSJW in the configuration ** (register = real - 1)
 
     //--- Calculate Transmitter Delay Compensation ----------
     // TDC is useful when the transmitter delay (transceiver loop) is significant relative to TQ.
     // This only happens at low BRP (high TQ frequency). For DBRP > 2, TQ is large enough that the delay is negligible and TDC can be disabled entirely.
     // In AUTO mode, the hardware measures TDCV automatically; we only need to set TDCO to the data sample point position (in FSYSCLK counts) so SSP = TDCV(measured) + TDCO.
-    if (BestBRP <= 2)
+    if (BestDBRP <= 2u)
     {
       pConf->TDCMOD = MCP251XFD_AUTO_MODE;                                // ** Set Automatic TDC: hardware measures TDCV on each transmission
       // SSP = DBRP * (DSYNC + DTSEG1) in FSYSCLK counts (Equation 3-10 of MCP25XXFD Family Reference Manual)
-      const uint32_t SSP = BestBRP * (MCP251XFD_DSYNC + DTSEG1);          // SSP is set to DBRP * (DSYNC + DPRSEG + DPHSEG1) = DBRP * (DSYNC + DTSEG1)
+      const uint32_t SSP = BestDBRP * (MCP251XFD_DSYNC + DTSEG1);          // SSP is set to DBRP * (DSYNC + DPRSEG + DPHSEG1) = DBRP * (DSYNC + DTSEG1)
       uint32_t TDCO = SSP;
       if (TDCO > (uint32_t)MCP251XFD_TDCO_MAX) TDCO = MCP251XFD_TDCO_MAX; // Correct TDCO if > 63
       pConf->TDCO = (int32_t)TDCO;                                        // ** Save the TDCO in the configuration **
