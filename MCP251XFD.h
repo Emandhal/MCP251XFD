@@ -1,7 +1,7 @@
 /*!*****************************************************************************
  * @file    MCP251XFD.h
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.10
+ * @version 1.0.11
  * @date    01/11/2026
  * @brief   MCP251XFD driver
  * @details
@@ -36,17 +36,19 @@
  *****************************************************************************/
 
 /* Revision history:
+ * 1.0.11   Replace typographic characters by ASCII ones in the source files
+ *          Add .gitattributes to normalize the line endings (LF in the repository)
  * 1.0.10   Fix MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO() and MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO() that called the Receive function [Thanks to ceckelman]
  *          Fix parameter names in functions documentation [Thanks to ceckelman]
  *          Add per-controller eMCP251XFD_WakeUpFilter identifiers (MCP2517FD_/MCP2518FD_) with precise timings, old names kept for compatibility [Thanks to ceckelman]
  *          Decouple packed macros from language and improve compiler support (MSVC, IAR, GCC/Clang) [Thanks to ceckelman]
- * 1.0.9    Fix data segment clamping using nominal limits (NTSEG) instead of data limits (DTSEG) — wrong max 128/256 instead of 16/32
+ * 1.0.9    Fix data segment clamping using nominal limits (NTSEG) instead of data limits (DTSEG) - wrong max 128/256 instead of 16/32
  *          Fix DTQBIT_MIN/MAX macros referencing nominal instead of data constants in header
  *          Fix uint32 overflow in BRP search loop - rewrite error metric using actual bitrate comparison
  *          Fix MaxBusLength unsigned wraparound when propagation budget < transceiver delay
  *          Fix TDC SSP missing DSYNC: BRP * DTSEG1 -> BRP * (DSYNC + DTSEG1)
- *          Align TDC with Linux: AUTO only for DBRP ≤ 2, DISABLED otherwise, TDCV always 0 in AUTO
- *          Replace fixed 80% sample point with CiA 601-3 stepped targets (875/800/750‰) with automatic fallback when TSEG1 overflows
+ *          Align TDC with Linux: AUTO only for DBRP <= 2, DISABLED otherwise, TDCV always 0 in AUTO
+ *          Replace fixed 80% sample point with CiA 601-3 stepped targets (875/800/750 per mille) with automatic fallback when TSEG1 overflows
  *          Add division-by-zero guards and unsigned underflow protections in statistics
  *          [Thanks to mickeyl]
  * 1.0.8    Put 'ul' suffix instead of 'u' suffix on Masks values to remove warnings on 16-bits systems [Thanks to Bobbybigears]
@@ -662,7 +664,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_OSC_Register
     uint32_t PLLEN  :  1; //!<  0   - PLL Enable (This bit can only be modified in Configuration mode): 1 = System Clock from 10x PLL ; 0 = System Clock comes directly from XTAL oscillator
     uint32_t        :  1; //!<  1
     uint32_t OSCDIS :  1; //!<  2   - Clock (Oscillator) Disable: 1 = Clock disabled, the device is in Sleep mode ; 0 = Enable Clock (Clearing while in Sleep mode will wake-up the device and put it back in Configuration mode)
-    uint32_t LPMEN  :  1; //!<  3   - (MCP2518FD only) Low Power Mode (LPM) Enable: 1 = When in LPM, the device will stop the clock and power down the majority of the chip. Register and RAM values will be lost. The device will wake-up due to asserting nCS, or due to RXCAN activity ; 0 = When in Sleep mode, the device will stop the clock, and retain it’s register and RAM values. It will wake-up due to clearing the OSCDIS bit, or due to RXCAN activity
+    uint32_t LPMEN  :  1; //!<  3   - (MCP2518FD only) Low Power Mode (LPM) Enable: 1 = When in LPM, the device will stop the clock and power down the majority of the chip. Register and RAM values will be lost. The device will wake-up due to asserting nCS, or due to RXCAN activity ; 0 = When in Sleep mode, the device will stop the clock, and retain it's register and RAM values. It will wake-up due to clearing the OSCDIS bit, or due to RXCAN activity
     uint32_t SCLKDIV:  1; //!<  4   - System Clock Divisor (This bit can only be modified in Configuration mode): 1 = SCLK is divided by 2 ; 0 = SCLK is divided by 1
     uint32_t CLKODIV:  2; //!<  5-6 - Clock Output Divisor: 11 = CLKO is divided by 10 ; 10 = CLKO is divided by 4 ; 01 = CLKO is divided by 2 ; 00 = CLKO is divided by 1
     uint32_t        :  1; //!<  7
@@ -681,7 +683,7 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_OSC_Register, 4);
 #define MCP251XFD_SFR_OSC_PLLDIS  ((uint32_t)(0x0ul << 0)) //!< PLL Disable
 #define MCP251XFD_SFR_OSC_OSCDIS  ((uint32_t)(0x1ul << 2)) //!< Clock (Oscillator) Disable, device is in sleep mode
 #define MCP251XFD_SFR_OSC_WAKEUP  ((uint32_t)(0x0ul << 2)) //!< Device wake-up from sleep and put it in Configuration mode
-#define MCP251XFD_SFR_OSC_LPMEN   ((uint32_t)(0x1ul << 3)) //!< Low Power Mode (LPM) Enable; Setting LPMEN doesn’t actually put the device in LPM. It selects which Sleep mode will be entered after requesting Sleep mode using CiCON.REQOP. In order to wake up on RXCAN activity, CiINT.WAKIE must be set
+#define MCP251XFD_SFR_OSC_LPMEN   ((uint32_t)(0x1ul << 3)) //!< Low Power Mode (LPM) Enable; Setting LPMEN doesn't actually put the device in LPM. It selects which Sleep mode will be entered after requesting Sleep mode using CiCON.REQOP. In order to wake up on RXCAN activity, CiINT.WAKIE must be set
 #define MCP251XFD_SFR_OSC_LPMDIS  ((uint32_t)(0x0ul << 3)) //!< Low Power Mode (LPM) Disable; The device is in sleep mode
 
 //! System Clock Divisor for the OSC.SCLKDIV register
@@ -717,7 +719,7 @@ typedef enum
 #define MCP251XFD_SFR_OSC8_PLLDIS              ((uint8_t)(0x0u << 0)) //!< PLL Disable
 #define MCP251XFD_SFR_OSC8_OSCDIS              ((uint8_t)(0x1u << 2)) //!< Clock (Oscillator) Disable, device is in sleep mode
 #define MCP251XFD_SFR_OSC8_WAKEUP              ((uint8_t)(0x0u << 2)) //!< Device wake-up from sleep and put it in Configuration mode
-#define MCP251XFD_SFR_OSC8_LPMEN               ((uint8_t)(0x1u << 3)) //!< Low Power Mode (LPM) Enable; Setting LPMEN doesn’t actually put the device in LPM. It selects which Sleep mode will be entered after requesting Sleep mode using CiCON.REQOP. In order to wake up on RXCAN activity, CiINT.WAKIE must be set
+#define MCP251XFD_SFR_OSC8_LPMEN               ((uint8_t)(0x1u << 3)) //!< Low Power Mode (LPM) Enable; Setting LPMEN doesn't actually put the device in LPM. It selects which Sleep mode will be entered after requesting Sleep mode using CiCON.REQOP. In order to wake up on RXCAN activity, CiINT.WAKIE must be set
 #define MCP251XFD_SFR_OSC8_LPMDIS              ((uint8_t)(0x0u << 3)) //!< Low Power Mode (LPM) Disable; The device is in sleep mode
 #define MCP251XFD_SFR_OSC8_SCLKDIV_Pos         4
 #define MCP251XFD_SFR_OSC8_SCLKDIV_Mask        (0x1u << MCP251XFD_SFR_OSC8_SCLKDIV_Pos)
@@ -869,7 +871,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CRC_Register
   {
     uint32_t CRCbits : 16; //!<  0-15 - Cycle Redundancy Check from last CRC mismatch
     uint32_t CRCERRIF:  1; //!< 16    - CRC Error Interrupt Flag: '1' = CRC mismatch occurred ; '0' = No CRC error has occurred
-    uint32_t FERRIF  :  1; //!< 17    - CRC Command Format Error Interrupt Flag: '1' = Number of Bytes mismatch during “SPI with CRC” command occurred ; '0' = No SPI CRC command format error occurred
+    uint32_t FERRIF  :  1; //!< 17    - CRC Command Format Error Interrupt Flag: '1' = Number of Bytes mismatch during "SPI with CRC" command occurred ; '0' = No SPI CRC command format error occurred
     uint32_t         :  6; //!< 18-23
     uint32_t CRCERRIE:  1; //!< 24    - CRC Error Interrupt Enable
     uint32_t FERRIE  :  1; //!< 25    - CRC Command Format Error Interrupt Enable
@@ -1063,8 +1065,8 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiCON_Register
     uint32_t RTXAT   : 1; //!< 16    - Restrict Retransmission Attempts bit: '1' = Restricted retransmission attempts, CiFIFOCONm.TXAT is used ; '0' = Unlimited number of retransmission attempts, CiFIFOCONm.TXAT will be ignored
     uint32_t ESIGM   : 1; //!< 17    - Transmit ESI in Gateway Mode bit: '1' = ESI is transmitted recessive when ESI of message is high or CAN controller error passive ; '0' = ESI reflects error status of CAN controller
     uint32_t SERR2LOM: 1; //!< 18    - Transition to Listen Only Mode on System Error bit: '1' = Transition to Listen Only Mode ; '0' = Transition to Restricted Operation Mode
-    uint32_t STEF    : 1; //!< 19    - Store in Transmit Event FIFO bit: '1' = Saves transmitted messages in TEF and reserves space in RAM ; '0' = Don’t save transmitted messages in TEF
-    uint32_t TXQEN   : 1; //!< 20    - Enable Transmit Queue bit: '1' = Enables TXQ and reserves space in RAM ; '0' = Don’t reserve space in RAM for TXQ
+    uint32_t STEF    : 1; //!< 19    - Store in Transmit Event FIFO bit: '1' = Saves transmitted messages in TEF and reserves space in RAM ; '0' = Don't save transmitted messages in TEF
+    uint32_t TXQEN   : 1; //!< 20    - Enable Transmit Queue bit: '1' = Enables TXQ and reserves space in RAM ; '0' = Don't reserve space in RAM for TXQ
     uint32_t OPMOD   : 3; //!< 21-23 - Operation Mode Status bits
     uint32_t REQOP   : 3; //!< 24-26 - Request Operation Mode bits
     uint32_t ABAT    : 1; //!< 27    - Abort All Pending Transmissions bit: '1' = Signal all transmit FIFOs to abort transmission ; '0' = Module will clear this bit when all transmissions were aborted
@@ -1303,11 +1305,11 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTDC_Register
   {
     uint32_t TDCV    : 6; //!<  0- 5 - Transmitter Delay Compensation Value bits; Secondary Sample Point (SSP) Length is value x TSYSCLK
     uint32_t         : 2; //!<  6-7
-    uint32_t TDCO    : 7; //!<  8-14 - Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two’s complement; offset can be positive, zero, or negative; value x TSYSCLK (min is –64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
+    uint32_t TDCO    : 7; //!<  8-14 - Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two's complement; offset can be positive, zero, or negative; value x TSYSCLK (min is -64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
     uint32_t         : 1; //!< 15
     uint32_t TDCMOD  : 2; //!< 16-17 - Transmitter Delay Compensation Mode bits; Secondary Sample Point (SSP)
     uint32_t         : 6; //!< 18-23
-    uint32_t SID11EN : 1; //!< 24    - Enable 12-Bit SID in CAN FD Base Format Messages bit: '1' = RRS is used as SID11 in CAN FD base format messages: SID<11:0> = {SID<10:0>, SID11} ; '0' = Don’t use RRS; SID<10:0> according to ISO 11898-1:2015
+    uint32_t SID11EN : 1; //!< 24    - Enable 12-Bit SID in CAN FD Base Format Messages bit: '1' = RRS is used as SID11 in CAN FD base format messages: SID<11:0> = {SID<10:0>, SID11} ; '0' = Don't use RRS; SID<10:0> according to ISO 11898-1:2015
     uint32_t EDGFLTEN: 1; //!< 25    - Enable Edge Filtering during Bus Integration state bit: '1' = Edge Filtering enabled, according to ISO 11898-1:2015 ; '0' = Edge Filtering disabled
     uint32_t         : 6; //!< 26-31
   } Bits;
@@ -1321,14 +1323,14 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiTDC_Register, 4);
 #define MCP251XFD_CAN_CiTDC_TDCO_Pos         8
 #define MCP251XFD_CAN_CiTDC_TDCO_BitWidth    7
 #define MCP251XFD_CAN_CiTDC_TDCO_Mask        (0x7Ful << MCP251XFD_CAN_CiTDC_TDCO_Pos)
-#define MCP251XFD_CAN_CiTDC_TDCO_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTDC_TDCO_Pos) & MCP251XFD_CAN_CiTDC_TDCO_Mask) //!< Set the Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two’s complement; offset can be positive, zero, or negative; value x TSYSCLK (min is –64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
-#define MCP251XFD_CAN_CiTDC_TDCO_GET(value)  ( (int8_t)(((((uint32_t)(value) >> MCP251XFD_CAN_CiTDC_TDCO_Pos) & ((1 << MCP251XFD_CAN_CiTDC_TDCO_BitWidth) - 1)) ^ (1 << (MCP251XFD_CAN_CiTDC_TDCO_BitWidth - 1))) - (1 << (MCP251XFD_CAN_CiTDC_TDCO_BitWidth - 1))) ) //!< Get the Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two’s complement; offset can be positive, zero, or negative; value x TSYSCLK (min is –64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
+#define MCP251XFD_CAN_CiTDC_TDCO_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTDC_TDCO_Pos) & MCP251XFD_CAN_CiTDC_TDCO_Mask) //!< Set the Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two's complement; offset can be positive, zero, or negative; value x TSYSCLK (min is -64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
+#define MCP251XFD_CAN_CiTDC_TDCO_GET(value)  ( (int8_t)(((((uint32_t)(value) >> MCP251XFD_CAN_CiTDC_TDCO_Pos) & ((1 << MCP251XFD_CAN_CiTDC_TDCO_BitWidth) - 1)) ^ (1 << (MCP251XFD_CAN_CiTDC_TDCO_BitWidth - 1))) - (1 << (MCP251XFD_CAN_CiTDC_TDCO_BitWidth - 1))) ) //!< Get the Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two's complement; offset can be positive, zero, or negative; value x TSYSCLK (min is -64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
 
 //! Transmitter Delay Compensation Mode bits; Secondary Sample Point (SSP) for the CiTDC.TDCMOD
 typedef enum
 {
   MCP251XFD_TDC_DISABLED = 0b000, //!< TDC Disabled
-  MCP251XFD_MANUAL_MODE  = 0b001, //!< Manual; Don’t measure, use TDCV + TDCO from register
+  MCP251XFD_MANUAL_MODE  = 0b001, //!< Manual; Don't measure, use TDCV + TDCO from register
   MCP251XFD_AUTO_MODE    = 0b010, //!< Auto; measure delay and add TDCO
 } eMCP251XFD_TDCMode;
 
@@ -1346,8 +1348,8 @@ typedef enum
 #define MCP251XFD_CAN_CiTDC8_TDCO_Pos           0
 #define MCP251XFD_CAN_CiTDC8_TDCO_BitWidth      7
 #define MCP251XFD_CAN_CiTDC8_TDCO_Mask          (0x7Fu << MCP251XFD_CAN_CiTDC8_TDCO_Pos)
-#define MCP251XFD_CAN_CiTDC8_TDCO_SET(value)    (((uint8_t)(value) << MCP251XFD_CAN_CiTDC8_TDCO_Pos) & MCP251XFD_CAN_CiTDC8_TDCO_Mask) //!< Set the Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two’s complement; offset can be positive, zero, or negative; value x TSYSCLK (min is –64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
-#define MCP251XFD_CAN_CiTDC8_TDCO_GET(value)    ( (int8_t)(((((uint8_t)(value) >> MCP251XFD_CAN_CiTDC8_TDCO_Pos) & ((1 << MCP251XFD_CAN_CiTDC8_TDCO_BitWidth) - 1)) ^ (1 << (MCP251XFD_CAN_CiTDC8_TDCO_BitWidth - 1))) - (1 << (MCP251XFD_CAN_CiTDC8_TDCO_BitWidth - 1))) ) //!< Get the Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two’s complement; offset can be positive, zero, or negative; value x TSYSCLK (min is –64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
+#define MCP251XFD_CAN_CiTDC8_TDCO_SET(value)    (((uint8_t)(value) << MCP251XFD_CAN_CiTDC8_TDCO_Pos) & MCP251XFD_CAN_CiTDC8_TDCO_Mask) //!< Set the Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two's complement; offset can be positive, zero, or negative; value x TSYSCLK (min is -64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
+#define MCP251XFD_CAN_CiTDC8_TDCO_GET(value)    ( (int8_t)(((((uint8_t)(value) >> MCP251XFD_CAN_CiTDC8_TDCO_Pos) & ((1 << MCP251XFD_CAN_CiTDC8_TDCO_BitWidth) - 1)) ^ (1 << (MCP251XFD_CAN_CiTDC8_TDCO_BitWidth - 1))) - (1 << (MCP251XFD_CAN_CiTDC8_TDCO_BitWidth - 1))) ) //!< Get the Transmitter Delay Compensation Offset bits; Secondary Sample Point (SSP). Two's complement; offset can be positive, zero, or negative; value x TSYSCLK (min is -64 (0b1111111 x TSYSCLK ; max is 63 (0b0111111) x TSYSCLK)
 
 #define MCP251XFD_CAN_CiTDC8_TDCMOD_Pos         0
 #define MCP251XFD_CAN_CiTDC8_TDCMOD_Mask        (0x3u << MCP251XFD_CAN_CiTDC8_TDCMOD_Pos)
@@ -1391,7 +1393,7 @@ typedef struct MCP251XFD_BitTimeConfig
 
   //--- Transmitter Delay Compensation ---
   eMCP251XFD_TDCMode TDCMOD; //!< Transmitter Delay Compensation Mode; Secondary Sample Point (SSP)
-  int32_t TDCO;              //!< Transmitter Delay Compensation Offset; Secondary Sample Point (SSP). Two’s complement; offset can be positive, zero, or negative (used as positive only here)
+  int32_t TDCO;              //!< Transmitter Delay Compensation Offset; Secondary Sample Point (SSP). Two's complement; offset can be positive, zero, or negative (used as positive only here)
   uint32_t TDCV;             //!< Transmitter Delay Compensation Value; Secondary Sample Point (SSP)
   bool EDGE_FILTER;          //!< Enable Edge Filtering during Bus Integration state. In case of use of MCP251XFD_CalculateBitTimeConfiguration() with CAN-FD this parameter will be set to 'true'
 
@@ -1502,7 +1504,7 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiVEC_Register, 4);
 //! Interrupt Flag Code bits for the CiVEC.ICODE
 typedef enum
 {
-  MCP251XFD_TXQ_INTERRUPT           = 0b0000000, //!< TXQ Interrupt (TFIF<0> set). If for RXCODE, FIFO 0 can’t receive so this flag code is reserved
+  MCP251XFD_TXQ_INTERRUPT           = 0b0000000, //!< TXQ Interrupt (TFIF<0> set). If for RXCODE, FIFO 0 can't receive so this flag code is reserved
   MCP251XFD_FIFO1_INTERRUPT         = 0b0000001, //!< FIFO  1 Interrupt (TFIF< 1> or RFIF< 1> set)
   MCP251XFD_FIFO2_INTERRUPT         = 0b0000010, //!< FIFO  2 Interrupt (TFIF< 2> or RFIF< 2> set)
   MCP251XFD_FIFO3_INTERRUPT         = 0b0000011, //!< FIFO  3 Interrupt (TFIF< 3> or RFIF< 3> set)
@@ -1586,7 +1588,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiINT_Register
   {
     uint32_t TXIF    : 1; //!<  0    - Transmit FIFO Interrupt Flag bit: '1' = Transmit FIFO interrupt pending ; '0' = No transmit FIFO interrupts pending
     uint32_t RXIF    : 1; //!<  1    - Receive FIFO Interrupt Flag bit: '1' = Receive FIFO interrupt pending ; '0' = No receive FIFO interrupts pending
-    uint32_t TBCIF   : 1; //!<  2    - Time Base Counter Overflow Interrupt Flag bit (set by hardware and cleared by application): '1' = TBC has overflowed ; '0' = TBC didn’t overflow
+    uint32_t TBCIF   : 1; //!<  2    - Time Base Counter Overflow Interrupt Flag bit (set by hardware and cleared by application): '1' = TBC has overflowed ; '0' = TBC didn't overflow
     uint32_t MODIF   : 1; //!<  3    - Operation Mode Change Interrupt Flag bit (set by hardware and cleared by application): '1' = Operation mode change occurred (OPMOD has changed) ; '0' = No mode change occurred
     uint32_t TEFIF   : 1; //!<  4    - Transmit Event FIFO Interrupt Flag bit: '1' = TEF interrupt pending ; '0' = No TEF interrupts pe
     uint32_t         : 3; //!<  5- 7
@@ -2289,7 +2291,7 @@ MCP251XFD_PACKENUM(eMCP251XFD_DiagStatus, uint16_t)
   MCP251XFD_DIAG_MASK         = 0xFBBF,
 
   // Nominal bitrate diag
-  MCP251XFD_DIAG_NBIT0_ERR    = 0x0001, //!< Normal Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ‘0’), but the monitored bus value was recessive
+  MCP251XFD_DIAG_NBIT0_ERR    = 0x0001, //!< Normal Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value '0'), but the monitored bus value was recessive
   MCP251XFD_DIAG_NBIT1_ERR    = 0x0002, //!< Normal Bitrate: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value '1'), but the monitored bus value was dominant
   MCP251XFD_DIAG_NACK_ERR     = 0x0004, //!< Normal Bitrate: Transmitted message was not acknowledged
   MCP251XFD_DIAG_NFORM_ERR    = 0x0008, //!< Normal Bitrate: A fixed format part of a received frame has the wrong format
@@ -2297,7 +2299,7 @@ MCP251XFD_PACKENUM(eMCP251XFD_DiagStatus, uint16_t)
   MCP251XFD_DIAG_NCRC_ERR     = 0x0020, //!< Normal Bitrate: The CRC check sum of a received message was incorrect. The CRC of an incoming message does not match with the CRC calculated from the received data
   MCP251XFD_DIAG_TXBO_ERR     = 0x0080, //!< Device went to bus-off (and auto-recovered)
   // Data bitrate diag
-  MCP251XFD_DIAG_DBIT0_ERR    = 0x0100, //!< Data Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ‘0’), but the monitored bus value was recessive
+  MCP251XFD_DIAG_DBIT0_ERR    = 0x0100, //!< Data Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value '0'), but the monitored bus value was recessive
   MCP251XFD_DIAG_DBIT1_ERR    = 0x0200, //!< Data Bitrate: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value '1'), but the monitored bus value was dominant
   MCP251XFD_DIAG_DFORM_ERR    = 0x0800, //!< Data Bitrate: A fixed format part of a received frame has the wrong format
   MCP251XFD_DIAG_DSTUFF_ERR   = 0x1000, //!< Data Bitrate: More than 5 equal bits in a sequence have occurred in a part of a received message where this is not allowed
@@ -2324,7 +2326,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiBDIAG1_Register
   struct
   {
     uint32_t EFMSGCNT: 16; //!<  0-15 - Error Free Message Counter bits
-    uint32_t NBIT0ERR:  1; //!< 16    - Normal Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ‘0’), but the monitored bus value was recessive
+    uint32_t NBIT0ERR:  1; //!< 16    - Normal Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value '0'), but the monitored bus value was recessive
     uint32_t NBIT1ERR:  1; //!< 17    - Normal Bitrate: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value '1'), but the monitored bus value was dominant
     uint32_t NACKERR :  1; //!< 18    - Normal Bitrate: Transmitted message was not acknowledged
     uint32_t NFORMERR:  1; //!< 19    - Normal Bitrate: A fixed format part of a received frame has the wrong format
@@ -2332,7 +2334,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiBDIAG1_Register
     uint32_t NCRCERR :  1; //!< 21    - Normal Bitrate: The CRC check sum of a received message was incorrect. The CRC of an incoming message does not match with the CRC calculated from the received data
     uint32_t         :  1; //!< 22
     uint32_t TXBOERR :  1; //!< 23    - Device went to bus-off (and auto-recovered)
-    uint32_t DBIT0ERR:  1; //!< 24    - Data Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ‘0’), but the monitored bus value was recessive
+    uint32_t DBIT0ERR:  1; //!< 24    - Data Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value '0'), but the monitored bus value was recessive
     uint32_t DBIT1ERR:  1; //!< 25    - Data Bitrate: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value '1'), but the monitored bus value was dominant
     uint32_t         :  1; //!< 26
     uint32_t DFORMERR:  1; //!< 27    - Data Bitrate: A fixed format part of a received frame has the wrong format
@@ -2348,14 +2350,14 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiBDIAG1_Register, 4);
 #define MCP251XFD_CAN_CiBDIAG1_EFMSGCNT_Pos         0
 #define MCP251XFD_CAN_CiBDIAG1_EFMSGCNT_Mask        (0xFFFFul << MCP251XFD_CAN_CiBDIAG1_EFMSGCNT_Pos)
 #define MCP251XFD_CAN_CiBDIAG1_EFMSGCNT_GET(value)  (((uint32_t)(value) & MCP251XFD_CAN_CiBDIAG1_EFMSGCNT_Mask) >> MCP251XFD_CAN_CiBDIAG1_EFMSGCNT_Pos) //!< Error Free Message Counter
-#define MCP251XFD_CAN_CiBDIAG1_NBIT0ERR             (0x1ul << 16) //!< Normal Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ‘0’), but the monitored bus value was recessive
+#define MCP251XFD_CAN_CiBDIAG1_NBIT0ERR             (0x1ul << 16) //!< Normal Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value '0'), but the monitored bus value was recessive
 #define MCP251XFD_CAN_CiBDIAG1_NBIT1ERR             (0x1ul << 17) //!< Normal Bitrate: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value '1'), but the monitored bus value was dominant
 #define MCP251XFD_CAN_CiBDIAG1_NACKERR              (0x1ul << 18) //!< Normal Bitrate: Transmitted message was not acknowledged
 #define MCP251XFD_CAN_CiBDIAG1_NFORMERR             (0x1ul << 19) //!< Normal Bitrate: A fixed format part of a received frame has the wrong format
 #define MCP251XFD_CAN_CiBDIAG1_NSTUFERR             (0x1ul << 20) //!< Normal Bitrate: More than 5 equal bits in a sequence have occurred in a part of a received message where this is not allowed
 #define MCP251XFD_CAN_CiBDIAG1_NCRCERR              (0x1ul << 21) //!< Normal Bitrate: The CRC check sum of a received message was incorrect. The CRC of an incoming message does not match with the CRC calculated from the received data
 #define MCP251XFD_CAN_CiBDIAG1_TXBOERR              (0x1ul << 23) //!< Device went to bus-off (and auto-recovered)
-#define MCP251XFD_CAN_CiBDIAG1_DBIT0ERR             (0x1ul << 24) //!< Data Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ‘0’), but the monitored bus value was recessive
+#define MCP251XFD_CAN_CiBDIAG1_DBIT0ERR             (0x1ul << 24) //!< Data Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value '0'), but the monitored bus value was recessive
 #define MCP251XFD_CAN_CiBDIAG1_DBIT1ERR             (0x1ul << 25) //!< Data Bitrate: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value '1'), but the monitored bus value was dominant
 #define MCP251XFD_CAN_CiBDIAG1_DFORMERR             (0x1ul << 27) //!< Data Bitrate: A fixed format part of a received frame has the wrong format
 #define MCP251XFD_CAN_CiBDIAG1_DSTUFERR             (0x1ul << 28) //!< Data Bitrate: More than 5 equal bits in a sequence have occurred in a part of a received message where this is not allowed
@@ -2364,14 +2366,14 @@ MCP251XFD_CONTROL_ITEM_SIZE(MCP251XFD_CiBDIAG1_Register, 4);
 #define MCP251XFD_CAN_CiBDIAG1_DLCMM                (0x1ul << 31) //!< DLC Mismatch bit. During a transmission or reception, the specified DLC is larger than the PLSIZE of the FIFO element
 
 //*** Byte version access to Registers ***
-#define MCP251XFD_CAN_CiBDIAG18_NBIT0ERR  (0x1u << 0) //!< Normal Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ‘0’), but the monitored bus value was recessive
+#define MCP251XFD_CAN_CiBDIAG18_NBIT0ERR  (0x1u << 0) //!< Normal Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value '0'), but the monitored bus value was recessive
 #define MCP251XFD_CAN_CiBDIAG18_NBIT1ERR  (0x1u << 1) //!< Normal Bitrate: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value '1'), but the monitored bus value was dominant
 #define MCP251XFD_CAN_CiBDIAG18_NACKERR   (0x1u << 2) //!< Normal Bitrate: Transmitted message was not acknowledged
 #define MCP251XFD_CAN_CiBDIAG18_NFORMERR  (0x1u << 3) //!< Normal Bitrate: A fixed format part of a received frame has the wrong format
 #define MCP251XFD_CAN_CiBDIAG18_NSTUFERR  (0x1u << 4) //!< Normal Bitrate: More than 5 equal bits in a sequence have occurred in a part of a received message where this is not allowed
 #define MCP251XFD_CAN_CiBDIAG18_NCRCERR   (0x1u << 5) //!< Normal Bitrate: The CRC check sum of a received message was incorrect. The CRC of an incoming message does not match with the CRC calculated from the received data
 #define MCP251XFD_CAN_CiBDIAG18_TXBOERR   (0x1u << 7) //!< Device went to bus-off (and auto-recovered)
-#define MCP251XFD_CAN_CiBDIAG18_DBIT0ERR  (0x1u << 0) //!< Data Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ‘0’), but the monitored bus value was recessive
+#define MCP251XFD_CAN_CiBDIAG18_DBIT0ERR  (0x1u << 0) //!< Data Bitrate: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value '0'), but the monitored bus value was recessive
 #define MCP251XFD_CAN_CiBDIAG18_DBIT1ERR  (0x1u << 1) //!< Data Bitrate: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value '1'), but the monitored bus value was dominant
 #define MCP251XFD_CAN_CiBDIAG18_DFORMERR  (0x1u << 3) //!< Data Bitrate: A fixed format part of a received frame has the wrong format
 #define MCP251XFD_CAN_CiBDIAG18_DSTUFERR  (0x1u << 4) //!< Data Bitrate: More than 5 equal bits in a sequence have occurred in a part of a received message where this is not allowed
@@ -2436,7 +2438,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTEFCON_Register
     uint32_t TEFFIE :  1; //!<  2    - Transmit Event FIFO Full Interrupt Enable bit: '1' = Interrupt enabled for FIFO full ; '0' = Interrupt disabled for FIFO full
     uint32_t TEFOVIE:  1; //!<  3    - Transmit Event FIFO Overflow Interrupt Enable bit: '1' = Interrupt enabled for overflow event ; '0' = Interrupt disabled for overflow event
     uint32_t        :  1; //!<  4
-    uint32_t TEFTSEN:  1; //!<  5    - Transmit Event FIFO Time Stamp Enable bit (This bits can only be modified in Configuration mode): '1' = Time Stamp objects in TEF ; '0' = Don’t Time Stamp objects in TEF
+    uint32_t TEFTSEN:  1; //!<  5    - Transmit Event FIFO Time Stamp Enable bit (This bits can only be modified in Configuration mode): '1' = Time Stamp objects in TEF ; '0' = Don't Time Stamp objects in TEF
     uint32_t        :  2; //!<  6- 7
     uint32_t UINC   :  1; //!<  8    - Increment Tail bit. When this bit is set, the FIFO tail will increment by a single message
     uint32_t        :  1; //!<  9
@@ -2521,7 +2523,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiTEFSTA_Register
   struct
   {
     uint32_t TEFNEIF:  1; //!<  0    - Transmit Event FIFO Not Empty Interrupt Flag bit (This bit is read only and reflects the status of the FIFO): '1' = FIFO is not empty, contains at least one message ; '0' = FIFO is empty
-    uint32_t TEFHIF :  1; //!<  1    - Transmit Event FIFO Half Full Interrupt Flag bit (This bit is read only and reflects the status of the FIFO): '1' = FIFO is ≥ half full ; '0' = FIFO is < half full
+    uint32_t TEFHIF :  1; //!<  1    - Transmit Event FIFO Half Full Interrupt Flag bit (This bit is read only and reflects the status of the FIFO): '1' = FIFO is >= half full ; '0' = FIFO is < half full
     uint32_t TEFFIF :  1; //!<  2    - Transmit Event FIFO Full Interrupt Flag bit (This bit is read only and reflects the status of the FIFO): '1' = FIFO is full ; '0' = FIFO is not full
     uint32_t TEFOVIF:  1; //!<  3    - Transmit Event FIFO Overflow Interrupt Flag bit: '1' = Overflow event has occurred ;'0' = No overflow event occurred
     uint32_t        : 28; //!<  4-31
@@ -2805,7 +2807,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiFIFOCONm_Register
     uint32_t TFERFFIE: 1; //!<  2    - Transmit/Receive FIFO Empty/Full Interrupt Enable bit. If TXEN=1 (FIFO configured as a Transmit FIFO), transmit FIFO Empty Interrupt Enable: '1' = Interrupt enabled for FIFO empty ; '0' = Interrupt disabled for FIFO empty. If TXEN=0 (FIFO configured as a Receive FIFO), receive FIFO Full Interrupt Enable: '1' = Interrupt enabled for FIFO full ; '0' = Interrupt disabled for FIFO full
     uint32_t RXOVIE  : 1; //!<  3    - Overflow Interrupt Enable bit: '1' = Interrupt enabled for overflow event ; '0' = Interrupt disabled for overflow event
     uint32_t TXATIE  : 1; //!<  4    - Transmit Attempts Exhausted Interrupt Enable bit: '1' = Enable interrupt ; '0' = Disable interrupt
-    uint32_t RXTSEN  : 1; //!<  5    - Received Message Time Stamp Enable bit (This bit can only be modified in Configuration mode): '1' = Capture time stamp in received message object in RAM ; '0' = Don’t capture time stamp
+    uint32_t RXTSEN  : 1; //!<  5    - Received Message Time Stamp Enable bit (This bit can only be modified in Configuration mode): '1' = Capture time stamp in received message object in RAM ; '0' = Don't capture time stamp
     uint32_t RTREN   : 1; //!<  6    - Auto RTR Enable bit: '1' = When a remote transmit is received, TXREQ will be set ; '0' = When a remote transmit is received, TXREQ will be unaffected
     uint32_t TXEN    : 1; //!<  7    - TX/RX FIFO Selection bit (This bit can only be modified in Configuration mode): '1' = Transmit FIFO ; '0' = Receive FIFO
     uint32_t UINC    : 1; //!<  8    - Increment Head/Tail bit. If TXEN=1 (FIFO configured as a Transmit FIFO), when this bit is set, the FIFO head will increment by a single message. If TXEN=0 (FIFO configured as a Receive FIFO), when this bit is set, the FIFO tail will increment by a single message
@@ -2893,7 +2895,7 @@ typedef union __MCP251XFD_PACKED__ MCP251XFD_CiFIFOSTAm_Register
   struct
   {
     uint32_t TFNRFNIF:  1; //!<  0    - Transmit/Receive FIFO Not Full/Not Empty Interrupt Flag bit. If TXEN=1 (FIFO is configured as a Transmit FIFO), transmit FIFO Not Full Interrupt Flag: '1' = FIFO is not full ; '0' = FIFO is full. If TXEN=0 (FIFO is configured as a Receive FIFO), receive FIFO Not Empty Interrupt Flag: '1' = FIFO is not empty, contains at least one message ; '0' = FIFO is empty
-    uint32_t TFHRFHIF:  1; //!<  1    - Transmit/Receive FIFO Half Empty/Half Full Interrupt Flag bit. If TXEN=1 (FIFO is configured as a Transmit FIFO), transmit FIFO Half Empty Interrupt Flag: '1' = FIFO is ≤ half full ; '0' = FIFO is > half full. If TXEN=0 (FIFO is configured as a Receive FIFO), receive FIFO Half Full Interrupt Flag: '1' = FIFO is ≥ half full ; '0' = FIFO is < half full
+    uint32_t TFHRFHIF:  1; //!<  1    - Transmit/Receive FIFO Half Empty/Half Full Interrupt Flag bit. If TXEN=1 (FIFO is configured as a Transmit FIFO), transmit FIFO Half Empty Interrupt Flag: '1' = FIFO is <= half full ; '0' = FIFO is > half full. If TXEN=0 (FIFO is configured as a Receive FIFO), receive FIFO Half Full Interrupt Flag: '1' = FIFO is >= half full ; '0' = FIFO is < half full
     uint32_t TFERFFIF:  1; //!<  2    - Transmit/Receive FIFO Empty/Full Interrupt Flag bit. If TXEN=1 (FIFO is configured as a Transmit FIFO), transmit FIFO Empty Interrupt Flag: '1' = FIFO is empty ; '0' = FIFO is not empty; at least one message queued to be transmitted. If TXEN=0 (FIFO is configured as a Receive FIFO), receive FIFO Full Interrupt Flag: '1' = FIFO is full ; '0' = FIFO is not full
     uint32_t RXOVIF  :  1; //!<  3    - Receive FIFO Overflow Interrupt Flag bit. If TXEN=1 (FIFO is configured as a Transmit FIFO), unused, Read as '0'. If TXEN=0 (FIFO is configured as a Receive FIFO): '1' = Overflow event has occurred ; '0' = No overflow event has occurred
     uint32_t TXATIF  :  1; //!<  4    - Transmit Attempts Exhausted Interrupt Pending bit. If TXEN=1 (FIFO is configured as a Transmit FIFO): '1' = Interrupt pending ; '0' = Interrupt not pending. If TXEN=0 (FIFO is configured as a Receive FIFO), read as '0'
@@ -3523,7 +3525,7 @@ typedef enum
   MCP251XFD_CAN_PROTOCOL_EXCEPT_AS_FORM_ERROR = 0x10, //!< Protocol Exception is treated as a Form Error. A recessive "res bit" following a recessive FDF bit is called a Protocol Exception
   MCP251XFD_CANFD_USE_NONISO_CRC              = 0x00, //!< Do NOT include Stuff Bit Count in CRC Field and use CRC Initialization Vector with all zeros
   MCP251XFD_CANFD_USE_ISO_CRC                 = 0x20, //!< Include Stuff Bit Count in CRC Field and use Non-Zero CRC Initialization Vector according to ISO 11898-1:2015
-  MCP251XFD_CANFD_DONT_USE_RRS_BIT_AS_SID11   = 0x00, //!< Don’t use RRS; SID<10:0> according to ISO 11898-1:2015
+  MCP251XFD_CANFD_DONT_USE_RRS_BIT_AS_SID11   = 0x00, //!< Don't use RRS; SID<10:0> according to ISO 11898-1:2015
   MCP251XFD_CANFD_USE_RRS_BIT_AS_SID11        = 0x40, //!< RRS is used as SID11 in CAN FD base format messages: SID<11:0> = {SID<10:0>, SID11}
 } eMCP251XFD_CANCtrlFlags;
 

@@ -125,7 +125,7 @@ MCP251XFD_Config MCP2517FD_Ext1_Config =
                   | MCP251XFD_CANFD_BITRATE_SWITCHING_ENABLE    // Bit Rate Switching is Enabled, Bit Rate Switching depends on BRS in the Transmit Message Object
                   | MCP251XFD_CAN_PROTOCOL_EXCEPT_AS_FORM_ERROR // Protocol Exception is treated as a Form Error. A recessive "res bit" following a recessive FDF bit is called a Protocol Exception
                   | MCP251XFD_CANFD_USE_ISO_CRC                 // Include Stuff Bit Count in CRC Field and use Non-Zero CRC Initialization Vector according to ISO 11898-1:2015
-                  | MCP251XFD_CANFD_DONT_USE_RRS_BIT_AS_SID11,  // Don’t use RRS; SID<10:0> according to ISO 11898-1:2015
+                  | MCP251XFD_CANFD_DONT_USE_RRS_BIT_AS_SID11,  // Don't use RRS; SID<10:0> according to ISO 11898-1:2015
   //--- GPIOs and Interrupts pins ---
   .GPIO0PinMode  = MCP251XFD_PIN_AS_GPIO0_OUT,
   .GPIO1PinMode  = MCP251XFD_PIN_AS_INT1_RX,

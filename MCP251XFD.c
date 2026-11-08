@@ -1,7 +1,7 @@
 /*!*****************************************************************************
  * @file    MCP251XFD.c
  * @author  Fabien 'Emandhal' MAILLY
- * @version 1.0.10
+ * @version 1.0.11
  * @date    01/11/2026
  * @brief   MCP251XFD driver
  * @details
