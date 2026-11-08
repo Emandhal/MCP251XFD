@@ -46,6 +46,7 @@
  *          Fix the oscillator tolerance condition 5 in statistics: use unsigned values for max(0,NBRP/DBRP-1) and avoid an unsigned wrap
  *          Fix MISRA C:2012 rule 10.4 (operands of the same essential type category): unsigned suffixes, unsigned limit macros, and explicit casts of the flags and of the registers enums
  *          Fix the strict aliasing warning (GCC -Wstrict-aliasing) in MCP251XFD_TransmitMessageToFIFO() and MCP251XFD_ReceiveMessageFromFIFO(): the buffer is now a union of bytes and message structures
+ *          Initialize the temporary value of MCP251XFD_ReadSFR16(), MCP251XFD_ReadSFR32() and MCP251XFD_ReadRAM32() so that no uninitialized value is stored in *data when the read fails
  *          Fix the structures and enums size with Clang using the MSVC ABI (clang-cl): it now uses the GCC/Clang branch of the packed macros, with an underlying type for the enums in C
  *          Fix MCP251XFD_CiBDIAG1_Register that was 6 bytes instead of 4 with MSVC in C (an enum can not be packed in C with MSVC), and make the size controls effective with MSVC (negative array size instead of a division by 0)
  * 1.0.10   Fix MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO() and MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO() that called the Receive function [Thanks to ceckelman]
@@ -3724,7 +3725,7 @@ static inline eERRORRESULT MCP251XFD_ReadSFR8(MCP251XFD *pComp, uint16_t address
 static inline eERRORRESULT MCP251XFD_ReadSFR16(MCP251XFD *pComp, uint16_t address, uint16_t* data)
 {
   if (data == NULL) return ERR__PARAMETER_ERROR;
-  MCP251XFD_uint16t_Conv Tmp;
+  MCP251XFD_uint16t_Conv Tmp = { 0 };
   eERRORRESULT Error = MCP251XFD_ReadData(pComp, address, &Tmp.Bytes[0], 2);
   *data = Tmp.Uint16;
   return Error;
@@ -3740,7 +3741,7 @@ static inline eERRORRESULT MCP251XFD_ReadSFR16(MCP251XFD *pComp, uint16_t addres
 static inline eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t address, uint32_t* data)
 {
   if (data == NULL) return ERR__PARAMETER_ERROR;
-  MCP251XFD_uint32t_Conv Tmp;
+  MCP251XFD_uint32t_Conv Tmp = { 0 };
   eERRORRESULT Error = MCP251XFD_ReadData(pComp, address, &Tmp.Bytes[0], 4);
   *data = Tmp.Uint32;
   return Error;
@@ -3756,7 +3757,7 @@ static inline eERRORRESULT MCP251XFD_ReadSFR32(MCP251XFD *pComp, uint16_t addres
 static inline eERRORRESULT MCP251XFD_ReadRAM32(MCP251XFD *pComp, uint16_t address, uint32_t* data)
 {
   if (data == NULL) return ERR__PARAMETER_ERROR;
-  MCP251XFD_uint32t_Conv Tmp;
+  MCP251XFD_uint32t_Conv Tmp = { 0 };
   eERRORRESULT Error = MCP251XFD_ReadData(pComp, address, &Tmp.Bytes[0], 4);
   *data = Tmp.Uint32;
   return Error;
