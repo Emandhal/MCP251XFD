@@ -27,6 +27,35 @@ extern "C" {
 
 
 //=============================================================================
+// Private types
+//=============================================================================
+/*! @brief Buffer of a message to transmit
+ *
+ * The bytes of the buffer are seen as a message without breaking the strict aliasing rule
+ */
+typedef union
+{
+  uint8_t                  Bytes[MCP251XFD_CAN_TX_MESSAGE_SIZE_MAX]; //!< Bytes of the buffer (sent through the SPI)
+  MCP251XFD_CAN_TX_Message Msg;                                      //!< First bytes of the buffer seen as a TX message
+} MCP251XFD_TXMessageBuffer;
+
+/*! @brief Buffer of a received message or of a Transmit Event Object (TEF)
+ *
+ * The bytes of the buffer are seen as a message without breaking the strict aliasing rule
+ */
+typedef union
+{
+  uint8_t                      Bytes[MCP251XFD_CAN_RX_MESSAGE_SIZE_MAX]; //!< Bytes of the buffer (received through the SPI)
+  MCP251XFD_CAN_RX_Message     Msg;                                      //!< First bytes of the buffer seen as an RX message
+  MCP251XFD_CAN_TX_EventObject Tef;                                      //!< First bytes of the buffer seen as a Transmit Event Object
+} MCP251XFD_RXMessageBuffer;
+//-----------------------------------------------------------------------------
+
+
+
+
+
+//=============================================================================
 // Prototypes for private functions
 //=============================================================================
 // Test all RAM address of the MCP251XFD for the driver flag DRIVER_INIT_CHECK_RAM
@@ -468,8 +497,8 @@ eERRORRESULT MCP251XFD_TransmitMessageToFIFO(MCP251XFD *pComp, MCP251XFD_CANMess
   if ((pComp == NULL) || (messageToSend == NULL)) return ERR__PARAMETER_ERROR;
 #endif
   if (toFIFO == MCP251XFD_TEF) return ERR__PARAMETER_ERROR;
-  uint8_t Buffer[MCP251XFD_CAN_TX_MESSAGE_SIZE_MAX];
-  MCP251XFD_CAN_TX_Message* Message = (MCP251XFD_CAN_TX_Message*)Buffer; // The first 8 bytes represent the MCP251XFD_CAN_TX_Message struct
+  MCP251XFD_TXMessageBuffer Buffer;
+  MCP251XFD_CAN_TX_Message* Message = &Buffer.Msg;                       // The first 8 bytes represent the MCP251XFD_CAN_TX_Message struct
 
   //--- Fill message ID (T0) ---
   bool Extended   = (((uint32_t)messageToSend->ControlFlags & (uint32_t)MCP251XFD_EXTENDED_MESSAGE_ID) > 0u);
@@ -491,18 +520,18 @@ eERRORRESULT MCP251XFD_TransmitMessageToFIFO(MCP251XFD *pComp, MCP251XFD_CANMess
   uint8_t BytesDLC = MCP251XFD_DLCToByte(messageToSend->DLC, CANFDframe);
   if (messageToSend->PayloadData != NULL)
   {
-    uint8_t* pBuff = &Buffer[sizeof(MCP251XFD_CAN_TX_Message)];          // Next bytes of the Buffer is for payload
-    uint8_t* pData = &messageToSend->PayloadData[0];                     // Select the first byte of payload data
-    uint8_t BytesToCopy = BytesDLC;                                      // Get how many byte in the payload data will be copied
-    while (BytesToCopy-- > 0) *pBuff++ = *pData++;                       // Copy data
-    if ((BytesDLC & 0x3) > 0)                                            // Not modulo 4?
-      for (uint8_t z = 0; z < (4 - (BytesDLC & 0x3)); z++) *pBuff++ = 0; // Fill with 0
+    uint8_t* pBuff = &Buffer.Bytes[sizeof(MCP251XFD_CAN_TX_Message)];      // Next bytes of the Buffer is for payload
+    uint8_t* pData = &messageToSend->PayloadData[0];                       // Select the first byte of payload data
+    uint8_t BytesToCopy = BytesDLC;                                        // Get how many byte in the payload data will be copied
+    while (BytesToCopy-- > 0) *pBuff++ = *pData++;                         // Copy data
+    if ((BytesDLC & 0x3u) > 0u)                                            // Not modulo 4?
+      for (uint8_t z = 0; z < (4u - (BytesDLC & 0x3u)); z++) *pBuff++ = 0; // Fill with 0
   }
 
   //--- Send data ---
   uint8_t BytesToSend = (sizeof(MCP251XFD_CAN_TX_Message) + BytesDLC);
-  if ((BytesToSend & 0x3) != 0) BytesToSend = (BytesToSend & 0xFC) + 4;  // Adjust to the upper modulo 4 bytes (mandatory for RAM access)
-  return MCP251XFD_TransmitMessageObjectToFIFO(pComp, &Buffer[0], BytesToSend, toFIFO, andFlush);
+  if ((BytesToSend & 0x3u) != 0u) BytesToSend = (BytesToSend & 0xFCu) + 4u; // Adjust to the upper modulo 4 bytes (mandatory for RAM access)
+  return MCP251XFD_TransmitMessageObjectToFIFO(pComp, &Buffer.Bytes[0], BytesToSend, toFIFO, andFlush);
 }
 
 
@@ -546,18 +575,18 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
   if ((pComp == NULL) || (messageGet == NULL)) return ERR__PARAMETER_ERROR;
 #endif
   if (fromFIFO == MCP251XFD_TXQ) return ERR__PARAMETER_ERROR;
-  uint8_t Buffer[MCP251XFD_CAN_RX_MESSAGE_SIZE_MAX];
-  MCP251XFD_CAN_RX_Message* Message = (MCP251XFD_CAN_RX_Message*)Buffer;                   // The first 8 bytes represent the MCP251XFD_CAN_RX_Message struct
+  MCP251XFD_RXMessageBuffer Buffer;
+  MCP251XFD_CAN_RX_Message* Message = &Buffer.Msg;                                         // The first 8 bytes represent the MCP251XFD_CAN_RX_Message struct
   eERRORRESULT Error;
 
   //--- Get data ---
   uint8_t BytesPayload = MCP251XFD_PayloadToByte(payloadSize);
   uint8_t BytesToGet = (sizeof(MCP251XFD_CAN_RX_Message) + BytesPayload);
-  if (fromFIFO == MCP251XFD_TEF) BytesToGet = sizeof(MCP251XFD_CAN_TX_EventObject);        // In case of TEF, there is not data
-  if (timeStamp == NULL) BytesToGet -= sizeof(uint32_t);                                   // Time Stamp not needed = 4 bytes less
-  if ((BytesToGet & 0x3) != 0) BytesToGet = (BytesToGet & 0xFC) + 4;                       // Adjust to the upper modulo 4 bytes (mandatory for RAM access)
-  Error = MCP251XFD_ReceiveMessageObjectFromFIFO(pComp, &Buffer[0], BytesToGet, fromFIFO); // Read bytes from RAM
-  if (Error != ERR_NONE) return Error;                                                     // If there is an error while calling MCP251XFD_ReceiveMessageObjectFromFIFO() then return the error
+  if (fromFIFO == MCP251XFD_TEF) BytesToGet = sizeof(MCP251XFD_CAN_TX_EventObject);              // In case of TEF, there is no data
+  if (timeStamp == NULL) BytesToGet -= sizeof(uint32_t);                                         // Time Stamp not needed = 4 bytes less
+  if ((BytesToGet & 0x3u) != 0u) BytesToGet = (BytesToGet & 0xFCu) + 4u;                         // Adjust to the upper modulo 4 bytes (mandatory for RAM access)
+  Error = MCP251XFD_ReceiveMessageObjectFromFIFO(pComp, &Buffer.Bytes[0], BytesToGet, fromFIFO); // Read bytes from RAM
+  if (Error != ERR_NONE) return Error;                                                           // If there is an error while calling MCP251XFD_ReceiveMessageObjectFromFIFO() then return the error
 
   //--- Extract message ID (R0) ---
   bool Extended   = (Message->R1.IDE == 1u);
@@ -567,7 +596,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
   //--- Extract message controls (R1) ---
   messageGet->ControlFlags = MCP251XFD_NO_MESSAGE_CTRL_FLAGS;
   messageGet->MessageSEQ   = 0u;
-  if (fromFIFO == MCP251XFD_TEF) messageGet->MessageSEQ = ((MCP251XFD_CAN_TX_EventObject*)Buffer)->TE1.SEQ; // If it is a TEF, extract the Sequence by casting Buffer into a TEF object and get SEQ in TE1
+  if (fromFIFO == MCP251XFD_TEF) messageGet->MessageSEQ = Buffer.Tef.TE1.SEQ;                    // If it is a TEF, extract the Sequence by reading Buffer as a TEF object and get SEQ in TE1
   if (CANFDframe          ) messageGet->ControlFlags = (setMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_CANFD_FRAME                );
   if (Message->R1.BRS == 1u) messageGet->ControlFlags = (setMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_SWITCH_BITRATE             );
   if (Message->R1.RTR == 1u) messageGet->ControlFlags = (setMCP251XFD_MessageCtrlFlags)(messageGet->ControlFlags + MCP251XFD_REMOTE_TRANSMISSION_REQUEST);
@@ -576,7 +605,7 @@ eERRORRESULT MCP251XFD_ReceiveMessageFromFIFO(MCP251XFD *pComp, MCP251XFD_CANMes
   messageGet->DLC = (eMCP251XFD_DataLength)Message->R1.DLC;
 
   //--- Extract TimeStamp ---
-  uint8_t* pBuff = &Buffer[sizeof(MCP251XFD_CAN_RX_Message_Identifier) + sizeof(MCP251XFD_CAN_RX_Message_Control)]; // Next bytes of the Buffer is for timestamp and/or payload
+  uint8_t* pBuff = &Buffer.Bytes[sizeof(MCP251XFD_CAN_RX_Message_Identifier) + sizeof(MCP251XFD_CAN_RX_Message_Control)]; // Next bytes of the Buffer is for timestamp and/or payload
   if (timeStamp != NULL)
   {
     *timeStamp = Message->TimeStamp;
