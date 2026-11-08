@@ -52,6 +52,7 @@
  *          Fix MCP251XFD_ConfigureFIFOList() that cleared the FIFO being configured instead of the FIFO that are not in the list between two FIFO of the list
  *          Fix MCP251XFD_FlushFIFO() that wrote the FIFO number in CiTXREQ instead of the bit of the FIFO (it flushed another FIFO, and nothing for the TXQ)
  *          Fix MCP251XFD_ClearFIFOEvents() that cleared the Message Aborted flag (TXABT) with any transmit event instead of the abort event only
+ *          Fix the Time Stamp sample point of MCP251XFD_ConfigureTimeStamp(): TSEOF and TSRES are the bits 17 and 18 of CiTSCON, the bits were set one bit too low (the EOF could not be selected)
  *          Fix the structures and enums size with Clang using the MSVC ABI (clang-cl): it now uses the GCC/Clang branch of the packed macros, with an underlying type for the enums in C
  *          Fix MCP251XFD_CiBDIAG1_Register that was 6 bytes instead of 4 with MSVC in C (an enum can not be packed in C with MSVC), and make the size controls effective with MSVC (negative array size instead of a division by 0)
  * 1.0.10   Fix MCP251XFD_GetTransmitPendingInterruptStatusOfAllFIFO() and MCP251XFD_GetTransmitAttemptInterruptStatusOfAllFIFO() that called the Receive function [Thanks to ceckelman]
@@ -1471,7 +1472,7 @@ typedef enum
 #define MCP251XFD_CAN_CiTSCON_TBCPRE_MAXVALUE    ((1u << MCP251XFD_CAN_CiTSCON_TBCPRE_Bits) - 1u)
 #define MCP251XFD_CAN_CiTSCON_TBCPRE_Mask        (MCP251XFD_CAN_CiTSCON_TBCPRE_MAXVALUE << MCP251XFD_CAN_CiTSCON_TBCPRE_Pos)
 #define MCP251XFD_CAN_CiTSCON_TBCPRE_SET(value)  (((uint32_t)(value) << MCP251XFD_CAN_CiTSCON_TBCPRE_Pos) & MCP251XFD_CAN_CiTSCON_TBCPRE_Mask) //!< Time Base Counter Prescaler bits. TBC increments every 'value' clocks
-#define MCP251XFD_CAN_CiTSCON_TSSP_Pos           16
+#define MCP251XFD_CAN_CiTSCON_TSSP_Pos           17
 #define MCP251XFD_CAN_CiTSCON_TSSP_Mask          (0x3ul << MCP251XFD_CAN_CiTSCON_TSSP_Pos)
 #define MCP251XFD_CAN_CiTSCON_TSSP_SET(value)    (((uint32_t)(value) << MCP251XFD_CAN_CiTSCON_TSSP_Pos) & MCP251XFD_CAN_CiTSCON_TSSP_Mask)     //!< Time Stamp sample point position
 #define MCP251XFD_CAN_CiTSCON_TBCEN              (0x1ul << 16) //!< Time Base Counter Enable
