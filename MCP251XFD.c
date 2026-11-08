@@ -1939,7 +1939,7 @@ eERRORRESULT MCP251XFD_ConfigureDeviceNetFilter(MCP251XFD *pComp, eMCP251XFD_DNE
 eERRORRESULT MCP251XFD_ConfigureFilter(MCP251XFD *pComp, MCP251XFD_Filter *confFilter)
 {
 #ifdef CHECK_NULL_PARAM
-  if (confFilter == NULL) return ERR__PARAMETER_ERROR;
+  if ((pComp == NULL) || (confFilter == NULL)) return ERR__PARAMETER_ERROR;
 #endif
   if ((confFilter->PointTo == MCP251XFD_TEF) || (confFilter->PointTo == MCP251XFD_TXQ) || (confFilter->PointTo >= MCP251XFD_FIFO_COUNT)) return ERR__CONFIGURATION;
   eERRORRESULT Error;
